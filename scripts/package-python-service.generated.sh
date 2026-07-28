@@ -9,16 +9,19 @@ fi
 service_dir="${1%/}"
 output_dir="${2%/}"
 service_name="$(basename "${service_dir}")"
-overlay_dir=".servicegen/python-services/${service_name}"
 
 if [[ ! -f "${service_dir}/pyproject.toml" ]]; then
   echo "Python service directory does not contain pyproject.toml: ${service_dir}" >&2
   exit 1
 fi
-if [[ ! -d "${overlay_dir}" ]]; then
-  echo "Python service publishing overlay is missing: ${overlay_dir}" >&2
-  exit 1
-fi
+for file in pyproject.standalone.generated.toml Makefile \
+  make.generated.mk Dockerfile.generated docker-compose.generated.yml \
+  gitignore.generated scripts/fetch-dependencies.generated.sh; do
+  if [[ ! -f "${service_dir}/${file}" ]]; then
+    echo "Python service publishing file is missing: ${service_dir}/${file}" >&2
+    exit 1
+  fi
+done
 if [[ -e "${output_dir}" &&
       -n "$(find "${output_dir}" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
   echo "output directory must be empty: ${output_dir}" >&2
@@ -27,6 +30,13 @@ fi
 
 mkdir -p "${output_dir}"
 cp -R "${service_dir}/." "${output_dir}/"
+find "${output_dir}" -type d \( \
+  -name .mypy_cache -o \
+  -name .pytest_cache -o \
+  -name .ruff_cache -o \
+  -name __pycache__ \
+\) -prune -exec rm -rf {} +
+find "${output_dir}" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
 
 for file in .dockerignore; do
   if [[ -f "${file}" ]]; then
@@ -34,18 +44,17 @@ for file in .dockerignore; do
   fi
 done
 
-# Apply service-specific entrypoints last. Overlay filenames make generated
-# ownership explicit; published repositories receive conventional names.
-cp "${overlay_dir}/pyproject.generated.toml" \
+# Alternative standalone inputs live next to the service they describe.
+# Published repositories receive conventional root filenames.
+cp "${service_dir}/pyproject.standalone.generated.toml" \
   "${output_dir}/pyproject.toml"
-cp "${overlay_dir}/Makefile" "${output_dir}/Makefile"
-cp "${overlay_dir}/make.generated.mk" "${output_dir}/make.generated.mk"
-cp "${overlay_dir}/Dockerfile.generated" "${output_dir}/Dockerfile"
-cp "${overlay_dir}/docker-compose.generated.yml" \
+cp "${service_dir}/Dockerfile.generated" "${output_dir}/Dockerfile"
+cp "${service_dir}/docker-compose.generated.yml" \
   "${output_dir}/docker-compose.yml"
-cp "${overlay_dir}/gitignore.generated" "${output_dir}/.gitignore"
-mkdir -p "${output_dir}/scripts"
-cp "${overlay_dir}/fetch-dependencies.generated.sh" \
-  "${output_dir}/scripts/fetch-dependencies.generated.sh"
+cp "${service_dir}/gitignore.generated" "${output_dir}/.gitignore"
+rm -f "${output_dir}/pyproject.standalone.generated.toml" \
+  "${output_dir}/Dockerfile.generated" \
+  "${output_dir}/docker-compose.generated.yml" \
+  "${output_dir}/gitignore.generated"
 
 echo "Packaged standalone Python service ${service_name} in ${output_dir}"
