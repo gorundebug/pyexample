@@ -1,0 +1,94 @@
+services:
+  inventoryservice:
+    image: example-python:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+      additional_contexts:
+        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.0.5}"
+    command:
+      - python
+      - -m
+      - inventory_service.main
+      - --config
+      - /workspace/inventoryservice/config/config.yaml
+      - --overrides
+      - /workspace/inventoryservice/config/docker_overrides.yaml
+    restart: unless-stopped
+    environment:
+      - DEBUG=${INVENTORY_SERVICE_DEBUG:-0}
+    ports:
+      - "9092:9092"
+      - "9202:9202"
+      - "2345:2345"
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_PTRACE
+    networks:
+      - app_net
+
+  orderservice:
+    image: example-python:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+      additional_contexts:
+        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.0.5}"
+    command:
+      - python
+      - -m
+      - order_service.main
+      - --config
+      - /workspace/orderservice/config/config.yaml
+      - --overrides
+      - /workspace/orderservice/config/docker_overrides.yaml
+    restart: unless-stopped
+    environment:
+      - DEBUG=${ORDER_SERVICE_DEBUG:-0}
+    ports:
+      - "9091:9091"
+      - "9201:9201"
+      - "2346:2345"
+    depends_on:
+      - inventoryservice
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_PTRACE
+    networks:
+      - app_net
+
+
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - app_net
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./inventoryservice/grafana/dist:/etc/grafana/dashboards/inventoryservice:ro
+      - ./orderservice/grafana/dist:/etc/grafana/dashboards/orderservice:ro
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge
+
+volumes:
+  grafana_data:

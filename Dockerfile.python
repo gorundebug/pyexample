@@ -1,0 +1,16 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PATH=/workspace/.venv/bin:$PATH
+
+WORKDIR /workspace
+
+RUN python -m pip install --no-cache-dir uv
+
+COPY . .
+COPY --from=pyservicelib-source . /workspace/.pyservicelib
+
+RUN uv sync --all-packages --all-extras && \
+    ./scripts/python/generate.sh

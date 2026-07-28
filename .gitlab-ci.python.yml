@@ -1,0 +1,24 @@
+stages:
+  - quality
+  - integration
+
+python-quality:
+  image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+  stage: quality
+  script:
+    - ./scripts/python/setup.sh
+    - ./scripts/python/typecheck.sh
+    - ./scripts/python/test.sh
+
+python-integration:
+  image: docker:latest
+  stage: integration
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - apk add --no-cache bash python3
+  script:
+    - ./scripts/python/integration-test.sh
