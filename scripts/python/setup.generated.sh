@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Generated setup command.
 set -euo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -16,4 +17,4 @@ if [[ ! -d .pyservicelib/.git ]]; then
 fi
 
 uv sync --all-packages --all-extras
-"${ROOT}/scripts/python/generate.sh"
+"${ROOT}/scripts/python/generate.generated.sh"

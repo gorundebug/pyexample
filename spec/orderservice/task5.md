@@ -30,8 +30,8 @@ Copy Order.ID into each emitted OrderItem.OrderID.
 - [ ] Inspect input type `Order` in `orderservice/src/order_service/models/order.py`
 - [ ] Inspect output type `OrderItem` in `model/src/model/models/order_item.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
-- [ ] Run `./scripts/python/typecheck.sh`
-- [ ] Run `./scripts/python/test.sh`
+- [ ] Run `./scripts/python/typecheck.generated.sh`
+- [ ] Run `./scripts/python/test.generated.sh`
 - [ ] Implement meaningful assertions in `orderservice/tests/functions/test_process_order_items.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] orderservice/task5.md — ProcessOrderItems — Python — done`

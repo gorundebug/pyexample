@@ -13,4 +13,4 @@ COPY . .
 COPY --from=pyservicelib-source . /workspace/.pyservicelib
 
 RUN uv sync --all-packages --all-extras && \
-    ./scripts/python/generate.sh
+    ./scripts/python/generate.generated.sh

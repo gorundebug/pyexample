@@ -20,7 +20,7 @@ LANG_INTEGRATION_TARGETS += python-integration-test
 	python-package-orderservice
 
 python-tools: ## Install the Python workspace and development tools with uv
-	@./scripts/python/setup.sh
+	@./scripts/python/setup.generated.sh
 
 python-init: python-tools ## Initialize the Python workspace
 
@@ -28,22 +28,22 @@ python-build: python-tools ## Build all Python workspace packages
 	@uv build --all-packages
 
 python-test: python-tools ## Run all Python tests
-	@./scripts/python/test.sh
+	@./scripts/python/test.generated.sh
 
 python-lint: python-tools ## Run mypy and Ruff checks
-	@./scripts/python/typecheck.sh
+	@./scripts/python/typecheck.generated.sh
 
 python-format: python-tools ## Format and auto-fix Python sources
 	@./scripts/python/format.generated.sh
 
 python-gen: python-tools ## Generate Python protobuf and OpenAPI code
-	@./scripts/python/generate.sh
+	@./scripts/python/generate.generated.sh
 
 python-docker-build: ## Build Python service Docker images
 	@docker compose build $(PYTHON_SERVICES)
 
 python-integration-test: ## Run Python integration tests
-	@./scripts/python/integration-test.sh
+	@./scripts/python/integration-test.generated.sh
 
 python-package: python-package-inventoryservice python-package-orderservice ## Package every Python service as a standalone repository
 

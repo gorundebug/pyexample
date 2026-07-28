@@ -34,8 +34,8 @@ OrderItemResult{OrderID, ItemID, SKU, RequestedQty, UnitPrice, Reserved: false, 
 - [ ] Inspect input type `OrderItem` in `model/src/model/models/order_item.py`
 - [ ] Inspect output type `OrderItemResult` in `model/src/model/models/order_item_result.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
-- [ ] Run `./scripts/python/typecheck.sh`
-- [ ] Run `./scripts/python/test.sh`
+- [ ] Run `./scripts/python/typecheck.generated.sh`
+- [ ] Run `./scripts/python/test.generated.sh`
 - [ ] Implement meaningful assertions in `inventoryservice/tests/functions/test_get_inventory_item_data.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] inventoryservice/task1.md — GetInventoryItemData — Python — done`

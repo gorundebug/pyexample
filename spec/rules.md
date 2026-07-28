@@ -41,10 +41,10 @@ user-owned extension points.
 - Await collector/sender/result operations. Do not block the event loop with
   synchronous I/O.
 - Use generated commands:
-  - setup and API generation: `./scripts/python/setup.sh`
-  - regenerate contracts: `./scripts/python/generate.sh`
-  - strict mypy and Ruff: `./scripts/python/typecheck.sh`
-  - tests: `./scripts/python/test.sh`
+  - setup and API generation: `./scripts/python/setup.generated.sh`
+  - regenerate contracts: `./scripts/python/generate.generated.sh`
+  - strict mypy and Ruff: `./scripts/python/typecheck.generated.sh`
+  - tests: `./scripts/python/test.generated.sh`
 - Replace `NotImplementedError` only in user-owned function files and implement
   their `tests/functions/test_*.py` files.
 - Do not modify `service_generated.py`, `config_generated.py`, generated

@@ -31,8 +31,8 @@ Otherwise compute time.Until(deadline) minus the margin: if the result is negati
 - [ ] Inspect input type `Order` in `orderservice/src/order_service/models/order.py`
 - [ ] Inspect output type `Order` in `orderservice/src/order_service/models/order.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
-- [ ] Run `./scripts/python/typecheck.sh`
-- [ ] Run `./scripts/python/test.sh`
+- [ ] Run `./scripts/python/typecheck.generated.sh`
+- [ ] Run `./scripts/python/test.generated.sh`
 - [ ] Implement meaningful assertions in `orderservice/tests/functions/test_soft_deadline.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] orderservice/task6.md — SoftDeadline — Python — done`

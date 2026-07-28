@@ -31,8 +31,8 @@ Set ConfirmedItems to a single-element slice containing result.
 - [ ] Inspect input type `OrderItemResult` in `model/src/model/models/order_item_result.py`
 - [ ] Inspect output type `OrderState` in `orderservice/src/order_service/models/order_state.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
-- [ ] Run `./scripts/python/typecheck.sh`
-- [ ] Run `./scripts/python/test.sh`
+- [ ] Run `./scripts/python/typecheck.generated.sh`
+- [ ] Run `./scripts/python/test.generated.sh`
 - [ ] Implement meaningful assertions in `orderservice/tests/functions/test_map_order_item_result_to_order_state.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] orderservice/task1.md — MapOrderItemResultToOrderState — Python — done`
