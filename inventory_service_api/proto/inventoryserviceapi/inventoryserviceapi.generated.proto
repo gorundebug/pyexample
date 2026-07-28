@@ -3,7 +3,7 @@ package inventoryserviceapi;
 
 import "proto/inventoryserviceapi/processorderitem/processorderitem.proto";
 
-option go_package = "github.com/gorundebug/cppexample-inventory-service-api/pkg/generated/proto/inventoryserviceapi";
+option go_package = "github.com/gorundebug/pyexample-inventory-service-api/pkg/generated/proto/inventoryserviceapi";
 
 service InventoryServiceApi {
     rpc ProcessOrderItem(processorderitem.ProcessOrderItemRequest) returns (processorderitem.ProcessOrderItemResponse) {}

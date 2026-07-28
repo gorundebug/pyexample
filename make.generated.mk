@@ -153,46 +153,46 @@ define git-push-dir
 	git push -qf git@$$host:$$repo.git refs/tags/$(2)
 endef
 
-git-push-inventory_service_api: $(GH) ## Push module inventory_service_api to github.com/gorundebug/cppexample-inventory-service-api
-	$(call git-push-dir,inventory_service_api,$(MODULE_VERSION),github.com,gorundebug/cppexample-inventory-service-api)
+git-push-inventory_service_api: $(GH) ## Push module inventory_service_api to github.com/gorundebug/pyexample-inventory-service-api
+	$(call git-push-dir,inventory_service_api,$(MODULE_VERSION),github.com,gorundebug/pyexample-inventory-service-api)
 
 git-delete-inventory_service_api: $(GH) ## Delete module inventory_service_api from remote
-	@$(GH) repo delete gorundebug/cppexample-inventory-service-api --yes 2>/dev/null || true
+	@$(GH) repo delete gorundebug/pyexample-inventory-service-api --yes 2>/dev/null || true
 
 
-git-push-model: $(GH) ## Push module model to github.com/gorundebug/cppexample-model
-	$(call git-push-dir,model,$(MODULE_VERSION),github.com,gorundebug/cppexample-model)
+git-push-model: $(GH) ## Push module model to github.com/gorundebug/pyexample-model
+	$(call git-push-dir,model,$(MODULE_VERSION),github.com,gorundebug/pyexample-model)
 
 git-delete-model: $(GH) ## Delete module model from remote
-	@$(GH) repo delete gorundebug/cppexample-model --yes 2>/dev/null || true
+	@$(GH) repo delete gorundebug/pyexample-model --yes 2>/dev/null || true
 
 
-git-push-order_service_api: $(GH) ## Push module order_service_api to github.com/gorundebug/cppexample-order-service-api
-	$(call git-push-dir,order_service_api,$(MODULE_VERSION),github.com,gorundebug/cppexample-order-service-api)
+git-push-order_service_api: $(GH) ## Push module order_service_api to github.com/gorundebug/pyexample-order-service-api
+	$(call git-push-dir,order_service_api,$(MODULE_VERSION),github.com,gorundebug/pyexample-order-service-api)
 
 git-delete-order_service_api: $(GH) ## Delete module order_service_api from remote
-	@$(GH) repo delete gorundebug/cppexample-order-service-api --yes 2>/dev/null || true
+	@$(GH) repo delete gorundebug/pyexample-order-service-api --yes 2>/dev/null || true
 
 
-git-push-inventoryservice: $(GH) ## Push service Inventory Service to github.com/gorundebug/cppexample-inventoryservice
-	$(call git-push-dir,inventoryservice,$(MODULE_VERSION),github.com,gorundebug/cppexample-inventoryservice,python-service)
+git-push-inventoryservice: $(GH) ## Push service Inventory Service to github.com/gorundebug/pyexample-inventoryservice
+	$(call git-push-dir,inventoryservice,$(MODULE_VERSION),github.com,gorundebug/pyexample-inventoryservice,python-service)
 
 git-delete-inventoryservice: $(GH) ## Delete service Inventory Service from remote
-	@$(GH) repo delete gorundebug/cppexample-inventoryservice --yes 2>/dev/null || true
+	@$(GH) repo delete gorundebug/pyexample-inventoryservice --yes 2>/dev/null || true
 
 
-git-push-orderservice: $(GH) ## Push service Order Service to github.com/gorundebug/cppexample-orderservice
-	$(call git-push-dir,orderservice,$(MODULE_VERSION),github.com,gorundebug/cppexample-orderservice,python-service)
+git-push-orderservice: $(GH) ## Push service Order Service to github.com/gorundebug/pyexample-orderservice
+	$(call git-push-dir,orderservice,$(MODULE_VERSION),github.com,gorundebug/pyexample-orderservice,python-service)
 
 git-delete-orderservice: $(GH) ## Delete service Order Service from remote
-	@$(GH) repo delete gorundebug/cppexample-orderservice --yes 2>/dev/null || true
+	@$(GH) repo delete gorundebug/pyexample-orderservice --yes 2>/dev/null || true
 
 
-git-push-project: $(GH) ## Push project root to github.com/gorundebug/cppexample
-	$(call git-push-dir,.,$(MODULE_VERSION),github.com,gorundebug/cppexample)
+git-push-project: $(GH) ## Push project root to github.com/gorundebug/pyexample
+	$(call git-push-dir,.,$(MODULE_VERSION),github.com,gorundebug/pyexample)
 
-git-delete-project: $(GH) ## Delete project repository github.com/gorundebug/cppexample
-	@$(GH) repo delete gorundebug/cppexample --yes 2>/dev/null || true
+git-delete-project: $(GH) ## Delete project repository github.com/gorundebug/pyexample
+	@$(GH) repo delete gorundebug/pyexample --yes 2>/dev/null || true
 
 
 git-push: $(GH) ## Push all modules, services, and project repositories
