@@ -11,3 +11,11 @@ grafana/
 go.work.sum
 build/
 .cppservicelib/
+.venv/
+.servicegen/dependencies/
+dist/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]

@@ -1,0 +1,38 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PATH=/workspace/.venv/bin:$PATH
+
+WORKDIR /workspace
+
+RUN apt-get update && \
+    apt-get install --yes --no-install-recommends git ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    python -m pip install --no-cache-dir uv
+
+COPY . .
+
+RUN --mount=type=secret,id=github_token,required=false \
+    --mount=type=secret,id=gitlab_token,required=false \
+    set -eu; \
+    trap 'rm -f /root/.gitconfig' EXIT; \
+    if [ -s /run/secrets/github_token ]; then \
+      token="$(cat /run/secrets/github_token)"; \
+      git config --global \
+        url."https://x-access-token:${token}@github.com/".insteadOf \
+        "https://github.com/"; \
+    fi; \
+    if [ -s /run/secrets/gitlab_token ]; then \
+      token="$(cat /run/secrets/gitlab_token)"; \
+      git config --global \
+        url."https://oauth2:${token}@gitlab.com/".insteadOf \
+        "https://gitlab.com/"; \
+    fi; \
+    ./scripts/fetch-dependencies.generated.sh; \
+    uv sync --all-extras --no-cache
+
+CMD ["python", "-m", "inventory_service.main", \
+     "--config", "/workspace/config/config.yaml", \
+     "--overrides", "/workspace/config/docker_overrides.yaml"]

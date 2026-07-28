@@ -18,6 +18,12 @@ codegen = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/order_service_api"]
 
+[tool.hatch.build]
+artifacts = [
+  "src/order_service_api/generated/**/*.py",
+  "src/order_service_api/generated/**/*.pyi",
+]
+
 [tool.ruff]
 target-version = "py312"
 line-length = 100

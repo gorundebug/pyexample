@@ -15,7 +15,9 @@ LANG_INTEGRATION_TARGETS += python-integration-test
 
 .PHONY: python-init python-build python-test python-lint python-format \
 	python-gen python-clean python-tools python-docker-build \
-	python-integration-test
+	python-integration-test python-package \
+	python-package-inventoryservice \
+	python-package-orderservice
 
 python-tools: ## Install the Python workspace and development tools with uv
 	@./scripts/python/setup.sh
@@ -42,6 +44,21 @@ python-docker-build: ## Build Python service Docker images
 
 python-integration-test: ## Run Python integration tests
 	@./scripts/python/integration-test.sh
+
+python-package: python-package-inventoryservice python-package-orderservice ## Package every Python service as a standalone repository
+
+python-package-inventoryservice: ## Package inventoryservice as a standalone Python service
+	@rm -rf "dist/inventoryservice"
+	@mkdir -p "dist/inventoryservice"
+	@./scripts/package-python-service.generated.sh \
+		"./inventoryservice" "dist/inventoryservice"
+
+python-package-orderservice: ## Package orderservice as a standalone Python service
+	@rm -rf "dist/orderservice"
+	@mkdir -p "dist/orderservice"
+	@./scripts/package-python-service.generated.sh \
+		"./orderservice" "dist/orderservice"
+
 
 python-clean: ## Remove Python build, cache, and virtualenv artifacts
 	@rm -rf .venv dist

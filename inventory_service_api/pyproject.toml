@@ -19,6 +19,12 @@ codegen = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/inventory_service_api"]
 
+[tool.hatch.build]
+artifacts = [
+  "src/inventory_service_api/generated/**/*.py",
+  "src/inventory_service_api/generated/**/*.pyi",
+]
+
 [tool.ruff]
 target-version = "py312"
 line-length = 100
