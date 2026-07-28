@@ -13,12 +13,12 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-      - run: ./scripts/python/setup.sh
-      - run: ./scripts/python/typecheck.sh
-      - run: ./scripts/python/test.sh
+      - run: ./scripts/python/setup.generated.sh
+      - run: ./scripts/python/typecheck.generated.sh
+      - run: ./scripts/python/test.generated.sh
 
   integration:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: ./scripts/python/integration-test.sh
+      - run: ./scripts/python/integration-test.generated.sh

@@ -3,4 +3,4 @@
 set -euo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-"${ROOT}/generate-grpc.sh"
+"${ROOT}/generate-grpc.generated.sh"

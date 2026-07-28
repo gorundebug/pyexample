@@ -24,11 +24,11 @@ fetch_module() {
       "${repository}" "${destination}"
   fi
 
-  if [[ -x "${destination}/generate.sh" ]]; then
+  if [[ -x "${destination}/generate.generated.sh" ]]; then
     uv sync --quiet --project "${destination}" --extra codegen \
       --no-install-project
     PYTHON="${destination}/.venv/bin/python" \
-      "${destination}/generate.sh"
+      "${destination}/generate.generated.sh"
   fi
 }
 

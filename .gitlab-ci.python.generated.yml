@@ -2,9 +2,9 @@ python-quality:
   image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
   stage: quality
   script:
-    - ./scripts/python/setup.sh
-    - ./scripts/python/typecheck.sh
-    - ./scripts/python/test.sh
+    - ./scripts/python/setup.generated.sh
+    - ./scripts/python/typecheck.generated.sh
+    - ./scripts/python/test.generated.sh
 
 python-integration:
   image: docker:latest
@@ -17,4 +17,4 @@ python-integration:
   before_script:
     - apk add --no-cache bash python3
   script:
-    - ./scripts/python/integration-test.sh
+    - ./scripts/python/integration-test.generated.sh
