@@ -62,7 +62,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
     "settings": ProjectSettings(
         moduleVersion="v0.0.1",
         name="Example",
-        repoPath="github.com/gorundebug/pyexample",
+        repoPath="github.com/gorundebug/cppexample",
     ),
     "services": {
         "inventoryService": ServiceConfig(
@@ -77,7 +77,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             httpPort=9092,
             id=1,
             metricsHandler="metrics",
-            modulePath="github.com/gorundebug/pyexample-inventoryservice",
+            modulePath="github.com/gorundebug/cppexample-inventoryservice",
             name="Inventory Service",
             programmingLanguage=ProgrammingLanguage(3),
             shutdownTimeout=30000,
@@ -157,6 +157,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             description="A single line item within an order. Fields: OrderID string, ItemID string, SKU string, Quantity int.",
             module="model",
             name="OrderItem",
+            package="",
             publicType=False,
             transferByValue=False,
             type=DataType.struct,
@@ -166,6 +167,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             description="Inventory reservation result for a single order item. Fields: OrderID string, ItemID string, SKU string, RequestedQty int, AvailableQty int, Reserved bool, Status string (CONFIRMED / OUT_OF_STOCK), UnitPrice float64.",
             module="model",
             name="OrderItemResult",
+            package="",
             publicType=False,
             transferByValue=False,
             type=DataType.struct,

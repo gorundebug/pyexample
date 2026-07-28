@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Generated typecheck command.
 set -euo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
