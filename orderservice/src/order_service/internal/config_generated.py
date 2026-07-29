@@ -244,7 +244,13 @@ _DEFAULT_CONFIG: dict[str, Any] = {
         ),
     },
     "pools": {},
-    "links": {},
+    "links": {
+        "splitPipelineToProcessOrderItems": LinkConfig(
+            callSemantics=CallSemantics(5),
+            var_from=12,
+            to=10,
+        ),
+    },
     "types": {
         "order": TypeConfig(
             definitionFormat=TypeDefinitionFormat(1),

@@ -1,6 +1,9 @@
 dataConnectors:
   inventoryServiceApi:
     address: dns:///localhost:9202
+endpoints:
+  processOrder:
+    timeout: 5000
 services:
   orderService:
     environment: ""
@@ -8,3 +11,6 @@ services:
     grpcPort: 9201
     httpHost: 0.0.0.0
     httpPort: 9091
+streams:
+  softDeadline:
+    duration: 200
