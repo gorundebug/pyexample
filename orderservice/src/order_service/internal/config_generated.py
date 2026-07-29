@@ -245,10 +245,10 @@ _DEFAULT_CONFIG: dict[str, Any] = {
     },
     "pools": {},
     "links": {
-        "splitPipelineToProcessOrderItems": LinkConfig(
+        "splitPipelineToSoftDeadline": LinkConfig(
             callSemantics=CallSemantics(5),
             var_from=12,
-            to=10,
+            to=11,
         ),
     },
     "types": {
