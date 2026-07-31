@@ -243,20 +243,8 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             publicFunction=False,
         ),
     },
-    "pools": {
-        "orderWorkers": PoolConfig(
-            name="Order Workers",
-            executorsCount=2,
-            queueCapacity=256,
-        ),
-    },
+    "pools": {},
     "links": {
-        "splitPipelineToProcessOrderItems": LinkConfig(
-            callSemantics=CallSemantics(3),
-            poolName="Order Workers",
-            var_from=12,
-            to=10,
-        ),
         "splitPipelineToSoftDeadline": LinkConfig(
             callSemantics=CallSemantics(5),
             var_from=12,
@@ -268,6 +256,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             definitionFormat=TypeDefinitionFormat(1),
             description="E-commerce order submitted by a customer. Fields: ID string, CustomerID string, Items []OrderItem, CreatedAt time.Time.",
             name="Order",
+            package="",
             publicType=False,
             transferByValue=False,
             type=DataType.struct,
@@ -277,6 +266,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             description="A single line item within an order. Fields: OrderID string, ItemID string, SKU string, Quantity int.",
             module="model",
             name="OrderItem",
+            package="",
             publicType=False,
             transferByValue=False,
             type=DataType.struct,
@@ -286,6 +276,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             description="Inventory reservation result for a single order item. Fields: OrderID string, ItemID string, SKU string, RequestedQty int, AvailableQty int, Reserved bool, Status string (CONFIRMED / OUT_OF_STOCK), UnitPrice float64.",
             module="model",
             name="OrderItemResult",
+            package="",
             publicType=False,
             transferByValue=False,
             type=DataType.struct,
@@ -294,6 +285,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             definitionFormat=TypeDefinitionFormat(1),
             description="Processing result of an order. Fields: OrderID string, Status string (CONFIRMED — all items reserved; PARTIALLY_CONFIRMED — some items out of stock; TIMED_OUT — order timed out), ConfirmedItems []OrderItemResult, TotalAmount float64, ProcessedAt time.Time.",
             name="OrderState",
+            package="",
             publicType=False,
             transferByValue=False,
             type=DataType.struct,
@@ -358,7 +350,7 @@ class Services:
 
 @dataclass(frozen=True, slots=True)
 class Pools:
-    order_workers: PoolConfig
+    pass
 
 
 @dataclass(frozen=True, slots=True)
@@ -445,10 +437,6 @@ class GeneratedConfig(ServiceAppConfig):
                 ),
             ),
             pools=Pools(
-                order_workers=_require_pool(
-                    self.get_pool_by_name("Order Workers"),
-                    "Order Workers",
-                ),
             ),
         )
 

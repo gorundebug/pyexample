@@ -151,17 +151,17 @@ _DEFAULT_CONFIG: dict[str, Any] = {
     },
     "pools": {
         "inventoryPriorityWorkers": PoolConfig(
-            name="Inventory Priority Workers",
             executorsCount=2,
+            name="Inventory Priority Workers",
             queueCapacity=256,
         ),
     },
     "links": {
         "processInventoryItemToGetInventoryItemData": LinkConfig(
             callSemantics=CallSemantics(4),
+            var_from=4,
             poolName="Inventory Priority Workers",
             priority=10,
-            var_from=4,
             to=1,
         ),
     },
@@ -171,6 +171,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             description="A single line item within an order. Fields: OrderID string, ItemID string, SKU string, Quantity int.",
             module="model",
             name="OrderItem",
+            package="",
             publicType=False,
             transferByValue=False,
             type=DataType.struct,
@@ -180,6 +181,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             description="Inventory reservation result for a single order item. Fields: OrderID string, ItemID string, SKU string, RequestedQty int, AvailableQty int, Reserved bool, Status string (CONFIRMED / OUT_OF_STOCK), UnitPrice float64.",
             module="model",
             name="OrderItemResult",
+            package="",
             publicType=False,
             transferByValue=False,
             type=DataType.struct,
