@@ -13,4 +13,4 @@ services:
     httpPort: 9091
 streams:
   softDeadline:
-    duration: 200
+    duration: 1000

@@ -149,8 +149,22 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             publicFunction=False,
         ),
     },
-    "pools": {},
-    "links": {},
+    "pools": {
+        "inventoryPriorityWorkers": PoolConfig(
+            name="Inventory Priority Workers",
+            executorsCount=2,
+            queueCapacity=256,
+        ),
+    },
+    "links": {
+        "processInventoryItemToGetInventoryItemData": LinkConfig(
+            callSemantics=CallSemantics(4),
+            poolName="Inventory Priority Workers",
+            priority=10,
+            var_from=4,
+            to=1,
+        ),
+    },
     "types": {
         "orderItem": TypeConfig(
             definitionFormat=TypeDefinitionFormat(1),
@@ -216,7 +230,7 @@ class Services:
 
 @dataclass(frozen=True, slots=True)
 class Pools:
-    pass
+    inventory_priority_workers: PoolConfig
 
 
 @dataclass(frozen=True, slots=True)
@@ -280,6 +294,10 @@ class GeneratedConfig(ServiceAppConfig):
                 ),
             ),
             pools=Pools(
+                inventory_priority_workers=_require_pool(
+                    self.get_pool_by_name("Inventory Priority Workers"),
+                    "Inventory Priority Workers",
+                ),
             ),
         )
 

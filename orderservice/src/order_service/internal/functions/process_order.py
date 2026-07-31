@@ -1,6 +1,7 @@
 """User-owned function implementation. The generator never overwrites this file."""
 from __future__ import annotations
 
+import asyncio
 from contextvars import Token
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -15,11 +16,14 @@ from order_service.models.order_state import OrderState
 from pyservicelib_gorundebug.datasource.http.aiohttpds import HandlerData, ResultContext
 from pyservicelib_gorundebug.runtime.common import StreamContext
 from pyservicelib_gorundebug.runtime.context.request import request_deadline
+from pyservicelib_gorundebug.runtime.context.request import request_cancelled
 
 
 @dataclass(slots=True)
 class ProcessOrderState:
     deadline_token: Token[datetime | None]
+    cancellation_token: Token[asyncio.Event | None]
+    cancellation: asyncio.Event
     expected_items: int = 0
     results: list[OrderItemResult] = field(default_factory=list)
     response_sent: bool = False
@@ -57,8 +61,14 @@ write JSON response, call Done(), return true.
     ) -> tuple[HandlerData, ProcessOrderState]:
         del sc
         deadline = datetime.now(timezone.utc) + self._timeout
-        token = request_deadline.set(deadline)
-        return data, ProcessOrderState(deadline_token=token)
+        deadline_token = request_deadline.set(deadline)
+        cancellation = asyncio.Event()
+        cancellation_token = request_cancelled.set(cancellation)
+        return data, ProcessOrderState(
+            deadline_token=deadline_token,
+            cancellation_token=cancellation_token,
+            cancellation=cancellation,
+        )
 
     async def consume_message(
         self,
@@ -189,6 +199,8 @@ write JSON response, call Done(), return true.
         data: HandlerData,
     ) -> None:
         del sc
+        handler_state.cancellation.set()
+        request_cancelled.reset(handler_state.cancellation_token)
         request_deadline.reset(handler_state.deadline_token)
         if err is not None and not data._response.done():
             data.set_response(

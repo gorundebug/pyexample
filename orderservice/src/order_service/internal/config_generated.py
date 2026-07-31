@@ -173,7 +173,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             yPos=-473,
         ),
         "softDeadline": StreamConfig(
-            duration=0,
+            duration=1000,
             functionDescription="Cast stream.GetConfig() to *runtimecfg.DelayStreamConfig and convert cfg.Duration (int, milliseconds) to time.Duration — this is the safety margin.\nIf ctx has no deadline (ctx.Deadline() ok==false), return the margin directly.\nOtherwise compute time.Until(deadline) minus the margin: if the result is negative return 0, otherwise return it.\n",
             functionInitializerGroup="",
             functionModule="",
@@ -243,8 +243,20 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             publicFunction=False,
         ),
     },
-    "pools": {},
+    "pools": {
+        "orderWorkers": PoolConfig(
+            name="Order Workers",
+            executorsCount=2,
+            queueCapacity=256,
+        ),
+    },
     "links": {
+        "splitPipelineToProcessOrderItems": LinkConfig(
+            callSemantics=CallSemantics(3),
+            poolName="Order Workers",
+            var_from=12,
+            to=10,
+        ),
         "splitPipelineToSoftDeadline": LinkConfig(
             callSemantics=CallSemantics(5),
             var_from=12,
@@ -346,7 +358,7 @@ class Services:
 
 @dataclass(frozen=True, slots=True)
 class Pools:
-    pass
+    order_workers: PoolConfig
 
 
 @dataclass(frozen=True, slots=True)
@@ -433,6 +445,10 @@ class GeneratedConfig(ServiceAppConfig):
                 ),
             ),
             pools=Pools(
+                order_workers=_require_pool(
+                    self.get_pool_by_name("Order Workers"),
+                    "Order Workers",
+                ),
             ),
         )
 
