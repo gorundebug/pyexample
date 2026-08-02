@@ -45,6 +45,7 @@ class ServiceStreams:
     split_pipeline: Any = None
     process_order_items: Any = None
     process_order_item: Any = None
+    process_order_item_error: Any = None
     map_order_item_result_to_order_state: Any = None
     soft_deadline: Any = None
     map_to_order_state: Any = None
@@ -100,11 +101,12 @@ class GeneratedService(ServiceApp):
         self._service_streams.process_order = transformation.Input[Order, OrderState, Exception](named.streams.process_order, self)
         self._service_streams.split_pipeline = transformation.Split[Order](named.streams.split_pipeline, self._service_streams.process_order)
         self._service_streams.process_order_items = transformation.FlatMap[Order, OrderItem](named.streams.process_order_items, self._service_streams.split_pipeline.add_stream(), self._functions["process_order_items"])
-        self._service_streams.process_order_item = transformation.SinkWithResult[OrderItem, OrderItemResult, Exception](named.streams.process_order_item, self._service_streams.process_order_items)
+        self._service_streams.process_order_item = transformation.SinkWithResult[OrderItem, OrderItemResult, OrderState](named.streams.process_order_item, self._service_streams.process_order_items)
+        self._service_streams.process_order_item_error = self._service_streams.process_order_item.error_stream
         self._service_streams.map_order_item_result_to_order_state = transformation.Map[OrderItemResult, OrderState](named.streams.map_order_item_result_to_order_state, self._service_streams.process_order_item, self._functions["map_order_item_result_to_order_state"])
         self._service_streams.soft_deadline = transformation.Delay[Order](named.streams.soft_deadline, self._service_streams.split_pipeline.add_stream(), self._functions["soft_deadline"])
         self._service_streams.map_to_order_state = transformation.Map[Order, OrderState](named.streams.map_to_order_state, self._service_streams.soft_deadline, self._functions["map_to_order_state"])
-        self._service_streams.merge_results = transformation.Merge[OrderState](named.streams.merge_results, self._service_streams.map_to_order_state, self._service_streams.map_order_item_result_to_order_state)
+        self._service_streams.merge_results = transformation.Merge[OrderState](named.streams.merge_results, self._service_streams.map_to_order_state, self._service_streams.map_order_item_result_to_order_state, self._service_streams.process_order_item_error)
         self._service_streams.process_order.set_source(self._service_streams.merge_results)
 
     def bind_transports(self) -> None:

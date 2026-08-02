@@ -98,8 +98,8 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             pipeline="inventoryItem",
             type=TransformationType(6),
             valueType="OrderItemResult",
-            xPos=400,
-            yPos=-261,
+            xPos=487,
+            yPos=-372,
         ),
         "mergeInventoryResult": StreamConfig(
             id=3,
@@ -121,8 +121,8 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             pipeline="inventoryItem",
             type=TransformationType(1),
             valueType="OrderItem",
-            xPos=131,
-            yPos=-165,
+            xPos=203,
+            yPos=-465,
         ),
     },
     "dataConnectors": {
@@ -150,18 +150,21 @@ _DEFAULT_CONFIG: dict[str, Any] = {
         ),
     },
     "pools": {
-        "inventoryPriorityWorkers": PoolConfig(
+        "defaultPool": PoolConfig(
             executorsCount=2,
-            name="Inventory Priority Workers",
-            queueCapacity=256,
+            name="Default Pool",
         ),
     },
     "links": {
+        "getInventoryItemDataToMergeInventoryResult": LinkConfig(
+            callSemantics=CallSemantics(5),
+            var_from=1,
+            to=3,
+        ),
         "processInventoryItemToGetInventoryItemData": LinkConfig(
-            callSemantics=CallSemantics(4),
+            callSemantics=CallSemantics(3),
             var_from=4,
-            poolName="Inventory Priority Workers",
-            priority=10,
+            poolName="Default Pool",
             to=1,
         ),
     },
@@ -232,7 +235,7 @@ class Services:
 
 @dataclass(frozen=True, slots=True)
 class Pools:
-    inventory_priority_workers: PoolConfig
+    default_pool: PoolConfig
 
 
 @dataclass(frozen=True, slots=True)
@@ -296,9 +299,9 @@ class GeneratedConfig(ServiceAppConfig):
                 ),
             ),
             pools=Pools(
-                inventory_priority_workers=_require_pool(
-                    self.get_pool_by_name("Inventory Priority Workers"),
-                    "Inventory Priority Workers",
+                default_pool=_require_pool(
+                    self.get_pool_by_name("Default Pool"),
+                    "Default Pool",
                 ),
             ),
         )

@@ -95,15 +95,15 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             functionModule="",
             functionName="MapOrderItemResultToOrderState",
             functionPackage="",
-            id=5,
+            id=6,
             idService=2,
-            idSource=9,
+            idSource=10,
             name="Map Order Item Result To Order State",
             pipeline="order",
             type=TransformationType(2),
             valueType="OrderState",
-            xPos=0,
-            yPos=0,
+            xPos=103,
+            yPos=-52,
         ),
         "mapToOrderState": StreamConfig(
             functionDescription="Convert an Order that reached the soft deadline into an OrderState.\nSet OrderID from Order.ID; set Status to TIMED_OUT; leave ConfirmedItems nil.\n",
@@ -111,50 +111,50 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             functionModule="",
             functionName="MapToOrderState",
             functionPackage="",
-            id=6,
+            id=7,
             idService=2,
-            idSource=11,
+            idSource=12,
             name="Map to Order State",
             pipeline="order",
             type=TransformationType(2),
             valueType="OrderState",
-            xPos=-459,
-            yPos=76,
+            xPos=-453,
+            yPos=73,
         ),
         "mergeResults": StreamConfig(
-            id=7,
+            id=8,
             idService=2,
             idSource=0,
-            idSources=[6, 5],
+            idSources=[7, 6, 5],
             name="Merge Results",
             pipeline="order",
             type=TransformationType(10),
-            xPos=-178,
-            yPos=24,
+            xPos=-228,
+            yPos=130,
         ),
         "processOrder": StreamConfig(
-            id=8,
+            id=9,
             idEndpoint=2,
             idService=2,
-            idSource=7,
+            idSource=8,
             name="Process Order",
             pipeline="order",
             type=TransformationType(1),
             valueType="Order",
-            xPos=-343,
-            yPos=-229,
+            xPos=-382,
+            yPos=-315,
         ),
         "processOrderItem": StreamConfig(
-            id=9,
+            id=10,
             idEndpoint=1,
             idService=2,
-            idSource=10,
+            idSource=11,
             name="Process Order Item",
             pipeline="order",
             type=TransformationType(13),
             valueType="OrderItemResult",
-            xPos=-75,
-            yPos=-311,
+            xPos=-52,
+            yPos=-362,
         ),
         "processOrderItems": StreamConfig(
             functionDescription="Expand an Order into individual OrderItem messages — one sc.Collect call per element of Order.Items.\nCopy Order.ID into each emitted OrderItem.OrderID.\n",
@@ -162,41 +162,41 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             functionModule="",
             functionName="ProcessOrderItems",
             functionPackage="",
-            id=10,
+            id=11,
             idService=2,
-            idSource=12,
+            idSource=13,
             name="Process Order Items",
             pipeline="order",
             type=TransformationType(7),
             valueType="OrderItem",
-            xPos=-197,
-            yPos=-473,
+            xPos=-198,
+            yPos=-662,
         ),
         "softDeadline": StreamConfig(
-            duration=1000,
+            duration=0,
             functionDescription="Cast stream.GetConfig() to *runtimecfg.DelayStreamConfig and convert cfg.Duration (int, milliseconds) to time.Duration — this is the safety margin.\nIf ctx has no deadline (ctx.Deadline() ok==false), return the margin directly.\nOtherwise compute time.Until(deadline) minus the margin: if the result is negative return 0, otherwise return it.\n",
             functionInitializerGroup="",
             functionModule="",
             functionName="SoftDeadline",
             functionPackage="",
-            id=11,
+            id=12,
             idService=2,
-            idSource=12,
+            idSource=13,
             name="Soft Deadline",
             pipeline="order",
             type=TransformationType(16),
-            xPos=-706,
-            yPos=-33,
+            xPos=-745,
+            yPos=-235,
         ),
         "splitPipeline": StreamConfig(
-            id=12,
+            id=13,
             idService=2,
-            idSource=8,
+            idSource=9,
             name="Split Pipeline",
             pipeline="order",
             type=TransformationType(11),
-            xPos=-416,
-            yPos=-472,
+            xPos=-620,
+            yPos=-554,
         ),
     },
     "dataConnectors": {
@@ -243,12 +243,29 @@ _DEFAULT_CONFIG: dict[str, Any] = {
             publicFunction=False,
         ),
     },
-    "pools": {},
+    "pools": {
+        "defaultPool": PoolConfig(
+            executorsCount=2,
+            name="Default Pool",
+        ),
+    },
     "links": {
+        "processOrderToSplitPipeline": LinkConfig(
+            callSemantics=CallSemantics(4),
+            var_from=9,
+            poolName="Default Pool",
+            priority=1,
+            to=13,
+        ),
+        "splitPipelineToProcessOrderItems": LinkConfig(
+            callSemantics=CallSemantics(5),
+            var_from=13,
+            to=11,
+        ),
         "splitPipelineToSoftDeadline": LinkConfig(
             callSemantics=CallSemantics(5),
-            var_from=12,
-            to=11,
+            var_from=13,
+            to=12,
         ),
     },
     "types": {
@@ -299,14 +316,14 @@ class ServiceIds:
 
 
 class StreamIds:
-    MAP_ORDER_ITEM_RESULT_TO_ORDER_STATE: Final[int] = 5
-    MAP_TO_ORDER_STATE: Final[int] = 6
-    MERGE_RESULTS: Final[int] = 7
-    PROCESS_ORDER: Final[int] = 8
-    PROCESS_ORDER_ITEM: Final[int] = 9
-    PROCESS_ORDER_ITEMS: Final[int] = 10
-    SOFT_DEADLINE: Final[int] = 11
-    SPLIT_PIPELINE: Final[int] = 12
+    MAP_ORDER_ITEM_RESULT_TO_ORDER_STATE: Final[int] = 6
+    MAP_TO_ORDER_STATE: Final[int] = 7
+    MERGE_RESULTS: Final[int] = 8
+    PROCESS_ORDER: Final[int] = 9
+    PROCESS_ORDER_ITEM: Final[int] = 10
+    PROCESS_ORDER_ITEMS: Final[int] = 11
+    SOFT_DEADLINE: Final[int] = 12
+    SPLIT_PIPELINE: Final[int] = 13
 
 
 class EndpointIds:
@@ -350,7 +367,7 @@ class Services:
 
 @dataclass(frozen=True, slots=True)
 class Pools:
-    pass
+    default_pool: PoolConfig
 
 
 @dataclass(frozen=True, slots=True)
@@ -437,6 +454,10 @@ class GeneratedConfig(ServiceAppConfig):
                 ),
             ),
             pools=Pools(
+                default_pool=_require_pool(
+                    self.get_pool_by_name("Default Pool"),
+                    "Default Pool",
+                ),
             ),
         )
 
