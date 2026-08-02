@@ -3,7 +3,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any
+from typing import Any, Optional
 import grpc
 
 from pyservicelib_gorundebug.runtime.context.context import Context
@@ -11,6 +11,7 @@ from pyservicelib_gorundebug.runtime.serviceapp import (
     ServiceApp,
     run_shutdown_operations,
 )
+from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
 from pyservicelib_gorundebug import transformation
 from pyservicelib_gorundebug.datasource.grpc import grpcds as grpc_source
 from .grpc_service_generated import GrpcServer
@@ -57,6 +58,13 @@ class GeneratedService(ServiceApp):
     @property
     def functions(self) -> dict[str, Any]:
         return self._functions
+
+    def get_serde(self, type_name: str) -> Optional[Serializer]:
+        if type_name == "OrderItem":
+            return DataclassJsonSerde("OrderItem", OrderItem)
+        if type_name == "OrderItemResult":
+            return DataclassJsonSerde("OrderItemResult", OrderItemResult)
+        return None
 
     async def initialize_functions(self, ctx: Context) -> None:
         """Apply user maker overrides, construct functions, then configure them."""
