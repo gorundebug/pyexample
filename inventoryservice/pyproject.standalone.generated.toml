@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.0.15" }
+pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.0.17" }
 inventory_service_api = { path = ".servicegen/dependencies/inventory_service_api" }
 model = { path = ".servicegen/dependencies/model" }
 
