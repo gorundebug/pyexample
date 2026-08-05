@@ -73,6 +73,17 @@ _DEFAULT_CONFIG: dict[str, Any] = {
     "types": { "orderItem": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="A single line item within an order. Fields: OrderID string, ItemID string, SKU string, Quantity int.", module="model", name="OrderItem", package="", publicType=False, transferByValue=False, type=DataType.struct, ), "orderItemResult": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Inventory reservation result for a single order item. Fields: OrderID string, ItemID string, SKU string, RequestedQty int, AvailableQty int, Reserved bool, Status string (CONFIRMED / OUT_OF_STOCK), UnitPrice float64.", module="model", name="OrderItemResult", package="", publicType=False, transferByValue=False, type=DataType.struct, ), },
 }
 
+_ENVIRONMENT_VARIABLES: tuple[tuple[str, tuple[str, ...], str], ...] = (
+    ("INVENTORY_PRIORITY_WORKERS_EXECUTORS_COUNT", ("pools", "inventoryPriorityWorkers", "executorsCount", ), "int"),
+    ("INVENTORY_SERVICE_API_ADDRESS", ("dataConnectors", "inventoryServiceApi", "address", ), "string"),
+    ("INVENTORY_SERVICE_DEFAULT_GRPC_TIMEOUT", ("services", "inventoryService", "defaultGrpcTimeout", ), "int"),
+    ("INVENTORY_SERVICE_ENVIRONMENT", ("services", "inventoryService", "environment", ), "api.Environment"),
+    ("INVENTORY_SERVICE_GRPC_HOST", ("services", "inventoryService", "grpcHost", ), "string"),
+    ("INVENTORY_SERVICE_GRPC_PORT", ("services", "inventoryService", "grpcPort", ), "int"),
+    ("INVENTORY_SERVICE_HTTP_HOST", ("services", "inventoryService", "httpHost", ), "string"),
+    ("INVENTORY_SERVICE_HTTP_PORT", ("services", "inventoryService", "httpPort", ), "int"),
+)
+
 
 class ServiceIds:
     INVENTORY_SERVICE: Final[int] = 1
@@ -136,14 +147,39 @@ class NamedConfig:
     modules: Modules
 
 
-def _environment_int(name: str) -> int | None:
+def _environment_value(name: str, kind: str) -> Any | None:
     value = os.environ.get(name)
     if value is None:
         return None
     try:
-        return int(value)
+        if kind == "int":
+            return int(value)
+        if kind == "float64":
+            return float(value)
+        if kind == "bool":
+            normalized = value.strip().lower()
+            if normalized in {"1", "true", "yes", "on"}:
+                return True
+            if normalized in {"0", "false", "no", "off"}:
+                return False
+            raise ValueError("expected a boolean")
+        if kind == "[]int":
+            return [int(item.strip()) for item in value.split(",") if item.strip()]
+        if kind == "[]string":
+            return [item.strip() for item in value.split(",") if item.strip()]
+        return value
     except ValueError as error:
         raise ValueError(f"invalid {name}: {error}") from error
+
+
+def _set_config_path(config: dict[str, Any], path: tuple[str, ...], value: Any) -> None:
+    current = config
+    for part in path[:-1]:
+        child = current.get(part)
+        if not isinstance(child, dict):
+            raise TypeError(f"config path '{'.'.join(path)}' is not a mapping")
+        current = child
+    current[path[-1]] = value
 
 
 class GeneratedConfig(ServiceAppConfig):
@@ -161,8 +197,9 @@ class GeneratedConfig(ServiceAppConfig):
 
         defaults = _dump_default_config(_DEFAULT_CONFIG)
         normalized = _deep_merge(defaults, obj)
-        if (executors := _environment_int("INVENTORY_PRIORITY_WORKERS_EXECUTORS_COUNT")) is not None:
-            normalized["pools"]["inventoryPriorityWorkers"]["executorsCount"] = executors
+        for name, path, kind in _ENVIRONMENT_VARIABLES:
+            if (value := _environment_value(name, kind)) is not None:
+                _set_config_path(normalized, path, value)
         for name in ("services", "streams", "links", "types", "pools", "modules", "endpoints"):
             normalized[name] = values(name)
         normalized["dataConnectors"] = values("dataConnectors")

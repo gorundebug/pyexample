@@ -77,6 +77,18 @@ _DEFAULT_CONFIG: dict[str, Any] = {
     "types": { "order": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="E-commerce order submitted by a customer. Fields: ID string, CustomerID string, Items []OrderItem, CreatedAt time.Time.", name="Order", package="", publicType=False, transferByValue=False, type=DataType.struct, ), "orderItem": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="A single line item within an order. Fields: OrderID string, ItemID string, SKU string, Quantity int.", module="model", name="OrderItem", package="", publicType=False, transferByValue=False, type=DataType.struct, ), "orderItemResult": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Inventory reservation result for a single order item. Fields: OrderID string, ItemID string, SKU string, RequestedQty int, AvailableQty int, Reserved bool, Status string (CONFIRMED / OUT_OF_STOCK), UnitPrice float64.", module="model", name="OrderItemResult", package="", publicType=False, transferByValue=False, type=DataType.struct, ), "orderState": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Processing result of an order. Fields: OrderID string, Status string (CONFIRMED — all items reserved; PARTIALLY_CONFIRMED — some items out of stock; TIMED_OUT — order timed out), ConfirmedItems []OrderItemResult, TotalAmount float64, ProcessedAt time.Time.", name="OrderState", package="", publicType=False, transferByValue=False, type=DataType.struct, ), },
 }
 
+_ENVIRONMENT_VARIABLES: tuple[tuple[str, tuple[str, ...], str], ...] = (
+    ("DEFAULT_POOL_EXECUTORS_COUNT", ("pools", "defaultPool", "executorsCount", ), "int"),
+    ("INVENTORY_SERVICE_API_ADDRESS", ("dataConnectors", "inventoryServiceApi", "address", ), "string"),
+    ("ORDER_SERVICE_DEFAULT_GRPC_TIMEOUT", ("services", "orderService", "defaultGrpcTimeout", ), "int"),
+    ("ORDER_SERVICE_ENVIRONMENT", ("services", "orderService", "environment", ), "api.Environment"),
+    ("ORDER_SERVICE_GRPC_HOST", ("services", "orderService", "grpcHost", ), "string"),
+    ("ORDER_SERVICE_GRPC_PORT", ("services", "orderService", "grpcPort", ), "int"),
+    ("ORDER_SERVICE_HTTP_HOST", ("services", "orderService", "httpHost", ), "string"),
+    ("ORDER_SERVICE_HTTP_PORT", ("services", "orderService", "httpPort", ), "int"),
+    ("SOFT_DEADLINE_DURATION", ("streams", "softDeadline", "duration", ), "int"),
+)
+
 
 class ServiceIds:
     ORDER_SERVICE: Final[int] = 2
@@ -154,14 +166,39 @@ class NamedConfig:
     modules: Modules
 
 
-def _environment_int(name: str) -> int | None:
+def _environment_value(name: str, kind: str) -> Any | None:
     value = os.environ.get(name)
     if value is None:
         return None
     try:
-        return int(value)
+        if kind == "int":
+            return int(value)
+        if kind == "float64":
+            return float(value)
+        if kind == "bool":
+            normalized = value.strip().lower()
+            if normalized in {"1", "true", "yes", "on"}:
+                return True
+            if normalized in {"0", "false", "no", "off"}:
+                return False
+            raise ValueError("expected a boolean")
+        if kind == "[]int":
+            return [int(item.strip()) for item in value.split(",") if item.strip()]
+        if kind == "[]string":
+            return [item.strip() for item in value.split(",") if item.strip()]
+        return value
     except ValueError as error:
         raise ValueError(f"invalid {name}: {error}") from error
+
+
+def _set_config_path(config: dict[str, Any], path: tuple[str, ...], value: Any) -> None:
+    current = config
+    for part in path[:-1]:
+        child = current.get(part)
+        if not isinstance(child, dict):
+            raise TypeError(f"config path '{'.'.join(path)}' is not a mapping")
+        current = child
+    current[path[-1]] = value
 
 
 class GeneratedConfig(ServiceAppConfig):
@@ -179,8 +216,9 @@ class GeneratedConfig(ServiceAppConfig):
 
         defaults = _dump_default_config(_DEFAULT_CONFIG)
         normalized = _deep_merge(defaults, obj)
-        if (executors := _environment_int("DEFAULT_POOL_EXECUTORS_COUNT")) is not None:
-            normalized["pools"]["defaultPool"]["executorsCount"] = executors
+        for name, path, kind in _ENVIRONMENT_VARIABLES:
+            if (value := _environment_value(name, kind)) is not None:
+                _set_config_path(normalized, path, value)
         for name in ("services", "streams", "links", "types", "pools", "modules", "endpoints"):
             normalized[name] = values(name)
         normalized["dataConnectors"] = values("dataConnectors")
