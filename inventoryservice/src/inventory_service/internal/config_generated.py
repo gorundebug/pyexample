@@ -66,7 +66,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
     "streams": { "getInventoryItemData": StreamConfig(functionDescription="Look up the inventory record by OrderItem.SKU; retrieve current stock and UnitPrice from the record.\nAlways copy OrderID, ItemID, SKU, RequestedQty (=OrderItem.Quantity), UnitPrice into the result.\nIf stock >= OrderItem.Quantity: reserve the stock atomically and emit\nOrderItemResult{OrderID, ItemID, SKU, RequestedQty, UnitPrice, Reserved: true, Status: CONFIRMED, AvailableQty: OrderItem.Quantity} via out.\nIf stock is insufficient: emit\nOrderItemResult{OrderID, ItemID, SKU, RequestedQty, UnitPrice, Reserved: false, Status: OUT_OF_STOCK, AvailableQty: actual available} via rout.\n", functionInitializerGroup="", functionModule="", functionName="GetInventoryItemData", functionPackage="", id=1, idService=1, idSource=4, name="Get Inventory Item Data", pipeline="inventoryItem", type=TransformationType(6), valueType="OrderItemResult", xPos=487, yPos=-372, ), "mergeInventoryResult": StreamConfig(id=3, idService=1, idSource=0, idSources=[1, 2], name="Merge Inventory Result", pipeline="inventoryItem", type=TransformationType(10), xPos=542, yPos=33, ), "processInventoryItem": StreamConfig(id=4, idEndpoint=1, idService=1, idSource=3, name="Process Inventory Item ", pipeline="inventoryItem", type=TransformationType(1), valueType="OrderItem", xPos=203, yPos=-465, ), },
     "dataConnectors": { "inventoryServiceApi": DataConnectorConfig(address="dns:///localhost:9202", id=1, implementation="google/grpc", module="inventory_service_api", name="Inventory Service API", type=DataConnectorType(2), ), },
     "endpoints": { "processOrderItem": EndpointConfig(functionDescription="Outgoing unary gRPC call to the Inventory Service.\n[ConsumeMessage] map OrderItem → ProcessOrderItemRequest (OrderID, ItemID, SKU, Quantity); call sender.Send(req).\n[HandleResponse] map ProcessOrderItemResponse → OrderItemResult:\ncopy OrderID, ItemID, AvailableQty, Reserved, Status, UnitPrice from response; push downstream via sc.Collect.\n[EndRequest] log the outcome.\n", functionInitializerGroup="", functionName="ProcessOrderItem", functionPackage="", grpcMethodType=GrpcMethodType(1), id=1, idDataConnector=1, methodName="ProcessOrderItem", name="Process Order Item", publicFunction=False, ), },
-    "pools": { },
+    "pools": { "inventoryPriorityWorkers": PoolConfig(executorsCount=2, name="Inventory Priority Workers", ), },
     "links": { "getInventoryItemDataToMergeInventoryResult": LinkConfig(callSemantics=CallSemantics(5), var_from=1, to=3, ), "processInventoryItemToGetInventoryItemData": LinkConfig(callSemantics=CallSemantics(4), var_from=4, poolName="Inventory Priority Workers", priority=10, to=1, ), },
     "modules": { "inventoryServiceApi": ModuleConfig(golangVersion="", modulePath="github.com/gorundebug/pyexample-inventory-service-api", name="inventory_service_api", ), "model": ModuleConfig(golangVersion="", modulePath="github.com/gorundebug/pyexample-model", name="model", ), "orderServiceApi": ModuleConfig(golangVersion="", modulePath="github.com/gorundebug/pyexample-order-service-api", name="order_service_api", ), },
     "types": { "orderItem": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="A single line item within an order. Fields: OrderID string, ItemID string, SKU string, Quantity int.", module="model", name="OrderItem", package="", publicType=False, transferByValue=False, type=DataType.struct, ), "orderItemResult": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Inventory reservation result for a single order item. Fields: OrderID string, ItemID string, SKU string, RequestedQty int, AvailableQty int, Reserved bool, Status string (CONFIRMED / OUT_OF_STOCK), UnitPrice float64.", module="model", name="OrderItemResult", package="", publicType=False, transferByValue=False, type=DataType.struct, ), },
@@ -115,7 +115,7 @@ class Services:
 
 @dataclass(frozen=True, slots=True)
 class Pools:
-    pass
+    inventory_priority_workers: PoolConfig
 
 
 @dataclass(frozen=True, slots=True)
@@ -187,6 +187,10 @@ class GeneratedConfig(ServiceAppConfig):
                 ),
             ),
             pools=Pools(
+                inventory_priority_workers=_require_pool(
+                    self.get_pool_by_name("Inventory Priority Workers"),
+                    "Inventory Priority Workers",
+                ),
             ),
             modules=Modules(
                 inventory_service_api=_require_module(
