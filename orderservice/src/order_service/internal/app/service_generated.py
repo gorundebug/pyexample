@@ -52,6 +52,20 @@ class ServiceStreams:
     map_to_order_state: Any = None
     merge_results: Any = None
 
+class _GrpcMethodPool:
+    """Round-robin dispatcher over independent gRPC channel callables."""
+
+    def __init__(self, methods: list[Any]) -> None:
+        if not methods:
+            raise ValueError("gRPC method pool must not be empty")
+        self._methods = methods
+        self._next = 0
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        method = self._methods[self._next]
+        self._next = (self._next + 1) % len(self._methods)
+        return method(*args, **kwargs)
+
 
 class GeneratedService(ServiceApp):
     """Generated lifecycle and graph bootstrap for Order Service."""
@@ -69,7 +83,7 @@ class GeneratedService(ServiceApp):
         self._functions: dict[str, Any] = {}
         self._service_streams = ServiceStreams()
         self._transport_consumers: list[Any] = []
-        self._grpc_channels: dict[str, grpc.aio.Channel] = {}
+        self._grpc_channels: dict[str, list[grpc.aio.Channel]] = {}
 
     @property
     def makers(self) -> dict[str, Callable[[], Any]]:
@@ -134,10 +148,17 @@ class GeneratedService(ServiceApp):
         self._grpc_channels = {}
         process_order_consumer = http_source.make_net_http_endpoint_consumer(self._service_streams.process_order, self._functions["process_order"])
         self._transport_consumers.append(process_order_consumer)
-        inventory_service_api_grpc_channel = grpc.aio.insecure_channel(_required(named.data_connectors.inventory_service_api.address, "Inventory Service API connector address"))
-        self._grpc_channels["inventory_service_api"] = inventory_service_api_grpc_channel
-        inventory_service_api_grpc_stub = inventory_service_api_grpc_api.InventoryServiceApiStub(inventory_service_api_grpc_channel)  # type: ignore[no-untyped-call]
-        process_order_item_consumer = grpc_sink.make_grpc_no_streaming_endpoint_consumer(self._service_streams.process_order_item, self._functions["process_order_item"], inventory_service_api_grpc_stub.ProcessOrderItem)
+        inventory_service_api_connections_count = named.data_connectors.inventory_service_api.connections_count
+        inventory_service_api_grpc_channels = [
+            grpc.aio.insecure_channel(_required(named.data_connectors.inventory_service_api.address, "Inventory Service API connector address"))
+            for _ in range(inventory_service_api_connections_count)
+        ]
+        self._grpc_channels["inventory_service_api"] = inventory_service_api_grpc_channels
+        inventory_service_api_grpc_stub = [
+            inventory_service_api_grpc_api.InventoryServiceApiStub(channel)  # type: ignore[no-untyped-call]
+            for channel in inventory_service_api_grpc_channels
+        ]
+        process_order_item_consumer = grpc_sink.make_grpc_no_streaming_endpoint_consumer(self._service_streams.process_order_item, self._functions["process_order_item"], _GrpcMethodPool([stub.ProcessOrderItem for stub in inventory_service_api_grpc_stub]))
         self._transport_consumers.append(process_order_item_consumer)
 
     async def build_runtime(self, ctx: Context) -> None:
@@ -155,7 +176,11 @@ class GeneratedService(ServiceApp):
         )
 
         async def close_grpc_channels() -> None:
-            channels = list(self._grpc_channels.values())
+            channels = [
+                channel
+                for connector_channels in self._grpc_channels.values()
+                for channel in connector_channels
+            ]
             self._grpc_channels = {}
             for channel in channels:
                 await channel.close(grace=None)

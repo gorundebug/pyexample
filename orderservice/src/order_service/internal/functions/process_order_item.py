@@ -78,4 +78,18 @@ copy OrderID, ItemID, AvailableQty, Reserved, Status, UnitPrice from response; p
         err: Exception | None,
         handler_state: State,
     ) -> None:
-        del sc, err, handler_state
+        if err is None:
+            return
+        await sc.collect(
+            OrderItemResult(
+                order_id=handler_state.order_id,
+                item_id=handler_state.item_id,
+                sku=handler_state.sku,
+                requested_qty=handler_state.requested_qty,
+                available_qty=0,
+                reserved=False,
+                status="PROCESSING_ERROR",
+                unit_price=handler_state.unit_price,
+                error=str(err),
+            )
+        )

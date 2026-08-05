@@ -168,6 +168,7 @@ write JSON response, call Done(), return true.
                         "available_qty": result.available_qty,
                         "reserved": result.reserved,
                         "status": result.status,
+                        **({"error": result.error} if result.error else {}),
                     }
                     for result in handler_state.results
                 ],

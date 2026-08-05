@@ -49,7 +49,7 @@ class GeneratedService(ServiceApp):
         self._functions: dict[str, Any] = {}
         self._service_streams = ServiceStreams()
         self._transport_consumers: list[Any] = []
-        self._grpc_channels: dict[str, grpc.aio.Channel] = {}
+        self._grpc_channels: dict[str, list[grpc.aio.Channel]] = {}
 
     @property
     def makers(self) -> dict[str, Callable[[], Any]]:
@@ -127,7 +127,11 @@ class GeneratedService(ServiceApp):
         )
 
         async def close_grpc_channels() -> None:
-            channels = list(self._grpc_channels.values())
+            channels = [
+                channel
+                for connector_channels in self._grpc_channels.values()
+                for channel in connector_channels
+            ]
             self._grpc_channels = {}
             for channel in channels:
                 await channel.close(grace=None)

@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 
-# Inventory reservation result for a single order item. Fields: OrderID string, ItemID string, SKU string, RequestedQty int, AvailableQty int, Reserved bool, Status string (CONFIRMED / OUT_OF_STOCK), UnitPrice float64.
+# Inventory reservation result for a single order item. Error contains transport failure details for PROCESSING_ERROR.
 @dataclass(slots=True)
 class OrderItemResult:
     order_id: str
@@ -14,3 +14,4 @@ class OrderItemResult:
     reserved: bool
     status: str
     unit_price: float = 0.0
+    error: str = ""

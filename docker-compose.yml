@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile.python
       additional_contexts:
-        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.0.17}"
+        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.0.18}"
     command:
       - python
       - -m
@@ -34,7 +34,7 @@ services:
       context: .
       dockerfile: Dockerfile.python
       additional_contexts:
-        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.0.17}"
+        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.0.18}"
     command:
       - python
       - -m
