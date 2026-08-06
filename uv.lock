@@ -1345,7 +1345,7 @@ wheels = [
 
 [[package]]
 name = "pyservicelib-gorundebug"
-version = "0.0.15"
+version = "0.0.22"
 source = { directory = ".pyservicelib" }
 dependencies = [
     { name = "aiofiles" },
