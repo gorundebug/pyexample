@@ -1,5 +1,7 @@
 """User-owned service extensions. The generator never overwrites this file."""
 
+import os
+
 from pyservicelib_gorundebug.api.models.environment import Environment
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment.environment import (
@@ -7,7 +9,7 @@ from pyservicelib_gorundebug.runtime.environment.environment import (
     ServiceEnvironment,
 )
 from pyservicelib_gorundebug.runtime.environment.log.log import LogsEngine
-from pyservicelib_gorundebug.runtime.environment.metrics.metrics import MetricsEngine
+from pyservicelib_gorundebug.runtime.environment.metrics.metrics import MetricsEngine, NoopMetricsEngine
 from pyservicelib_gorundebug.runtime.environment.tracing.tracing import TracingEngine
 from pyservicelib_gorundebug.runtime.telemetry.telemetry import (
     create_otlp_logs_engine,
@@ -33,6 +35,8 @@ class Dependency(ServiceDependency):
         self,
         env: ServiceEnvironment,
     ) -> MetricsEngine | None:
+        if os.getenv("SERVICELIB_NOOP_METRICS"):
+            return NoopMetricsEngine()
         if _uses_otlp(env):
             return create_otlp_metrics_engine()
         return create_prometheus_metrics_engine()
