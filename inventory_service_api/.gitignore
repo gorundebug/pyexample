@@ -1,0 +1,12 @@
+.venv/
+dist/
+build/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+
+# Bindings are regenerated from the committed proto/OpenAPI sources.
+src/inventory_service_api/generated/*
+!src/inventory_service_api/generated/__init__.py

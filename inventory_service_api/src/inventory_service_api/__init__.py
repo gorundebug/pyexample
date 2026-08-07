@@ -1,0 +1,1 @@
+"""Generated package for module inventory_service_api."""
