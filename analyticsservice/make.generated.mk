@@ -14,6 +14,8 @@ export UV_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_HOST):$(SERVICEGEN_D
 docker-build docker-up: export PIP_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/pypi-proxy/simple
 docker-build docker-up: export PIP_TRUSTED_HOST := $(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST)
 docker-build docker-up: export UV_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/pypi-proxy/simple
+docker-build docker-up: export SERVICEGEN_APT_DEBIAN_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/apt-debian
+docker-build docker-up: export SERVICEGEN_APT_DEBIAN_SECURITY_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/apt-debian-security
 endif
 
 ifeq ($(RUNTIME_IMAGE),1)
@@ -63,6 +65,8 @@ docker-build: ## Build the standalone service image
 	  --build-arg PIP_INDEX_URL="$${PIP_INDEX_URL:-https://pypi.org/simple}" \
 	  --build-arg PIP_TRUSTED_HOST="$${PIP_TRUSTED_HOST:-}" \
 	  --build-arg UV_INDEX_URL="$${UV_INDEX_URL:-https://pypi.org/simple}" \
+	  --build-arg SERVICEGEN_APT_DEBIAN_URL="$${SERVICEGEN_APT_DEBIAN_URL:-}" \
+	  --build-arg SERVICEGEN_APT_DEBIAN_SECURITY_URL="$${SERVICEGEN_APT_DEBIAN_SECURITY_URL:-}" \
 	  -t "analyticsservice-python:latest" .
 
 docker-up: docker-build ## Start this service through Docker Compose

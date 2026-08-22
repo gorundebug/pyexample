@@ -3,6 +3,8 @@ FROM python:3.12-slim AS development
 ARG PIP_INDEX_URL=https://pypi.org/simple
 ARG PIP_TRUSTED_HOST=
 ARG UV_INDEX_URL=https://pypi.org/simple
+ARG SERVICEGEN_APT_DEBIAN_URL=
+ARG SERVICEGEN_APT_DEBIAN_SECURITY_URL=
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -13,6 +15,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /workspace
 
+RUN if [ -n "$SERVICEGEN_APT_DEBIAN_URL$SERVICEGEN_APT_DEBIAN_SECURITY_URL" ]; then \
+      find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) -exec sed -i \
+        -e "s|http://deb.debian.org/debian-security|$SERVICEGEN_APT_DEBIAN_SECURITY_URL|g" \
+        -e "s|http://deb.debian.org/debian|$SERVICEGEN_APT_DEBIAN_URL|g" {} +; \
+    fi
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends git ca-certificates && \
     rm -rf /var/lib/apt/lists/* && \
