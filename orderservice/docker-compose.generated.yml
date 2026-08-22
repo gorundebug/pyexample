@@ -1,0 +1,10 @@
+services:
+  orderservice:
+    image: orderservice-python:latest
+    restart: unless-stopped
+    environment:
+      - DEBUG=${ORDER_SERVICE_DEBUG:-0}
+    ports:
+      - "9091:9091"
+      - "9201:9201"
+      - "2345:2345"

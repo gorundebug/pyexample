@@ -1,0 +1,43 @@
+[tool.uv.workspace]
+members = [
+  "inventory_service_api",
+  "model",
+  "order_service_api",
+  "analyticsservice",
+  "inventoryservice",
+  "orderservice",
+]
+
+[tool.uv.sources]
+pyservicelib-gorundebug = { path = ".pyservicelib" }
+
+[dependency-groups]
+dev = [
+  "mypy>=1.11.0",
+  "pytest>=8.3.0",
+  "pytest-asyncio>=0.24.0",
+  "ruff>=0.6.0",
+  "grpcio-tools==1.81.0",
+  "types-protobuf>=6.30.2",
+  "datamodel-code-generator==0.70.0",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+exclude = ["generated"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = ["*.generated.*"]
+ignore_errors = true
+
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib"

@@ -1,0 +1,46 @@
+services:
+  analyticsservice:
+    image: analyticsservice-python:latest
+    build:
+      target: runtime-analyticsservice
+    command:
+      - --config
+      - /workspace/config/config.yaml
+      - --overrides
+      - /workspace/config/docker_overrides.yaml
+    volumes: !reset []
+    security_opt: !reset []
+    cap_add: !reset []
+    ports: !override
+      - "9093:9093"
+      - "9203:9203"
+  inventoryservice:
+    image: inventoryservice-python:latest
+    build:
+      target: runtime-inventoryservice
+    command:
+      - --config
+      - /workspace/config/config.yaml
+      - --overrides
+      - /workspace/config/docker_overrides.yaml
+    volumes: !reset []
+    security_opt: !reset []
+    cap_add: !reset []
+    ports: !override
+      - "9092:9092"
+      - "9202:9202"
+  orderservice:
+    image: orderservice-python:latest
+    build:
+      target: runtime-orderservice
+    command:
+      - --config
+      - /workspace/config/config.yaml
+      - --overrides
+      - /workspace/config/docker_overrides.yaml
+    volumes: !reset []
+    security_opt: !reset []
+    cap_add: !reset []
+    ports: !override
+      - "9091:9091"
+      - "9201:9201"

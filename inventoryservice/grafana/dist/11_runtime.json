@@ -1,0 +1,390 @@
+{
+   "panels": [
+      {
+         "collapsed": false,
+         "gridPos": {
+            "h": 1,
+            "w": 0,
+            "x": 0,
+            "y": 0
+         },
+         "id": 1,
+         "panels": [ ],
+         "title": "Process",
+         "type": "row"
+      },
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "unit": "s/s"
+            }
+         },
+         "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 1
+         },
+         "id": 2,
+         "pluginVersion": "v11.0.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "prometheus",
+                  "uid": "$datasource"
+               },
+               "expr": "rate(process_cpu_seconds_total{job=~\"$job\"}[$__rate_interval])",
+               "intervalFactor": 2,
+               "legendFormat": "{{job}}"
+            }
+         ],
+         "title": "CPU Usage",
+         "type": "timeseries"
+      },
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "unit": "bytes"
+            }
+         },
+         "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 1
+         },
+         "id": 3,
+         "pluginVersion": "v11.0.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "prometheus",
+                  "uid": "$datasource"
+               },
+               "expr": "process_resident_memory_bytes{job=~\"$job\"}",
+               "intervalFactor": 2,
+               "legendFormat": "{{job}}"
+            }
+         ],
+         "title": "Resident Memory (RSS)",
+         "type": "timeseries"
+      },
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "unit": "bytes"
+            }
+         },
+         "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 9
+         },
+         "id": 4,
+         "pluginVersion": "v11.0.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "prometheus",
+                  "uid": "$datasource"
+               },
+               "expr": "process_virtual_memory_bytes{job=~\"$job\"}",
+               "intervalFactor": 2,
+               "legendFormat": "{{job}}"
+            }
+         ],
+         "title": "Virtual Memory",
+         "type": "timeseries"
+      },
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "unit": "short"
+            }
+         },
+         "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 9
+         },
+         "id": 5,
+         "pluginVersion": "v11.0.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "prometheus",
+                  "uid": "$datasource"
+               },
+               "expr": "process_open_fds{job=~\"$job\"}",
+               "intervalFactor": 2,
+               "legendFormat": "{{job}}"
+            },
+            {
+               "datasource": {
+                  "type": "prometheus",
+                  "uid": "$datasource"
+               },
+               "expr": "process_max_fds{job=~\"$job\"}",
+               "intervalFactor": 2,
+               "legendFormat": "max {{job}}"
+            }
+         ],
+         "title": "Open File Descriptors",
+         "type": "timeseries"
+      },
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "unit": "dateTimeAsLocal"
+            }
+         },
+         "gridPos": {
+            "h": 4,
+            "w": 12,
+            "x": 0,
+            "y": 13
+         },
+         "id": 6,
+         "options": {
+            "reduceOptions": {
+               "calcs": [
+                  "lastNotNull"
+               ]
+            }
+         },
+         "pluginVersion": "v11.0.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "prometheus",
+                  "uid": "$datasource"
+               },
+               "expr": "process_start_time_seconds{job=~\"$job\"} * 1000",
+               "intervalFactor": 2,
+               "legendFormat": "{{job}}"
+            }
+         ],
+         "title": "Process Start Time",
+         "type": "stat"
+      },
+      {
+         "collapsed": false,
+         "gridPos": {
+            "h": 1,
+            "w": 0,
+            "x": 12,
+            "y": 21
+         },
+         "id": 7,
+         "panels": [ ],
+         "title": "Python Garbage Collector",
+         "type": "row"
+      },
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "unit": "ops"
+            }
+         },
+         "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 22
+         },
+         "id": 8,
+         "pluginVersion": "v11.0.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "prometheus",
+                  "uid": "$datasource"
+               },
+               "expr": "rate(python_gc_collections_total{job=~\"$job\", generation=~\".*\"}[$__rate_interval])",
+               "intervalFactor": 2,
+               "legendFormat": "gen{{generation}} {{job}}"
+            }
+         ],
+         "title": "GC Collections per Second",
+         "type": "timeseries"
+      },
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "unit": "ops"
+            }
+         },
+         "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 22
+         },
+         "id": 9,
+         "pluginVersion": "v11.0.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "prometheus",
+                  "uid": "$datasource"
+               },
+               "expr": "rate(python_gc_objects_collected_total{job=~\"$job\", generation=~\".*\"}[$__rate_interval])",
+               "intervalFactor": 2,
+               "legendFormat": "gen{{generation}} {{job}}"
+            }
+         ],
+         "title": "Objects Collected per Second",
+         "type": "timeseries"
+      },
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "unit": "ops"
+            }
+         },
+         "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 30
+         },
+         "id": 10,
+         "pluginVersion": "v11.0.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "prometheus",
+                  "uid": "$datasource"
+               },
+               "expr": "rate(python_gc_objects_uncollectable_total{job=~\"$job\", generation=~\".*\"}[$__rate_interval])",
+               "intervalFactor": 2,
+               "legendFormat": "gen{{generation}} {{job}}"
+            }
+         ],
+         "title": "Uncollectable Objects per Second",
+         "type": "timeseries"
+      },
+      {
+         "collapsed": false,
+         "gridPos": {
+            "h": 1,
+            "w": 0,
+            "x": 12,
+            "y": 38
+         },
+         "id": 11,
+         "panels": [ ],
+         "title": "Python Info",
+         "type": "row"
+      },
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "unit": "short"
+            }
+         },
+         "gridPos": {
+            "h": 4,
+            "w": 12,
+            "x": 0,
+            "y": 39
+         },
+         "id": 12,
+         "options": {
+            "reduceOptions": {
+               "calcs": [
+                  "lastNotNull"
+               ]
+            }
+         },
+         "pluginVersion": "v11.0.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "prometheus",
+                  "uid": "$datasource"
+               },
+               "expr": "python_info{job=~\"$job\"}",
+               "intervalFactor": 2,
+               "legendFormat": "{{version}} {{implementation}}"
+            }
+         ],
+         "title": "Python Version",
+         "type": "stat"
+      }
+   ],
+   "refresh": "30s",
+   "schemaVersion": 39,
+   "tags": [
+      "servicelib",
+      "runtime",
+      "python"
+   ],
+   "templating": {
+      "list": [
+         {
+            "label": "Datasource",
+            "name": "datasource",
+            "query": "prometheus",
+            "type": "datasource"
+         },
+         {
+            "datasource": {
+               "type": "prometheus",
+               "uid": "$datasource"
+            },
+            "includeAll": true,
+            "label": "Job",
+            "multi": true,
+            "name": "job",
+            "query": "label_values(process_start_time_seconds, job)",
+            "type": "query"
+         }
+      ]
+   },
+   "time": {
+      "from": "now-1h",
+      "to": "now"
+   },
+   "timezone": "browser",
+   "title": "inventoryservice / Python Runtime & Process",
+   "uid": "inventoryservice-runtime"
+}

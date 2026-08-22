@@ -1,0 +1,6 @@
+stages:
+  - quality
+  - integration
+
+include:
+  - local: .gitlab-ci.python.generated.yml
