@@ -10,6 +10,7 @@ LANG_FMT_TARGETS += python-format
 LANG_GEN_TARGETS += python-gen
 LANG_CLEAN_TARGETS += python-clean
 LANG_TOOL_TARGETS += python-tools
+LANG_HOST_PREP_TARGETS += python-gen python-tools
 LANG_DOCKER_BUILD_TARGETS += python-docker-build
 LANG_INTEGRATION_TARGETS += python-integration-test
 DOCKER_COMPOSE_RUNTIME_FILES += docker-compose.python-runtime.generated.yml
