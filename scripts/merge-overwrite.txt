@@ -15,6 +15,7 @@ docker-compose.yml
 docker-compose.kubernetes.yml
 docker-compose.dependency-cache.generated.yml
 pyproject.toml
+Dockerfile.python
 analyticsservice/grafana/dashboards/_lib.libsonnet
 analyticsservice/helm/Chart.yaml
 analyticsservice/helm/values.schema.json

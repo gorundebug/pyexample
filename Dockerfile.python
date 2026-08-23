@@ -1,18 +1,39 @@
 FROM python:3.12-slim AS development
 
 ARG TARGETARCH
+ARG PIP_INDEX_URL=https://pypi.org/simple
+ARG PIP_TRUSTED_HOST=
+ARG UV_INDEX_URL=https://pypi.org/simple
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PATH=/workspace/.venv/bin:$PATH
+    PATH=/workspace/.venv/bin:$PATH \
+    PIP_INDEX_URL=${PIP_INDEX_URL} \
+    PIP_TRUSTED_HOST=${PIP_TRUSTED_HOST} \
+    UV_INDEX_URL=${UV_INDEX_URL}
 
 WORKDIR /workspace
 
 RUN python -m pip install --no-cache-dir uv
 
 COPY . .
-COPY --from=pyservicelib-source . /workspace/.pyservicelib
+COPY --from=pyservicelib-source . /tmp/pyservicelib-source
+RUN set -eu; \
+    source_dir=/tmp/pyservicelib-source; \
+    archive=$(find "$source_dir" -mindepth 1 -maxdepth 1 -type f \( -name context -o -name '*.tar' -o -name '*.tar.gz' -o -name '*.tgz' -o -name '*.tar.xz' \) -print -quit); \
+    if [ -n "$archive" ]; then \
+      mkdir -p /tmp/pyservicelib-archive; \
+      tar -xf "$archive" -C /tmp/pyservicelib-archive; \
+      source_dir=/tmp/pyservicelib-archive; \
+    fi; \
+    manifest=$(find "$source_dir" -mindepth 1 -maxdepth 2 -type f -name pyproject.toml -print -quit); \
+    if [ -z "$manifest" ]; then echo "pyservicelib source context has no pyproject.toml" >&2; exit 1; fi; \
+    source_dir=${manifest%/pyproject.toml}; \
+    if [ -z "$source_dir" ] || [ "$source_dir" = "/" ]; then echo "unsafe pyservicelib source directory" >&2; exit 1; fi; \
+    mkdir -p /workspace/.pyservicelib; \
+    cp -a "$source_dir/." /workspace/.pyservicelib/; \
+    rm -rf /tmp/pyservicelib-source
 
 RUN --mount=type=cache,id=servicegen-python-uv-${TARGETARCH},target=/root/.cache/uv,sharing=locked \
     uv sync --all-packages --all-extras && \
