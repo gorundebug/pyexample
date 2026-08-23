@@ -51,4 +51,4 @@ fetch_module() {
   fi
 }
 
-fetch_module "model" "https://github.com/gorundebug/pyexample-model.git" "v0.2.6"
+fetch_module "model" "https://github.com/gorundebug/pyexample-model.git" "v0.2.7"
