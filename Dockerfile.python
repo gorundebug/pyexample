@@ -27,7 +27,8 @@ RUN set -eu; \
       tar -xf "$archive" -C /tmp/pyservicelib-archive; \
       source_dir=/tmp/pyservicelib-archive; \
     fi; \
-    manifest=$(find "$source_dir" -mindepth 1 -maxdepth 2 -type f -name pyproject.toml -print -quit); \
+    manifest="$source_dir/pyproject.toml"; \
+    if [ ! -f "$manifest" ]; then manifest=$(find "$source_dir" -mindepth 2 -maxdepth 2 -type f -name pyproject.toml -print -quit); fi; \
     if [ -z "$manifest" ]; then echo "pyservicelib source context has no pyproject.toml" >&2; exit 1; fi; \
     source_dir=${manifest%/pyproject.toml}; \
     if [ -z "$source_dir" ] || [ "$source_dir" = "/" ]; then echo "unsafe pyservicelib source directory" >&2; exit 1; fi; \
