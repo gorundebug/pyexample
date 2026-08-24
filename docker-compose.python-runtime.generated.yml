@@ -14,6 +14,21 @@ services:
     ports: !override
       - "9093:9093"
       - "9203:9203"
+  automationservice:
+    image: automationservice-python:latest
+    build:
+      target: runtime-automationservice
+    command:
+      - --config
+      - /workspace/config/config.yaml
+      - --overrides
+      - /workspace/config/docker_overrides.yaml
+    volumes: !reset []
+    security_opt: !reset []
+    cap_add: !reset []
+    ports: !override
+      - "9094:9094"
+      - "9204:9204"
   inventoryservice:
     image: inventoryservice-python:latest
     build:

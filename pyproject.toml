@@ -4,6 +4,7 @@ members = [
   "model",
   "order_service_api",
   "analyticsservice",
+  "automationservice",
   "inventoryservice",
   "orderservice",
 ]

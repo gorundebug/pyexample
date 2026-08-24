@@ -131,7 +131,7 @@ class ProcessOrder:
             )
             if not handler_state.results:
                 total = order.total_amount
-            response = {
+            response: dict[str, object] = {
                 "order_id": order.id,
                 "status": status,
                 "total_amount": total,

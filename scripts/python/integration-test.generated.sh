@@ -9,7 +9,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-docker compose -f "${COMPOSE_FILE}" up -d --build analyticsservice inventoryservice orderservice
+docker compose -f "${COMPOSE_FILE}" up -d --build analyticsservice automationservice inventoryservice orderservice
 
 python3 - <<'PY'
 import time
@@ -17,6 +17,7 @@ import urllib.request
 
 targets = [
     "http://127.0.0.1:9093/status",
+    "http://127.0.0.1:9094/status",
     "http://127.0.0.1:9092/status",
     "http://127.0.0.1:9091/status",
 ]
@@ -37,4 +38,4 @@ if [[ -n "${SERVICEGEN_INTEGRATION_COMMAND:-}" ]]; then
 fi
 
 # SIGTERM exercises generated stop_service() and its bounded named shutdown.
-docker compose -f "${COMPOSE_FILE}" stop --timeout 35 analyticsservice inventoryservice orderservice
+docker compose -f "${COMPOSE_FILE}" stop --timeout 35 analyticsservice automationservice inventoryservice orderservice

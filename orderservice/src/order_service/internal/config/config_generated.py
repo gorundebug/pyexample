@@ -21,7 +21,16 @@ from pyservicelib_gorundebug.api.models.join_type import JoinType
 from pyservicelib_gorundebug.api.models.kafka_sasl_mechanism import KafkaSaslMechanism
 from pyservicelib_gorundebug.api.models.kafka_security_protocol import KafkaSecurityProtocol
 from pyservicelib_gorundebug.api.models.log_level import LogLevel
+from pyservicelib_gorundebug.api.models.kubernetes_workload_type import (
+    KubernetesWorkloadType,
+)
 from pyservicelib_gorundebug.api.models.process_pattern import ProcessPattern
+from pyservicelib_gorundebug.api.models.schedule_missed_run_policy import (
+    ScheduleMissedRunPolicy,
+)
+from pyservicelib_gorundebug.api.models.schedule_overlap_policy import (
+    ScheduleOverlapPolicy,
+)
 from pyservicelib_gorundebug.api.models.programming_language import (
     ProgrammingLanguage,
 )
@@ -44,16 +53,20 @@ from pyservicelib_gorundebug.runtime.config.config import (
     TypeConfig,
 )
 from pyservicelib_gorundebug.runtime.config.dataconnector_types import (
+    CronDataConnectorConfig,
     CustomDataConnectorConfig,
     GrpcDataConnectorConfig,
     HttpDataConnectorConfig,
     KafkaDataConnectorConfig,
+    TemporalDataConnectorConfig,
 )
 from pyservicelib_gorundebug.runtime.config.endpoint_types import (
+    CronEndpointConfig,
     CustomEndpointConfig,
     GrpcEndpointConfig,
     HttpEndpointConfig,
     KafkaEndpointConfig,
+    TemporalEndpointConfig,
 )
 
 from pyservicelib_gorundebug.runtime.config.stream_types import (
@@ -69,12 +82,12 @@ from pyservicelib_gorundebug.runtime.config.stream_types import (
 
 _DEFAULT_CONFIG: dict[str, Any] = {
     "settings": ProjectSettings(moduleVersion="v0.2.12", name="Example", repoPath="github.com/gorundebug/pyexample", ),
-    "services": { "orderService": ServiceConfig(color="#FF5C00", defaultCallSemantics=CallSemantics(2), defaultGrpcTimeout=5000, environment=Environment(""), golangVersion="1.25.4", grpcHost="0.0.0.0", grpcPort=9201, httpHost="0.0.0.0", httpPort=9091, id=3, kubernetesWorkloadType="Deployment", livenessHandler="health/live", metricsHandler="metrics", modulePath="github.com/gorundebug/pyexample-orderservice", name="Order Service", programmingLanguage=ProgrammingLanguage(3), readinessHandler="health/ready", shutdownTimeout=30000, startupHandler="health/startup", statusHandler="status", ), },
-    "streams": { "mapOrderItemResultToOrderState": StreamConfig(functionDescription="Produce an order result containing one inventory result and preserving its order ID.\nMark it CONFIRMED when the item was reserved; otherwise mark it PARTIALLY_CONFIRMED.\nRecord the time when this result is produced.\n", functionInitializerGroup="", functionModule="", functionName="MapOrderItemResultToOrderState", functionPackage="", id=8, idService=3, idSource=13, name="Map Order Item Result To Order State", pipeline="order", type=TransformationType(2), valueType="OrderState", xPos=103, yPos=-52, ), "mapToOrderProcessed": StreamConfig(functionDescription="Create an OrderProcessed event from the final order state.\nPreserve the order ID, status, and processing time. Count all item results and reserved items; for unsuccessful orders use the final status as the failure reason.\n", functionInitializerGroup="", functionModule="", functionName="MapToOrderProcessed", functionPackage="", id=9, idService=3, idSource=17, name="MapToOrderProcessed", pipeline="order", type=TransformationType(2), valueType="OrderProcessed", xPos=-821, yPos=-26, ), "mapToOrderState": StreamConfig(functionDescription="Produce a TIMED_OUT order result that preserves the order ID and submitted total.\nDo not add item results at this stage; results received before the timeout are included in the final response.\n", functionInitializerGroup="", functionModule="", functionName="MapToOrderState", functionPackage="", id=10, idService=3, idSource=16, name="Map to Order State", pipeline="order", type=TransformationType(2), valueType="OrderState", xPos=-368, yPos=-227, ), "mergeResults": StreamConfig(id=11, idService=3, idSource=0, idSources=[10, 8, 7], name="Merge Results", pipeline="order", type=TransformationType(10), xPos=-228, yPos=130, ), "processOrder": StreamConfig(id=12, idEndpoint=3, idService=3, idSource=17, name="Process Order", pipeline="order", type=TransformationType(1), valueType="Order", xPos=-760, yPos=-367, ), "processOrderItem": StreamConfig(id=13, idEndpoint=1, idService=3, idSource=14, name="Process Order Item", pipeline="order", type=TransformationType(13), valueType="OrderItemResult", xPos=-60, yPos=-375, ), "processOrderItems": StreamConfig(functionDescription="Emit every order item independently for inventory processing.\nPreserve each item's data and assign the parent order ID.\n", functionInitializerGroup="", functionModule="", functionName="ProcessOrderItems", functionPackage="", id=14, idService=3, idSource=18, name="Process Order Items", pipeline="order", type=TransformationType(7), valueType="OrderItem", xPos=-198, yPos=-662, ), "publishOrderProcessed": StreamConfig(id=15, idEndpoint=2, idService=3, idSource=9, name="Publish Order Processed", pipeline="order", type=TransformationType(13), valueType="OrderProcessed", xPos=-944, yPos=-255, ), "softDeadline": StreamConfig(duration=1000, functionDescription="Trigger the timeout branch shortly before the request deadline, leaving the configured duration to assemble a response.\nWhen no request deadline exists, use the configured duration itself. Never wait past an existing deadline.\n", functionInitializerGroup="", functionModule="", functionName="SoftDeadline", functionPackage="", id=16, idService=3, idSource=18, name="Soft Deadline", pipeline="order", type=TransformationType(16), xPos=-477, yPos=-444, ), "splitOrderResult": StreamConfig(id=17, idService=3, idSource=11, name="Split Order Result", pipeline="order", type=TransformationType(11), xPos=-671, yPos=-129, ), "splitPipeline": StreamConfig(id=18, idService=3, idSource=12, name="Split Pipeline", pipeline="order", type=TransformationType(11), xPos=-640, yPos=-597, ), },
-    "dataConnectors": { "inventoryServiceApi": DataConnectorConfig(address="dns:///localhost:9202", connectionsCount=1, id=1, implementation="google/grpc", module="inventory_service_api", name="Inventory Service API", type=DataConnectorType(2), typeScriptImplementation="grpc/grpc-js", ), "orderEvents": DataConnectorConfig(brokers="redpanda:9092", id=2, implementation="aiokafka", name="Order Events", password="", saslMechanism="SCRAM-SHA-512", securityProtocol="PLAINTEXT", type=DataConnectorType(3), typeScriptImplementation="confluent/kafka-javascript", username="", version="2.8.0", ), "orderServiceApi": DataConnectorConfig(id=3, implementation="aiohttp", module="order_service_api", name="Order Service API", type=DataConnectorType(1), typeScriptImplementation="node/http", useDedicatedListener=False, ), },
-    "endpoints": { "orderProcessed": EndpointConfig(consumerGroup="analytics-service", createTopic=True, enabled=True, functionDescription="Exchange OrderProcessed events keyed by order ID.\nProducers include the final status, processing time, total and confirmed item counts, and a failure reason for unsuccessful orders.\nConsumers decode the event and mark its Kafka message processed only after the pipeline handles it successfully.\n", functionInitializerGroup="", functionName="OrderProcessedEndpoint", functionPackage="", id=2, idDataConnector=2, name="Order Processed", partitions=1, publicFunction=False, replicationFactor=1, topic="order-processed", ), "processOrder": EndpointConfig(functionDescription="Accept orders with at least one item and positive quantities; reject malformed or invalid requests as client errors.\nReuse X-Request-ID when supplied, otherwise generate an order ID. Preserve customer, item, price, and X-Trace data, and apply the configured timeout of five seconds by default.\nReturn one response per order. When all items finish, use CONFIRMED only if every item was reserved; otherwise use PARTIALLY_CONFIRMED. If the deadline wins, return TIMED_OUT with the item results received so far.\nCalculate the total from processed item prices, falling back to the submitted total when no item result arrived, and include individual item failures in the response.\n", functionInitializerGroup="", functionName="ProcessOrder", functionPackage="", httpMethodType=HTTPMethodType("POST"), id=3, idDataConnector=3, name="Process Order", path="/v1/processorder", publicFunction=False, ), "processOrderItem": EndpointConfig(functionDescription="Reserve inventory for one order item using its order ID, item ID, SKU, and quantity.\nReturn the available quantity, reservation outcome, and status. The caller combines this response with the original identity, requested quantity, and unit price.\nIf the inventory call fails, the caller returns a non-reserved PROCESSING_ERROR result with the failure message.\n", functionInitializerGroup="", functionName="ProcessOrderItem", functionPackage="", grpcMethodType=GrpcMethodType(1), id=1, idDataConnector=1, methodName="ProcessOrderItem", name="Process Order Item", publicFunction=False, ), },
+    "services": { "orderService": ServiceConfig(color="#FF5C00", defaultCallSemantics=CallSemantics(2), defaultGrpcTimeout=5000, environment=Environment(""), golangVersion="1.25.4", grpcHost="0.0.0.0", grpcPort=9201, httpHost="0.0.0.0", httpPort=9091, id=4, kubernetesWorkloadType=KubernetesWorkloadType("Deployment"), livenessHandler="health/live", metricsHandler="metrics", modulePath="github.com/gorundebug/pyexample-orderservice", name="Order Service", programmingLanguage=ProgrammingLanguage(3), readinessHandler="health/ready", shutdownTimeout=30000, startupHandler="health/startup", statusHandler="status", ), },
+    "streams": { "mapOrderItemResultToOrderState": StreamConfig(functionDescription="Produce an order result containing one inventory result and preserving its order ID.\nMark it CONFIRMED when the item was reserved; otherwise mark it PARTIALLY_CONFIRMED.\nRecord the time when this result is produced.\n", functionInitializerGroup="", functionModule="", functionName="MapOrderItemResultToOrderState", functionPackage="", id=16, idService=4, idSource=21, name="Map Order Item Result To Order State", pipeline="order", type=TransformationType(2), valueType="OrderState", xPos=103, yPos=-52, ), "mapToOrderProcessed": StreamConfig(functionDescription="Create an OrderProcessed event from the final order state.\nPreserve the order ID, status, and processing time. Count all item results and reserved items; for unsuccessful orders use the final status as the failure reason.\n", functionInitializerGroup="", functionModule="", functionName="MapToOrderProcessed", functionPackage="", id=17, idService=4, idSource=25, name="MapToOrderProcessed", pipeline="order", type=TransformationType(2), valueType="OrderProcessed", xPos=-821, yPos=-26, ), "mapToOrderState": StreamConfig(functionDescription="Produce a TIMED_OUT order result that preserves the order ID and submitted total.\nDo not add item results at this stage; results received before the timeout are included in the final response.\n", functionInitializerGroup="", functionModule="", functionName="MapToOrderState", functionPackage="", id=18, idService=4, idSource=24, name="Map to Order State", pipeline="order", type=TransformationType(2), valueType="OrderState", xPos=-368, yPos=-227, ), "mergeResults": StreamConfig(id=19, idService=4, idSource=0, idSources=[18, 16, 15], name="Merge Results", pipeline="order", type=TransformationType(10), xPos=-228, yPos=130, ), "processOrder": StreamConfig(id=20, idEndpoint=4, idService=4, idSource=25, name="Process Order", pipeline="order", type=TransformationType(1), valueType="Order", xPos=-760, yPos=-367, ), "processOrderItem": StreamConfig(id=21, idEndpoint=1, idService=4, idSource=22, name="Process Order Item", pipeline="order", type=TransformationType(13), valueType="OrderItemResult", xPos=-60, yPos=-375, ), "processOrderItems": StreamConfig(functionDescription="Emit every order item independently for inventory processing.\nPreserve each item's data and assign the parent order ID.\n", functionInitializerGroup="", functionModule="", functionName="ProcessOrderItems", functionPackage="", id=22, idService=4, idSource=26, name="Process Order Items", pipeline="order", type=TransformationType(7), valueType="OrderItem", xPos=-198, yPos=-662, ), "publishOrderProcessed": StreamConfig(id=23, idEndpoint=3, idService=4, idSource=17, name="Publish Order Processed", pipeline="order", type=TransformationType(13), valueType="OrderProcessed", xPos=-944, yPos=-255, ), "softDeadline": StreamConfig(duration=1000, functionDescription="Trigger the timeout branch shortly before the request deadline, leaving the configured duration to assemble a response.\nWhen no request deadline exists, use the configured duration itself. Never wait past an existing deadline.\n", functionInitializerGroup="", functionModule="", functionName="SoftDeadline", functionPackage="", id=24, idService=4, idSource=26, name="Soft Deadline", pipeline="order", type=TransformationType(16), xPos=-477, yPos=-444, ), "splitOrderResult": StreamConfig(id=25, idService=4, idSource=19, name="Split Order Result", pipeline="order", type=TransformationType(11), xPos=-671, yPos=-129, ), "splitPipeline": StreamConfig(id=26, idService=4, idSource=20, name="Split Pipeline", pipeline="order", type=TransformationType(11), xPos=-640, yPos=-597, ), },
+    "dataConnectors": { "inventoryServiceApi": DataConnectorConfig(address="dns:///localhost:9202", connectionsCount=1, id=1, implementation="google/grpc", module="inventory_service_api", name="Inventory Service API", type=DataConnectorType(2), ), "orderEvents": DataConnectorConfig(brokers="redpanda:9092", id=3, implementation="aiokafka", name="Order Events", password="", saslMechanism=KafkaSaslMechanism("SCRAM-SHA-512"), securityProtocol=KafkaSecurityProtocol("PLAINTEXT"), type=DataConnectorType(3), username="", version="2.8.0", ), "orderServiceApi": DataConnectorConfig(id=4, implementation="aiohttp", module="order_service_api", name="Order Service API", type=DataConnectorType(1), useDedicatedListener=False, ), },
+    "endpoints": { "orderProcessed": EndpointConfig(consumerGroup="analytics-service", createTopic=True, enabled=True, functionDescription="Exchange OrderProcessed events keyed by order ID.\nProducers include the final status, processing time, total and confirmed item counts, and a failure reason for unsuccessful orders.\nConsumers decode the event and mark its Kafka message processed only after the pipeline handles it successfully.\n", functionInitializerGroup="", functionName="OrderProcessedEndpoint", functionPackage="", id=3, idDataConnector=3, name="Order Processed", partitions=1, publicFunction=False, replicationFactor=1, topic="order-processed", ), "processOrder": EndpointConfig(functionDescription="Accept orders with at least one item and positive quantities; reject malformed or invalid requests as client errors.\nReuse X-Request-ID when supplied, otherwise generate an order ID. Preserve customer, item, price, and X-Trace data, and apply the configured timeout of five seconds by default.\nReturn one response per order. When all items finish, use CONFIRMED only if every item was reserved; otherwise use PARTIALLY_CONFIRMED. If the deadline wins, return TIMED_OUT with the item results received so far.\nCalculate the total from processed item prices, falling back to the submitted total when no item result arrived, and include individual item failures in the response.\n", functionInitializerGroup="", functionName="ProcessOrder", functionPackage="", httpMethodType=HTTPMethodType("POST"), id=4, idDataConnector=4, name="Process Order", path="/v1/processorder", publicFunction=False, ), "processOrderItem": EndpointConfig(functionDescription="Reserve inventory for one order item using its order ID, item ID, SKU, and quantity.\nReturn the available quantity, reservation outcome, and status. The caller combines this response with the original identity, requested quantity, and unit price.\nIf the inventory call fails, the caller returns a non-reserved PROCESSING_ERROR result with the failure message.\n", functionInitializerGroup="", functionName="ProcessOrderItem", functionPackage="", grpcMethodType=GrpcMethodType(1), id=1, idDataConnector=1, methodName="ProcessOrderItem", name="Process Order Item", publicFunction=False, ), },
     "pools": { "defaultPool": PoolConfig(executorsCount=2, name="Default Pool", ), },
-    "links": { "mergeResultsToSplitOrderResult": LinkConfig(callSemantics=CallSemantics(2), var_from=11, to=17, ), "processOrderToSplitPipeline": LinkConfig(callSemantics=CallSemantics(2), var_from=12, poolName="Default Pool", priority=1, to=18, ), "splitPipelineToProcessOrderItems": LinkConfig(callSemantics=CallSemantics(2), var_from=18, to=14, ), "splitPipelineToSoftDeadline": LinkConfig(var_async=True, callSemantics=CallSemantics(2), var_from=18, to=16, ), },
+    "links": { "mergeResultsToSplitOrderResult": LinkConfig(callSemantics=CallSemantics(2), var_from=19, to=25, ), "processOrderToSplitPipeline": LinkConfig(callSemantics=CallSemantics(2), var_from=20, poolName="Default Pool", priority=1, to=26, ), "splitPipelineToProcessOrderItems": LinkConfig(callSemantics=CallSemantics(2), var_from=26, to=22, ), "splitPipelineToSoftDeadline": LinkConfig(var_async=True, callSemantics=CallSemantics(2), var_from=26, to=24, ), },
     "modules": { "inventoryServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-inventory-service-api", name="inventory_service_api", ), "model": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-model", name="model", ), "orderServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-order-service-api", name="order_service_api", ), },
     "types": { "order": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="E-commerce order submitted by a customer. Fields: ID string, CustomerID string, Items []OrderItem, CreatedAt time.Time.", name="Order", package="", publicType=False, transferByValue=False, type=DataType.struct, ), "orderItem": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="A single line item within an order. Fields: OrderID string, ItemID string, SKU string, Quantity int.", module="model", name="OrderItem", package="", publicType=False, transferByValue=False, type=DataType.struct, ), "orderItemResult": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Inventory reservation result for a single order item. Fields: OrderID string, ItemID string, SKU string, RequestedQty int, AvailableQty int, Reserved bool, Status string (CONFIRMED / OUT_OF_STOCK / PROCESSING_ERROR), UnitPrice float64, Error string.", module="model", name="OrderItemResult", package="", publicType=False, transferByValue=False, type=DataType.struct, ), "orderProcessed": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Final order-processing event. Fields: OrderID string, Status string, ProcessedAt time.Time, TotalItems int, ConfirmedItems int, FailureReason string.", module="model", name="OrderProcessed", package="", publicType=False, transferByValue=False, type=DataType.struct, ), "orderState": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Processing result of an order. Fields: OrderID string, Status string (CONFIRMED — all items reserved; PARTIALLY_CONFIRMED — some items out of stock; TIMED_OUT — order timed out), ConfirmedItems []OrderItemResult, TotalAmount float64, ProcessedAt time.Time.", name="OrderState", package="", publicType=False, transferByValue=False, type=DataType.struct, ), },
 }
@@ -100,33 +113,33 @@ _ENVIRONMENT_VARIABLES: tuple[tuple[str, tuple[str, ...], str], ...] = (
 
 
 class ServiceIds:
-    ORDER_SERVICE: Final[int] = 3
+    ORDER_SERVICE: Final[int] = 4
 
 
 class StreamIds:
-    MAP_ORDER_ITEM_RESULT_TO_ORDER_STATE: Final[int] = 8
-    MAP_TO_ORDER_PROCESSED: Final[int] = 9
-    MAP_TO_ORDER_STATE: Final[int] = 10
-    MERGE_RESULTS: Final[int] = 11
-    PROCESS_ORDER: Final[int] = 12
-    PROCESS_ORDER_ITEM: Final[int] = 13
-    PROCESS_ORDER_ITEMS: Final[int] = 14
-    PUBLISH_ORDER_PROCESSED: Final[int] = 15
-    SOFT_DEADLINE: Final[int] = 16
-    SPLIT_ORDER_RESULT: Final[int] = 17
-    SPLIT_PIPELINE: Final[int] = 18
+    MAP_ORDER_ITEM_RESULT_TO_ORDER_STATE: Final[int] = 16
+    MAP_TO_ORDER_PROCESSED: Final[int] = 17
+    MAP_TO_ORDER_STATE: Final[int] = 18
+    MERGE_RESULTS: Final[int] = 19
+    PROCESS_ORDER: Final[int] = 20
+    PROCESS_ORDER_ITEM: Final[int] = 21
+    PROCESS_ORDER_ITEMS: Final[int] = 22
+    PUBLISH_ORDER_PROCESSED: Final[int] = 23
+    SOFT_DEADLINE: Final[int] = 24
+    SPLIT_ORDER_RESULT: Final[int] = 25
+    SPLIT_PIPELINE: Final[int] = 26
 
 
 class EndpointIds:
-    ORDER_PROCESSED: Final[int] = 2
-    PROCESS_ORDER: Final[int] = 3
+    ORDER_PROCESSED: Final[int] = 3
+    PROCESS_ORDER: Final[int] = 4
     PROCESS_ORDER_ITEM: Final[int] = 1
 
 
 class DataConnectorIds:
     INVENTORY_SERVICE_API: Final[int] = 1
-    ORDER_EVENTS: Final[int] = 2
-    ORDER_SERVICE_API: Final[int] = 3
+    ORDER_EVENTS: Final[int] = 3
+    ORDER_SERVICE_API: Final[int] = 4
 
 
 @dataclass(frozen=True, slots=True)
@@ -386,6 +399,45 @@ def _kafka_data_connector(config: DataConnectorConfig) -> KafkaDataConnectorConf
     )
 
 
+def _cron_data_connector(config: DataConnectorConfig) -> CronDataConnectorConfig:
+    return CronDataConnectorConfig(
+        id=config.id,
+        name=config.name,
+        implementation=_implementation(config),
+        properties=config.properties,
+    )
+
+
+def _temporal_data_connector(
+    config: DataConnectorConfig,
+) -> TemporalDataConnectorConfig:
+    return TemporalDataConnectorConfig(
+        id=config.id,
+        name=config.name,
+        implementation=_implementation(config),
+        address=config.address or "",
+        namespace=config.namespace or "",
+        identity=config.identity or "",
+        api_key=getattr(config, "api_key", "") or "",
+        tls_enabled=getattr(config, "tls_enabled", False) or False,
+        tls_server_name=getattr(config, "tls_server_name", "") or "",
+        tls_ca_file=getattr(config, "tls_ca_file", "") or "",
+        tls_cert_file=getattr(config, "tls_cert_file", "") or "",
+        tls_key_file=getattr(config, "tls_key_file", "") or "",
+        max_concurrent_activities=(
+            getattr(config, "max_concurrent_activities")
+            if getattr(config, "max_concurrent_activities", None) is not None
+            else 1
+        ),
+        max_concurrent_workflows=(
+            getattr(config, "max_concurrent_workflows")
+            if getattr(config, "max_concurrent_workflows", None) is not None
+            else 1
+        ),
+        properties=config.properties,
+    )
+
+
 def _custom_data_connector(config: DataConnectorConfig) -> CustomDataConnectorConfig:
     return CustomDataConnectorConfig(
         id=config.id,
@@ -434,7 +486,7 @@ def _kafka_endpoint(config: EndpointConfig) -> KafkaEndpointConfig:
         id=config.id,
         name=config.name,
         id_data_connector=config.id_data_connector,
-        enabled=config.enabled,
+        enabled=config.enabled or False,
         topic=config.topic,
         consumer_group=config.consumer_group,
         create_topic=config.create_topic or False,
@@ -446,6 +498,58 @@ def _kafka_endpoint(config: EndpointConfig) -> KafkaEndpointConfig:
         function_description=config.function_description,
         function_initializer_group=config.function_initializer_group,
         function_module=config.function_module,
+        properties=config.properties,
+    )
+
+
+def _cron_endpoint(config: EndpointConfig) -> CronEndpointConfig:
+    return CronEndpointConfig(
+        id=config.id,
+        name=config.name,
+        id_data_connector=config.id_data_connector,
+        enabled=config.enabled or False,
+        schedule=config.schedule or "",
+        timezone=config.timezone or "UTC",
+        overlap_policy=config.overlap_policy or ScheduleOverlapPolicy.SKIP,
+        missed_run_policy=(
+            config.missed_run_policy or ScheduleMissedRunPolicy.SKIP
+        ),
+        properties=config.properties,
+    )
+
+
+def _temporal_endpoint(config: EndpointConfig) -> TemporalEndpointConfig:
+    return TemporalEndpointConfig(
+        id=config.id,
+        name=config.name,
+        id_data_connector=config.id_data_connector,
+        enabled=config.enabled or False,
+        task_queue=config.task_queue or "",
+        schedule=config.schedule or "",
+        schedule_id=config.schedule_id or "",
+        timezone=config.timezone or "UTC",
+        overlap_policy=config.overlap_policy or ScheduleOverlapPolicy.SKIP,
+        missed_run_policy=(
+            config.missed_run_policy or ScheduleMissedRunPolicy.SKIP
+        ),
+        workflow_execution_timeout=(
+            config.workflow_execution_timeout
+            if config.workflow_execution_timeout is not None
+            else 0
+        ),
+        activity_start_to_close_timeout=(
+            config.activity_start_to_close_timeout
+            if config.activity_start_to_close_timeout is not None
+            else 0
+        ),
+        activity_heartbeat_timeout=(
+            config.activity_heartbeat_timeout
+            if config.activity_heartbeat_timeout is not None
+            else 0
+        ),
+        maximum_attempts=(
+            config.maximum_attempts if config.maximum_attempts is not None else 1
+        ),
         properties=config.properties,
     )
 

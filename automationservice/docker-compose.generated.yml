@@ -1,0 +1,10 @@
+services:
+  automationservice:
+    image: automationservice-python:latest
+    restart: unless-stopped
+    environment:
+      - DEBUG=${AUTOMATION_SERVICE_DEBUG:-0}
+    ports:
+      - "9094:9094"
+      - "9204:9204"
+      - "2345:2345"

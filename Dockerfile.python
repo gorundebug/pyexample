@@ -42,6 +42,9 @@ RUN --mount=type=cache,id=servicegen-python-uv-${TARGETARCH},target=/root/.cache
 FROM development AS runtime-builder-analyticsservice
 
 RUN uv sync --package analytics_service --no-dev --no-editable --no-cache
+FROM development AS runtime-builder-automationservice
+
+RUN uv sync --package automation_service --no-dev --no-editable --no-cache
 FROM development AS runtime-builder-inventoryservice
 
 RUN uv sync --package inventory_service --no-dev --no-editable --no-cache
@@ -61,6 +64,11 @@ FROM runtime-base AS runtime-analyticsservice
 COPY --from=runtime-builder-analyticsservice /workspace/.venv /workspace/.venv
 COPY --from=runtime-builder-analyticsservice /workspace/analyticsservice/config /workspace/config
 ENTRYPOINT ["python", "-m", "analytics_service.main"]
+
+FROM runtime-base AS runtime-automationservice
+COPY --from=runtime-builder-automationservice /workspace/.venv /workspace/.venv
+COPY --from=runtime-builder-automationservice /workspace/automationservice/config /workspace/config
+ENTRYPOINT ["python", "-m", "automation_service.main"]
 
 FROM runtime-base AS runtime-inventoryservice
 COPY --from=runtime-builder-inventoryservice /workspace/.venv /workspace/.venv
