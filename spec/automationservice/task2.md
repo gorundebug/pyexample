@@ -1,32 +1,30 @@
-# Task 2/3: `ProcessDurableJob`
+# Task 2/5: `LocalSchedule`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `map` |
-| File | `automationservice/src/automation_service/internal/functions/process_durable_job.py` |
-| Test | `automationservice/tests/functions/test_process_durable_job.py` |
+| Kind | `schedule-source` |
+| File | `automationservice/src/automation_service/internal/functions/local_schedule.py` |
+| Test | `automationservice/tests/functions/test_local_schedule.py` |
 | Service | `Automation Service` |
 
-
-## Behaviour
-
-Process one accepted automation job and return its result.
 
 
 
 
 ## Stream types
+- Input: `ScheduleTrigger`
+- Output: `ScheduleTrigger`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `automationservice/src/automation_service/internal/functions/process_durable_job.py` and preserve its generated contract
+- [ ] Open `automationservice/src/automation_service/internal/functions/local_schedule.py` and preserve its generated contract
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_process_durable_job.py`
+- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_local_schedule.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] automationservice/task2.md — ProcessDurableJob — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] automationservice/task2.md — LocalSchedule — Python — done`

@@ -1,0 +1,30 @@
+# Task 5/5: `TemporalSchedule`
+
+> Rules: [`spec/rules.md`](../rules.md)
+
+| Field | Value |
+|-------|-------|
+| Language | `Python` |
+| Kind | `schedule-source` |
+| File | `automationservice/src/automation_service/internal/functions/temporal_schedule.py` |
+| Test | `automationservice/tests/functions/test_temporal_schedule.py` |
+| Service | `Automation Service` |
+
+
+
+
+
+## Stream types
+- Input: `ScheduleTrigger`
+- Output: `ScheduleTrigger`
+
+## Checklist
+
+- [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
+- [ ] Open `automationservice/src/automation_service/internal/functions/temporal_schedule.py` and preserve its generated contract
+- [ ] Implement every generated async method and remove `NotImplementedError`
+- [ ] Run `./scripts/python/typecheck.generated.sh`
+- [ ] Run `./scripts/python/test.generated.sh`
+- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_temporal_schedule.py`
+- [ ] Re-read this checklist
+- [ ] Append to `spec/progress.md`: `- [x] automationservice/task5.md — TemporalSchedule — Python — done`

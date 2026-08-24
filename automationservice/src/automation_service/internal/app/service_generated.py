@@ -23,8 +23,10 @@ from pyservicelib_gorundebug.runtime.temporal import make_connector as make_temp
 from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
+from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig
 from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
 from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
+from pyservicelib_gorundebug.runtime.config.endpoint_types import TemporalEndpointConfig
 from automation_service.models.string import (
     String,
 )
@@ -34,10 +36,14 @@ from pyservicelib_gorundebug.runtime.schedule import (
 from ..functions import (
     LocalJob,
     make_local_job,
+    LocalSchedule,
+    make_local_schedule,
     ProcessDurableJob,
     make_process_durable_job,
     TemporalJob,
     make_temporal_job,
+    TemporalSchedule,
+    make_temporal_schedule,
 )
 
 
@@ -59,6 +65,11 @@ class ServiceMakers:
             ctx, environment, config
         )
     )
+    local_schedule: Callable[[Context, ServiceEnvironment, CronEndpointConfig], LocalSchedule] = (
+        lambda ctx, environment, config: make_local_schedule(
+            ctx, environment, config
+        )
+    )
     process_durable_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessDurableJob] = (
         lambda ctx, environment, config: make_process_durable_job(
             ctx, environment, config
@@ -69,13 +80,20 @@ class ServiceMakers:
             ctx, environment, config
         )
     )
+    temporal_schedule: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalSchedule] = (
+        lambda ctx, environment, config: make_temporal_schedule(
+            ctx, environment, config
+        )
+    )
 
 
 @dataclass(slots=True)
 class ServiceFunctions:
     local_job: LocalJob
+    local_schedule: LocalSchedule
     process_durable_job: ProcessDurableJob
     temporal_job: TemporalJob
+    temporal_schedule: TemporalSchedule
 
 
 class GeneratedService(ServiceApp):
@@ -117,11 +135,17 @@ class GeneratedService(ServiceApp):
             local_job=self._makers.local_job(
                 ctx, self, named.streams.make_local_job
             ),
+            local_schedule=self._makers.local_schedule(
+                ctx, self, named.endpoints.local_schedule
+            ),
             process_durable_job=self._makers.process_durable_job(
                 ctx, self, named.streams.process_durable_job
             ),
             temporal_job=self._makers.temporal_job(
                 ctx, self, named.streams.make_temporal_job
+            ),
+            temporal_schedule=self._makers.temporal_schedule(
+                ctx, self, named.endpoints.temporal_schedule
             ),
         )
         await self.custom_functions_init(ctx)
@@ -157,11 +181,11 @@ class GeneratedService(ServiceApp):
         self._transport_consumers = []
         consume_durable_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_durable_job)
         self._transport_consumers.append(consume_durable_job_consumer)
-        local_schedule_consumer = cron_source.APSchedulerEndpointConsumer(self._service_streams.local_schedule)
+        local_schedule_consumer = cron_source.APSchedulerEndpointConsumer(self._service_streams.local_schedule, self.functions.local_schedule)
         self._transport_consumers.append(local_schedule_consumer)
         submit_durable_job_consumer = temporal_sink.make_direct_endpoint_consumer(self._service_streams.submit_durable_job)
         self._transport_consumers.append(submit_durable_job_consumer)
-        temporal_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_schedule)
+        temporal_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_schedule, self.functions.temporal_schedule)
         self._transport_consumers.append(temporal_schedule_consumer)
     def initialize_runtime_connectors(self) -> None:
         cfg = self.config
