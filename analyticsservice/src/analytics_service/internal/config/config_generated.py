@@ -68,6 +68,9 @@ from pyservicelib_gorundebug.runtime.config.endpoint_types import (
     KafkaEndpointConfig,
     TemporalEndpointConfig,
 )
+from pyservicelib_gorundebug.api.models.temporal_execution_type import (
+    TemporalExecutionType,
+)
 
 from pyservicelib_gorundebug.runtime.config.stream_types import (
     InputStreamConfig,
@@ -445,6 +448,7 @@ def _temporal_endpoint(config: EndpointConfig) -> TemporalEndpointConfig:
         id=config.id,
         name=config.name,
         id_data_connector=config.id_data_connector,
+        temporal_execution_type=_require_temporal_execution_type(config),
         tracing_enabled=config.tracing_enabled or False,
         enabled=config.enabled or False,
         task_queue=config.task_queue or "",
@@ -475,6 +479,16 @@ def _temporal_endpoint(config: EndpointConfig) -> TemporalEndpointConfig:
         ),
         properties=config.properties,
     )
+
+
+def _require_temporal_execution_type(
+    config: EndpointConfig,
+) -> TemporalExecutionType:
+    if config.temporal_execution_type is None:
+        raise ValueError(
+            f"Temporal endpoint {config.name!r} requires temporalExecutionType"
+        )
+    return config.temporal_execution_type
 
 
 def _custom_endpoint(config: EndpointConfig) -> CustomEndpointConfig:

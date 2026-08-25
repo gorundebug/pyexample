@@ -68,6 +68,9 @@ from pyservicelib_gorundebug.runtime.config.endpoint_types import (
     KafkaEndpointConfig,
     TemporalEndpointConfig,
 )
+from pyservicelib_gorundebug.api.models.temporal_execution_type import (
+    TemporalExecutionType,
+)
 
 from pyservicelib_gorundebug.runtime.config.stream_types import (
     InputStreamConfig,
@@ -79,11 +82,11 @@ from pyservicelib_gorundebug.runtime.config.stream_types import (
 _DEFAULT_CONFIG: dict[str, Any] = {
     "settings": ProjectSettings(moduleVersion="v0.2.12", name="Example", repoPath="github.com/gorundebug/pyexample", ),
     "services": { "inventoryService": ServiceConfig(color="#6800FF", defaultCallSemantics=CallSemantics(2), defaultGrpcTimeout=0, environment=Environment(""), golangVersion="1.25.4", grpcHost="0.0.0.0", grpcPort=9202, httpHost="0.0.0.0", httpPort=9092, id=3, kubernetesWorkloadType=KubernetesWorkloadType("Deployment"), livenessHandler="health/live", metricsHandler="metrics", modulePath="github.com/gorundebug/pyexample-inventoryservice", name="Inventory Service", programmingLanguage=ProgrammingLanguage(3), readinessHandler="health/ready", shutdownTimeout=30000, startupHandler="health/startup", statusHandler="status", ), },
-    "streams": { "getInventoryItemData": StreamConfig(functionDescription="Reserve the requested quantity without allowing concurrent orders to overdraw stock.\nOn success, return CONFIRMED with the requested quantity available. Otherwise return OUT_OF_STOCK with the current available quantity.\nPreserve the order and item identity, requested quantity, and unit price.\nThe example starts with SKU-001: 100, SKU-002: 50, and SKU-003: 25.\n", functionInitializerGroup="", functionModule="", functionName="GetInventoryItemData", functionPackage="", id=10, idService=3, idSource=13, name="Get Inventory Item Data", pipeline="inventoryItem", type=TransformationType(6), valueType="OrderItemResult", xPos=527, yPos=-562, ), "mergeInventoryResult": StreamConfig(id=12, idService=3, idSource=0, idSources=[10, 11], name="Merge Inventory Result", pipeline="inventoryItem", type=TransformationType(10), xPos=542, yPos=33, ), "processInventoryItem": StreamConfig(id=13, idEndpoint=1, idService=3, idSource=12, name="Process Inventory Item ", pipeline="inventoryItem", type=TransformationType(1), valueType="OrderItem", xPos=250, yPos=-400, ), },
+    "streams": { "getInventoryItemData": StreamConfig(functionDescription="Reserve the requested quantity without allowing concurrent orders to overdraw stock.\nOn success, return CONFIRMED with the requested quantity available. Otherwise return OUT_OF_STOCK with the current available quantity.\nPreserve the order and item identity, requested quantity, and unit price.\nThe example starts with SKU-001: 100, SKU-002: 50, and SKU-003: 25.\n", functionInitializerGroup="", functionModule="", functionName="GetInventoryItemData", functionPackage="", id=21, idService=3, idSource=24, name="Get Inventory Item Data", pipeline="inventoryItem", type=TransformationType(6), valueType="OrderItemResult", xPos=527, yPos=-562, ), "mergeInventoryResult": StreamConfig(id=23, idService=3, idSource=0, idSources=[21, 22], name="Merge Inventory Result", pipeline="inventoryItem", type=TransformationType(10), xPos=542, yPos=33, ), "processInventoryItem": StreamConfig(id=24, idEndpoint=1, idService=3, idSource=23, name="Process Inventory Item ", pipeline="inventoryItem", type=TransformationType(1), valueType="OrderItem", xPos=250, yPos=-400, ), },
     "dataConnectors": { "inventoryServiceApi": DataConnectorConfig(address="dns:///localhost:9202", connectionsCount=1, id=1, implementation="google/grpc", module="inventory_service_api", name="Inventory Service API", type=DataConnectorType(2), ), },
     "endpoints": { "processOrderItem": EndpointConfig(functionDescription="Reserve inventory for one order item using its order ID, item ID, SKU, and quantity.\nReturn the available quantity, reservation outcome, and status. The caller combines this response with the original identity, requested quantity, and unit price.\nIf the inventory call fails, the caller returns a non-reserved PROCESSING_ERROR result with the failure message.\n", functionInitializerGroup="", functionName="ProcessOrderItem", functionPackage="", grpcMethodType=GrpcMethodType(1), id=1, idDataConnector=1, methodName="ProcessOrderItem", name="Process Order Item", publicFunction=False, ), },
     "pools": { "inventoryPriorityWorkers": PoolConfig(executorsCount=2, name="Inventory Priority Workers", ), },
-    "links": { "getInventoryItemDataToMergeInventoryResult": LinkConfig(callSemantics=CallSemantics(2), var_from=10, to=12, ), "processInventoryItemToGetInventoryItemData": LinkConfig(callSemantics=CallSemantics(2), var_from=13, poolName="Inventory Priority Workers", priority=10, to=10, ), },
+    "links": { "getInventoryItemDataToMergeInventoryResult": LinkConfig(callSemantics=CallSemantics(2), var_from=21, to=23, ), "processInventoryItemToGetInventoryItemData": LinkConfig(callSemantics=CallSemantics(2), var_from=24, poolName="Inventory Priority Workers", priority=10, to=21, ), },
     "modules": { "inventoryServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-inventory-service-api", name="inventory_service_api", ), "model": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-model", name="model", ), "orderServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-order-service-api", name="order_service_api", ), },
     "types": { "orderItem": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="A single line item within an order. Fields: OrderID string, ItemID string, SKU string, Quantity int.", module="model", name="OrderItem", package="", publicType=False, transferByValue=False, type=DataType.struct, ), "orderItemResult": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Inventory reservation result for a single order item. Fields: OrderID string, ItemID string, SKU string, RequestedQty int, AvailableQty int, Reserved bool, Status string (CONFIRMED / OUT_OF_STOCK / PROCESSING_ERROR), UnitPrice float64, Error string.", module="model", name="OrderItemResult", package="", publicType=False, transferByValue=False, type=DataType.struct, ), },
 }
@@ -106,9 +109,9 @@ class ServiceIds:
 
 
 class StreamIds:
-    GET_INVENTORY_ITEM_DATA: Final[int] = 10
-    MERGE_INVENTORY_RESULT: Final[int] = 12
-    PROCESS_INVENTORY_ITEM: Final[int] = 13
+    GET_INVENTORY_ITEM_DATA: Final[int] = 21
+    MERGE_INVENTORY_RESULT: Final[int] = 23
+    PROCESS_INVENTORY_ITEM: Final[int] = 24
 
 
 class EndpointIds:
@@ -452,6 +455,7 @@ def _temporal_endpoint(config: EndpointConfig) -> TemporalEndpointConfig:
         id=config.id,
         name=config.name,
         id_data_connector=config.id_data_connector,
+        temporal_execution_type=_require_temporal_execution_type(config),
         tracing_enabled=config.tracing_enabled or False,
         enabled=config.enabled or False,
         task_queue=config.task_queue or "",
@@ -482,6 +486,16 @@ def _temporal_endpoint(config: EndpointConfig) -> TemporalEndpointConfig:
         ),
         properties=config.properties,
     )
+
+
+def _require_temporal_execution_type(
+    config: EndpointConfig,
+) -> TemporalExecutionType:
+    if config.temporal_execution_type is None:
+        raise ValueError(
+            f"Temporal endpoint {config.name!r} requires temporalExecutionType"
+        )
+    return config.temporal_execution_type
 
 
 def _custom_endpoint(config: EndpointConfig) -> CustomEndpointConfig:

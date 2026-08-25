@@ -1,4 +1,4 @@
-# Task 3/4: `ProcessDurableJob`
+# Task 3/13: `ObserveActivityResult`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
@@ -6,14 +6,14 @@
 |-------|-------|
 | Language | `Python` |
 | Kind | `map` |
-| File | `automationservice/src/automation_service/internal/functions/process_durable_job.py` |
-| Test | `automationservice/tests/functions/test_process_durable_job.py` |
+| File | `automationservice/src/automation_service/internal/functions/observe_activity_result.py` |
+| Test | `automationservice/tests/functions/test_observe_activity_result.py` |
 | Service | `Automation Service` |
 
 
 ## Behaviour
 
-Process one accepted automation job and return its result.
+Preserve the result returned through the on-demand Activity endpoint.
 
 
 
@@ -23,10 +23,10 @@ Process one accepted automation job and return its result.
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `automationservice/src/automation_service/internal/functions/process_durable_job.py` and preserve its generated contract
+- [ ] Open `automationservice/src/automation_service/internal/functions/observe_activity_result.py` and preserve its generated contract
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_process_durable_job.py`
+- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_observe_activity_result.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] automationservice/task3.md — ProcessDurableJob — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] automationservice/task3.md — ObserveActivityResult — Python — done`

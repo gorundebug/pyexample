@@ -7,22 +7,22 @@ from pyservicelib_gorundebug.runtime.schedule import ScheduleTrigger
 from pyservicelib_gorundebug.runtime.common import Collect
 
 
-class TemporalSchedule:
-    """Create a job message identifying the durable scheduled firing."""
+class TemporalWorkflowSchedule:
+    """Create a Workflow job message identifying the durable scheduled firing."""
 
     async def on_trigger(
         self,
         trigger: ScheduleTrigger,
         out: Collect[str],
     ) -> None:
-        await out.out(f"temporal:{trigger.schedule_id}:{trigger.trigger_id}")
+        await out.out(f"scheduled-workflow:{trigger.schedule_id}:{trigger.trigger_id}")
 
 
-def make_temporal_schedule(
+def make_temporal_workflow_schedule(
     ctx: Context,
     environment: ServiceEnvironment,
     config: TemporalEndpointConfig,
-) -> TemporalSchedule:
-    """Construct TemporalSchedule for the configured service graph."""
+) -> TemporalWorkflowSchedule:
+    """Construct TemporalWorkflowSchedule for the configured service graph."""
     del ctx, config, environment
-    return TemporalSchedule()
+    return TemporalWorkflowSchedule()

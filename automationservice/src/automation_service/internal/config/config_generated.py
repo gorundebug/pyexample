@@ -68,40 +68,48 @@ from pyservicelib_gorundebug.runtime.config.endpoint_types import (
     KafkaEndpointConfig,
     TemporalEndpointConfig,
 )
+from pyservicelib_gorundebug.api.models.temporal_execution_type import (
+    TemporalExecutionType,
+)
 
 from pyservicelib_gorundebug.runtime.config.stream_types import (
     DelayStreamConfig,
     InputStreamConfig,
     MapStreamConfig,
-    MergeStreamConfig,
     SinkStreamConfig,
+    SplitStreamConfig,
 )
 
 
 _DEFAULT_CONFIG: dict[str, Any] = {
     "settings": ProjectSettings(moduleVersion="v0.2.12", name="Example", repoPath="github.com/gorundebug/pyexample", ),
     "services": { "automationService": ServiceConfig(color="#00A86B", defaultCallSemantics=CallSemantics(2), defaultGrpcTimeout=0, environment=Environment(""), golangVersion="1.25.4", grpcHost="0.0.0.0", grpcPort=9204, httpHost="0.0.0.0", httpPort=9094, id=2, kubernetesWorkloadType=KubernetesWorkloadType("Deployment"), livenessHandler="health/live", metricsHandler="metrics", modulePath="github.com/gorundebug/pyexample-automationservice", name="Automation Service", programmingLanguage=ProgrammingLanguage(3), readinessHandler="health/ready", shutdownTimeout=30000, startupHandler="health/startup", statusHandler="status", ), },
-    "streams": { "consumeDurableJob": StreamConfig(id=3, idEndpoint=5, idService=2, idSource=7, name="Consume Durable Job", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-130, yPos=-330, ), "durablePause": StreamConfig(duration=250, functionDescription="Suspend a DurableCall through a Temporal timer, then resume the pipeline without occupying an Activity slot.\n", functionInitializerGroup="", functionModule="", functionName="DurablePause", functionPackage="", id=4, idService=2, idSource=3, name="Durable Pause", pipeline="automation", type=TransformationType(16), xPos=90, yPos=-330, ), "localSchedule": StreamConfig(id=5, idEndpoint=2, idService=2, idSource=0, name="Local Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-1050, yPos=-480, ), "mergeJobSubmissions": StreamConfig(id=6, idService=2, idSource=0, idSources=[5, 9], name="Merge Job Submissions", pipeline="automation", type=TransformationType(10), xPos=-570, yPos=-330, ), "processDurableJob": StreamConfig(functionDescription="Process one accepted automation job and return its result.\n", functionInitializerGroup="", functionModule="", functionName="ProcessDurableJob", functionPackage="", id=7, idService=2, idSource=4, name="Process Durable Job", pipeline="automation", type=TransformationType(2), valueType="string", xPos=330, yPos=-330, ), "submitDurableJob": StreamConfig(id=8, idEndpoint=5, idService=2, idSource=6, name="Submit Durable Job", pipeline="automation", type=TransformationType(13), valueType="string", xPos=-360, yPos=-330, ), "temporalSchedule": StreamConfig(id=9, idEndpoint=6, idService=2, idSource=0, name="Temporal Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-1050, yPos=-180, ), },
+    "streams": { "activityPause": StreamConfig(duration=250, functionDescription="Apply the ordinary local Delay while processing an on-demand Temporal Activity.\n", functionInitializerGroup="", functionModule="", functionName="ActivityPause", functionPackage="", id=3, idService=2, idSource=4, name="Activity Pause", pipeline="automation", type=TransformationType(16), xPos=-250, yPos=-720, ), "consumeActivityJob": StreamConfig(id=4, idEndpoint=5, idService=2, idSource=9, name="Consume Activity Job", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-500, yPos=-720, ), "consumeWorkflowJob": StreamConfig(id=5, idEndpoint=8, idService=2, idSource=12, name="Consume Workflow Job", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-500, yPos=-420, ), "localSchedule": StreamConfig(id=6, idEndpoint=2, idService=2, idSource=0, name="Local Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-1250, yPos=-570, ), "observeActivityResult": StreamConfig(functionDescription="Preserve the result returned through the on-demand Activity endpoint.\n", functionInitializerGroup="", functionModule="", functionName="ObserveActivityResult", functionPackage="", id=7, idService=2, idSource=16, name="Observe Activity Result", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-500, yPos=-570, ), "observeWorkflowResult": StreamConfig(functionDescription="Preserve the result returned through the on-demand Workflow endpoint.\n", functionInitializerGroup="", functionModule="", functionName="ObserveWorkflowResult", functionPackage="", id=8, idService=2, idSource=17, name="Observe Workflow Result", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-500, yPos=-270, ), "processActivityJob": StreamConfig(functionDescription="Record Activity progress with DurableCallHeartbeat and return the processed job result.\n", functionInitializerGroup="", functionModule="", functionName="ProcessActivityJob", functionPackage="", id=9, idService=2, idSource=3, name="Process Activity Job", pipeline="automation", type=TransformationType(2), valueType="string", xPos=10, yPos=-720, ), "processScheduledActivity": StreamConfig(functionDescription="Return the visible result of one scheduled Activity execution.\n", functionInitializerGroup="", functionModule="", functionName="ProcessScheduledActivity", functionPackage="", id=10, idService=2, idSource=13, name="Process Scheduled Activity", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-250, yPos=-60, ), "processScheduledWorkflow": StreamConfig(functionDescription="Return the visible result of one scheduled Workflow execution.\n", functionInitializerGroup="", functionModule="", functionName="ProcessScheduledWorkflow", functionPackage="", id=11, idService=2, idSource=14, name="Process Scheduled Workflow", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-250, yPos=240, ), "processWorkflowJob": StreamConfig(functionDescription="Continue the Workflow as new once, then return its final result.\n", functionInitializerGroup="", functionModule="", functionName="ProcessWorkflowJob", functionPackage="", id=12, idService=2, idSource=20, name="Process Workflow Job", pipeline="automation", type=TransformationType(2), valueType="string", xPos=10, yPos=-420, ), "scheduledActivityPause": StreamConfig(duration=250, functionDescription="Apply the ordinary local Delay inside an Activity started by Temporal Schedule.\n", functionInitializerGroup="", functionModule="", functionName="ScheduledActivityPause", functionPackage="", id=13, idService=2, idSource=18, name="Scheduled Activity Pause", pipeline="automation", type=TransformationType(16), xPos=-500, yPos=-60, ), "scheduledWorkflowPause": StreamConfig(duration=250, functionDescription="Use the official Temporal Workflow timer for a scheduled Workflow.\n", functionInitializerGroup="", functionModule="", functionName="ScheduledWorkflowPause", functionPackage="", id=14, idService=2, idSource=19, name="Scheduled Workflow Pause", pipeline="automation", type=TransformationType(16), xPos=-500, yPos=240, ), "splitOnDemandJobs": StreamConfig(id=15, idService=2, idSource=6, name="Split On-Demand Jobs", pipeline="automation", type=TransformationType(11), xPos=-1010, yPos=-570, ), "submitActivityJob": StreamConfig(id=16, idEndpoint=5, idService=2, idSource=15, name="Submit Activity Job", pipeline="automation", type=TransformationType(13), valueType="string", xPos=-760, yPos=-720, ), "submitWorkflowJob": StreamConfig(id=17, idEndpoint=8, idService=2, idSource=15, name="Submit Workflow Job", pipeline="automation", type=TransformationType(13), valueType="string", xPos=-760, yPos=-420, ), "temporalActivitySchedule": StreamConfig(id=18, idEndpoint=6, idService=2, idSource=10, name="Temporal Activity Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-760, yPos=-60, ), "temporalWorkflowSchedule": StreamConfig(id=19, idEndpoint=7, idService=2, idSource=11, name="Temporal Workflow Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-760, yPos=240, ), "workflowPause": StreamConfig(duration=250, functionDescription="Use the same Delay contract backed by the Temporal Workflow timer.\n", functionInitializerGroup="", functionModule="", functionName="WorkflowPause", functionPackage="", id=20, idService=2, idSource=5, name="Workflow Pause", pipeline="automation", type=TransformationType(16), xPos=-250, yPos=-420, ), },
     "dataConnectors": { "localCron": DataConnectorConfig(id=2, implementation="python/apscheduler", name="Local Cron", type=DataConnectorType(5), ), "temporal": DataConnectorConfig(address="temporal:7233", id=5, identity="example-automation", implementation="temporal/python", maxConcurrentActivities=2, maxConcurrentWorkflows=4, name="Temporal", namespace="default", type=DataConnectorType(6), ), },
-    "endpoints": { "durableJob": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, id=5, idDataConnector=5, maximumAttempts=3, name="Durable Job", taskQueue="automation-jobs", workflowExecutionTimeout=60000, ), "localSchedule": EndpointConfig(enabled=True, functionDescription="Create a job message identifying the local scheduled firing.\n", functionName="LocalSchedule", id=2, idDataConnector=2, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Local Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/5 * * * *", timezone="UTC", ), "temporalSchedule": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, functionDescription="Create a job message identifying the durable scheduled firing.\n", functionName="TemporalSchedule", id=6, idDataConnector=5, maximumAttempts=3, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Temporal Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/10 * * * *", scheduleId="example-automation-schedule", taskQueue="automation-schedules", timezone="UTC", workflowExecutionTimeout=60000, ), },
+    "endpoints": { "activityJob": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, id=5, idDataConnector=5, maximumAttempts=3, name="Activity Job", taskQueue="automation-activity-jobs", temporalExecutionType=TemporalExecutionType("Activity"), workflowExecutionTimeout=60000, ), "localSchedule": EndpointConfig(enabled=True, functionDescription="Create a job message identifying the local scheduled firing.\n", functionName="LocalSchedule", id=2, idDataConnector=2, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Local Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/5 * * * *", timezone="UTC", ), "temporalActivitySchedule": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, functionDescription="Create an Activity job message identifying the durable scheduled firing.\n", functionName="TemporalActivitySchedule", id=6, idDataConnector=5, maximumAttempts=3, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Temporal Activity Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/10 * * * *", scheduleId="example-automation-activity-schedule", taskQueue="automation-activity-schedules", temporalExecutionType=TemporalExecutionType("Activity"), timezone="UTC", workflowExecutionTimeout=60000, ), "temporalWorkflowSchedule": EndpointConfig(enabled=True, functionDescription="Create a Workflow job message identifying the durable scheduled firing.\n", functionName="TemporalWorkflowSchedule", id=7, idDataConnector=5, maximumAttempts=3, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Temporal Workflow Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/10 * * * *", scheduleId="example-automation-workflow-schedule", taskQueue="automation-workflow-schedules", temporalExecutionType=TemporalExecutionType("Workflow"), timezone="UTC", workflowExecutionTimeout=60000, ), "workflowJob": EndpointConfig(enabled=True, id=8, idDataConnector=5, maximumAttempts=3, name="Workflow Job", taskQueue="automation-workflow-jobs", temporalExecutionType=TemporalExecutionType("Workflow"), workflowExecutionTimeout=60000, ), },
     "pools": { },
-    "links": { "consumeDurableJobToDurablePause": LinkConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, callSemantics=CallSemantics(6), var_from=3, idDataConnector=5, maximumAttempts=3, taskQueue="automation-durable-calls", to=4, workflowExecutionTimeout=60000, ), },
+    "links": { "consumeActivityJobToActivityPause": LinkConfig(callSemantics=CallSemantics(2), var_from=4, to=3, ), "consumeWorkflowJobToWorkflowPause": LinkConfig(callSemantics=CallSemantics(2), var_from=5, to=20, ), },
     "modules": { "inventoryServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-inventory-service-api", name="inventory_service_api", ), "model": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-model", name="model", ), "orderServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-order-service-api", name="order_service_api", ), },
     "types": { "string": TypeConfig(description="Automation job payload and result.", name="string", publicType=False, type=DataType.string, useAlias=False, ), },
 }
 
 _ENVIRONMENT_VARIABLES: tuple[tuple[str, tuple[str, ...], str], ...] = (
+    ("ACTIVITY_JOB_ENABLED", ("endpoints", "activityJob", "enabled", ), "bool"),
+    ("ACTIVITY_PAUSE_DURATION", ("streams", "activityPause", "duration", ), "int"),
     ("AUTOMATION_SERVICE_DEFAULT_GRPC_TIMEOUT", ("services", "automationService", "defaultGrpcTimeout", ), "int"),
     ("AUTOMATION_SERVICE_ENVIRONMENT", ("services", "automationService", "environment", ), "api.Environment"),
     ("AUTOMATION_SERVICE_GRPC_HOST", ("services", "automationService", "grpcHost", ), "string"),
     ("AUTOMATION_SERVICE_GRPC_PORT", ("services", "automationService", "grpcPort", ), "int"),
     ("AUTOMATION_SERVICE_HTTP_HOST", ("services", "automationService", "httpHost", ), "string"),
     ("AUTOMATION_SERVICE_HTTP_PORT", ("services", "automationService", "httpPort", ), "int"),
-    ("DURABLE_JOB_ENABLED", ("endpoints", "durableJob", "enabled", ), "bool"),
-    ("DURABLE_PAUSE_DURATION", ("streams", "durablePause", "duration", ), "int"),
     ("LOCAL_SCHEDULE_ENABLED", ("endpoints", "localSchedule", "enabled", ), "bool"),
+    ("SCHEDULED_ACTIVITY_PAUSE_DURATION", ("streams", "scheduledActivityPause", "duration", ), "int"),
+    ("SCHEDULED_WORKFLOW_PAUSE_DURATION", ("streams", "scheduledWorkflowPause", "duration", ), "int"),
+    ("TEMPORAL_ACTIVITY_SCHEDULE_ENABLED", ("endpoints", "temporalActivitySchedule", "enabled", ), "bool"),
     ("TEMPORAL_ADDRESS", ("dataConnectors", "temporal", "address", ), "string"),
-    ("TEMPORAL_SCHEDULE_ENABLED", ("endpoints", "temporalSchedule", "enabled", ), "bool"),
+    ("TEMPORAL_WORKFLOW_SCHEDULE_ENABLED", ("endpoints", "temporalWorkflowSchedule", "enabled", ), "bool"),
+    ("WORKFLOW_JOB_ENABLED", ("endpoints", "workflowJob", "enabled", ), "bool"),
+    ("WORKFLOW_PAUSE_DURATION", ("streams", "workflowPause", "duration", ), "int"),
 )
 
 
@@ -110,19 +118,32 @@ class ServiceIds:
 
 
 class StreamIds:
-    CONSUME_DURABLE_JOB: Final[int] = 3
-    DURABLE_PAUSE: Final[int] = 4
-    LOCAL_SCHEDULE: Final[int] = 5
-    MERGE_JOB_SUBMISSIONS: Final[int] = 6
-    PROCESS_DURABLE_JOB: Final[int] = 7
-    SUBMIT_DURABLE_JOB: Final[int] = 8
-    TEMPORAL_SCHEDULE: Final[int] = 9
+    ACTIVITY_PAUSE: Final[int] = 3
+    CONSUME_ACTIVITY_JOB: Final[int] = 4
+    CONSUME_WORKFLOW_JOB: Final[int] = 5
+    LOCAL_SCHEDULE: Final[int] = 6
+    OBSERVE_ACTIVITY_RESULT: Final[int] = 7
+    OBSERVE_WORKFLOW_RESULT: Final[int] = 8
+    PROCESS_ACTIVITY_JOB: Final[int] = 9
+    PROCESS_SCHEDULED_ACTIVITY: Final[int] = 10
+    PROCESS_SCHEDULED_WORKFLOW: Final[int] = 11
+    PROCESS_WORKFLOW_JOB: Final[int] = 12
+    SCHEDULED_ACTIVITY_PAUSE: Final[int] = 13
+    SCHEDULED_WORKFLOW_PAUSE: Final[int] = 14
+    SPLIT_ON_DEMAND_JOBS: Final[int] = 15
+    SUBMIT_ACTIVITY_JOB: Final[int] = 16
+    SUBMIT_WORKFLOW_JOB: Final[int] = 17
+    TEMPORAL_ACTIVITY_SCHEDULE: Final[int] = 18
+    TEMPORAL_WORKFLOW_SCHEDULE: Final[int] = 19
+    WORKFLOW_PAUSE: Final[int] = 20
 
 
 class EndpointIds:
-    DURABLE_JOB: Final[int] = 5
+    ACTIVITY_JOB: Final[int] = 5
     LOCAL_SCHEDULE: Final[int] = 2
-    TEMPORAL_SCHEDULE: Final[int] = 6
+    TEMPORAL_ACTIVITY_SCHEDULE: Final[int] = 6
+    TEMPORAL_WORKFLOW_SCHEDULE: Final[int] = 7
+    WORKFLOW_JOB: Final[int] = 8
 
 
 class DataConnectorIds:
@@ -132,20 +153,33 @@ class DataConnectorIds:
 
 @dataclass(frozen=True, slots=True)
 class Streams:
-    consume_durable_job: InputStreamConfig
-    durable_pause: DelayStreamConfig
+    activity_pause: DelayStreamConfig
+    consume_activity_job: InputStreamConfig
+    consume_workflow_job: InputStreamConfig
     local_schedule: InputStreamConfig
-    merge_job_submissions: MergeStreamConfig
-    process_durable_job: MapStreamConfig
-    submit_durable_job: SinkStreamConfig
-    temporal_schedule: InputStreamConfig
+    observe_activity_result: MapStreamConfig
+    observe_workflow_result: MapStreamConfig
+    process_activity_job: MapStreamConfig
+    process_scheduled_activity: MapStreamConfig
+    process_scheduled_workflow: MapStreamConfig
+    process_workflow_job: MapStreamConfig
+    scheduled_activity_pause: DelayStreamConfig
+    scheduled_workflow_pause: DelayStreamConfig
+    split_on_demand_jobs: SplitStreamConfig
+    submit_activity_job: SinkStreamConfig
+    submit_workflow_job: SinkStreamConfig
+    temporal_activity_schedule: InputStreamConfig
+    temporal_workflow_schedule: InputStreamConfig
+    workflow_pause: DelayStreamConfig
 
 
 @dataclass(frozen=True, slots=True)
 class Endpoints:
-    durable_job: TemporalEndpointConfig
+    activity_job: TemporalEndpointConfig
     local_schedule: CronEndpointConfig
-    temporal_schedule: TemporalEndpointConfig
+    temporal_activity_schedule: TemporalEndpointConfig
+    temporal_workflow_schedule: TemporalEndpointConfig
+    workflow_job: TemporalEndpointConfig
 
 
 @dataclass(frozen=True, slots=True)
@@ -243,37 +277,76 @@ class GeneratedConfig(ServiceAppConfig):
     def named(self) -> NamedConfig:
         return NamedConfig(
             streams=Streams(
-                consume_durable_job=InputStreamConfig(
-                    self.get_stream_config_by_id(StreamIds.CONSUME_DURABLE_JOB)
+                activity_pause=DelayStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.ACTIVITY_PAUSE)
                 ),
-                durable_pause=DelayStreamConfig(
-                    self.get_stream_config_by_id(StreamIds.DURABLE_PAUSE)
+                consume_activity_job=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CONSUME_ACTIVITY_JOB)
+                ),
+                consume_workflow_job=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CONSUME_WORKFLOW_JOB)
                 ),
                 local_schedule=InputStreamConfig(
                     self.get_stream_config_by_id(StreamIds.LOCAL_SCHEDULE)
                 ),
-                merge_job_submissions=MergeStreamConfig(
-                    self.get_stream_config_by_id(StreamIds.MERGE_JOB_SUBMISSIONS)
+                observe_activity_result=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.OBSERVE_ACTIVITY_RESULT)
                 ),
-                process_durable_job=MapStreamConfig(
-                    self.get_stream_config_by_id(StreamIds.PROCESS_DURABLE_JOB)
+                observe_workflow_result=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.OBSERVE_WORKFLOW_RESULT)
                 ),
-                submit_durable_job=SinkStreamConfig(
-                    self.get_stream_config_by_id(StreamIds.SUBMIT_DURABLE_JOB)
+                process_activity_job=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.PROCESS_ACTIVITY_JOB)
                 ),
-                temporal_schedule=InputStreamConfig(
-                    self.get_stream_config_by_id(StreamIds.TEMPORAL_SCHEDULE)
+                process_scheduled_activity=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.PROCESS_SCHEDULED_ACTIVITY)
+                ),
+                process_scheduled_workflow=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.PROCESS_SCHEDULED_WORKFLOW)
+                ),
+                process_workflow_job=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.PROCESS_WORKFLOW_JOB)
+                ),
+                scheduled_activity_pause=DelayStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.SCHEDULED_ACTIVITY_PAUSE)
+                ),
+                scheduled_workflow_pause=DelayStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.SCHEDULED_WORKFLOW_PAUSE)
+                ),
+                split_on_demand_jobs=SplitStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.SPLIT_ON_DEMAND_JOBS)
+                ),
+                submit_activity_job=SinkStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.SUBMIT_ACTIVITY_JOB)
+                ),
+                submit_workflow_job=SinkStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.SUBMIT_WORKFLOW_JOB)
+                ),
+                temporal_activity_schedule=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.TEMPORAL_ACTIVITY_SCHEDULE)
+                ),
+                temporal_workflow_schedule=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.TEMPORAL_WORKFLOW_SCHEDULE)
+                ),
+                workflow_pause=DelayStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.WORKFLOW_PAUSE)
                 ),
             ),
             endpoints=Endpoints(
-                durable_job=_temporal_endpoint(
-                    self.get_endpoint_config_by_id(EndpointIds.DURABLE_JOB)
+                activity_job=_temporal_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.ACTIVITY_JOB)
                 ),
                 local_schedule=_cron_endpoint(
                     self.get_endpoint_config_by_id(EndpointIds.LOCAL_SCHEDULE)
                 ),
-                temporal_schedule=_temporal_endpoint(
-                    self.get_endpoint_config_by_id(EndpointIds.TEMPORAL_SCHEDULE)
+                temporal_activity_schedule=_temporal_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.TEMPORAL_ACTIVITY_SCHEDULE)
+                ),
+                temporal_workflow_schedule=_temporal_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.TEMPORAL_WORKFLOW_SCHEDULE)
+                ),
+                workflow_job=_temporal_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.WORKFLOW_JOB)
                 ),
             ),
             data_connectors=DataConnectors(
@@ -489,6 +562,7 @@ def _temporal_endpoint(config: EndpointConfig) -> TemporalEndpointConfig:
         id=config.id,
         name=config.name,
         id_data_connector=config.id_data_connector,
+        temporal_execution_type=_require_temporal_execution_type(config),
         tracing_enabled=config.tracing_enabled or False,
         enabled=config.enabled or False,
         task_queue=config.task_queue or "",
@@ -519,6 +593,16 @@ def _temporal_endpoint(config: EndpointConfig) -> TemporalEndpointConfig:
         ),
         properties=config.properties,
     )
+
+
+def _require_temporal_execution_type(
+    config: EndpointConfig,
+) -> TemporalExecutionType:
+    if config.temporal_execution_type is None:
+        raise ValueError(
+            f"Temporal endpoint {config.name!r} requires temporalExecutionType"
+        )
+    return config.temporal_execution_type
 
 
 def _custom_endpoint(config: EndpointConfig) -> CustomEndpointConfig:

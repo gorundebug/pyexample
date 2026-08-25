@@ -12,7 +12,7 @@ from pyservicelib_gorundebug.runtime.serviceapp import (
     ServiceApp,
     run_shutdown_operations,
 )
-from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
+from pyservicelib_gorundebug.runtime.serde import Serializer
 from pyservicelib_gorundebug import transformation
 from pyservicelib_gorundebug.datasource import cron as cron_source
 from pyservicelib_gorundebug.datasource import temporal as temporal_source
@@ -21,39 +21,66 @@ from pyservicelib_gorundebug.datasource.temporal import make_connector as make_t
 
 from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig
-from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig
-from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
-from pyservicelib_gorundebug.runtime.config.endpoint_types import TemporalEndpointConfig
+from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig, TemporalEndpointConfig
+from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig, MapStreamConfig
 from automation_service.models.string import (
     String,
 )
 from ..functions import (
-    DurablePause,
-    make_durable_pause,
+    ActivityPause,
+    make_activity_pause,
     LocalSchedule,
     make_local_schedule,
-    ProcessDurableJob,
-    make_process_durable_job,
-    TemporalSchedule,
-    make_temporal_schedule,
+    ObserveActivityResult,
+    make_observe_activity_result,
+    ObserveWorkflowResult,
+    make_observe_workflow_result,
+    ProcessActivityJob,
+    make_process_activity_job,
+    ProcessScheduledActivity,
+    make_process_scheduled_activity,
+    ProcessScheduledWorkflow,
+    make_process_scheduled_workflow,
+    ProcessWorkflowJob,
+    make_process_workflow_job,
+    ScheduledActivityPause,
+    make_scheduled_activity_pause,
+    ScheduledWorkflowPause,
+    make_scheduled_workflow_pause,
+    TemporalActivitySchedule,
+    make_temporal_activity_schedule,
+    TemporalWorkflowSchedule,
+    make_temporal_workflow_schedule,
+    WorkflowPause,
+    make_workflow_pause,
 )
 
 
 @dataclass(slots=True)
 class ServiceStreams:
-    consume_durable_job: Any = None
-    durable_pause: Any = None
+    consume_activity_job: Any = None
+    activity_pause: Any = None
+    consume_workflow_job: Any = None
     local_schedule: Any = None
-    temporal_schedule: Any = None
-    merge_job_submissions: Any = None
-    process_durable_job: Any = None
-    submit_durable_job: Any = None
+    split_on_demand_jobs: Any = None
+    submit_activity_job: Any = None
+    observe_activity_result: Any = None
+    submit_workflow_job: Any = None
+    observe_workflow_result: Any = None
+    process_activity_job: Any = None
+    temporal_activity_schedule: Any = None
+    scheduled_activity_pause: Any = None
+    process_scheduled_activity: Any = None
+    temporal_workflow_schedule: Any = None
+    scheduled_workflow_pause: Any = None
+    process_scheduled_workflow: Any = None
+    workflow_pause: Any = None
+    process_workflow_job: Any = None
 
 @dataclass(slots=True)
 class ServiceMakers:
-    durable_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], DurablePause] = (
-        lambda ctx, environment, config: make_durable_pause(
+    activity_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ActivityPause] = (
+        lambda ctx, environment, config: make_activity_pause(
             ctx, environment, config
         )
     )
@@ -62,13 +89,58 @@ class ServiceMakers:
             ctx, environment, config
         )
     )
-    process_durable_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessDurableJob] = (
-        lambda ctx, environment, config: make_process_durable_job(
+    observe_activity_result: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveActivityResult] = (
+        lambda ctx, environment, config: make_observe_activity_result(
             ctx, environment, config
         )
     )
-    temporal_schedule: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalSchedule] = (
-        lambda ctx, environment, config: make_temporal_schedule(
+    observe_workflow_result: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveWorkflowResult] = (
+        lambda ctx, environment, config: make_observe_workflow_result(
+            ctx, environment, config
+        )
+    )
+    process_activity_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessActivityJob] = (
+        lambda ctx, environment, config: make_process_activity_job(
+            ctx, environment, config
+        )
+    )
+    process_scheduled_activity: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessScheduledActivity] = (
+        lambda ctx, environment, config: make_process_scheduled_activity(
+            ctx, environment, config
+        )
+    )
+    process_scheduled_workflow: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessScheduledWorkflow] = (
+        lambda ctx, environment, config: make_process_scheduled_workflow(
+            ctx, environment, config
+        )
+    )
+    process_workflow_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessWorkflowJob] = (
+        lambda ctx, environment, config: make_process_workflow_job(
+            ctx, environment, config
+        )
+    )
+    scheduled_activity_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ScheduledActivityPause] = (
+        lambda ctx, environment, config: make_scheduled_activity_pause(
+            ctx, environment, config
+        )
+    )
+    scheduled_workflow_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ScheduledWorkflowPause] = (
+        lambda ctx, environment, config: make_scheduled_workflow_pause(
+            ctx, environment, config
+        )
+    )
+    temporal_activity_schedule: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalActivitySchedule] = (
+        lambda ctx, environment, config: make_temporal_activity_schedule(
+            ctx, environment, config
+        )
+    )
+    temporal_workflow_schedule: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalWorkflowSchedule] = (
+        lambda ctx, environment, config: make_temporal_workflow_schedule(
+            ctx, environment, config
+        )
+    )
+    workflow_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], WorkflowPause] = (
+        lambda ctx, environment, config: make_workflow_pause(
             ctx, environment, config
         )
     )
@@ -76,10 +148,19 @@ class ServiceMakers:
 
 @dataclass(slots=True)
 class ServiceFunctions:
-    durable_pause: DurablePause
+    activity_pause: ActivityPause
     local_schedule: LocalSchedule
-    process_durable_job: ProcessDurableJob
-    temporal_schedule: TemporalSchedule
+    observe_activity_result: ObserveActivityResult
+    observe_workflow_result: ObserveWorkflowResult
+    process_activity_job: ProcessActivityJob
+    process_scheduled_activity: ProcessScheduledActivity
+    process_scheduled_workflow: ProcessScheduledWorkflow
+    process_workflow_job: ProcessWorkflowJob
+    scheduled_activity_pause: ScheduledActivityPause
+    scheduled_workflow_pause: ScheduledWorkflowPause
+    temporal_activity_schedule: TemporalActivitySchedule
+    temporal_workflow_schedule: TemporalWorkflowSchedule
+    workflow_pause: WorkflowPause
 
 
 class GeneratedService(ServiceApp):
@@ -116,17 +197,44 @@ class GeneratedService(ServiceApp):
             )
         named = cfg.named
         self._functions = ServiceFunctions(
-            durable_pause=self._makers.durable_pause(
-                ctx, self, named.streams.durable_pause
+            activity_pause=self._makers.activity_pause(
+                ctx, self, named.streams.activity_pause
             ),
             local_schedule=self._makers.local_schedule(
                 ctx, self, named.endpoints.local_schedule
             ),
-            process_durable_job=self._makers.process_durable_job(
-                ctx, self, named.streams.process_durable_job
+            observe_activity_result=self._makers.observe_activity_result(
+                ctx, self, named.streams.observe_activity_result
             ),
-            temporal_schedule=self._makers.temporal_schedule(
-                ctx, self, named.endpoints.temporal_schedule
+            observe_workflow_result=self._makers.observe_workflow_result(
+                ctx, self, named.streams.observe_workflow_result
+            ),
+            process_activity_job=self._makers.process_activity_job(
+                ctx, self, named.streams.process_activity_job
+            ),
+            process_scheduled_activity=self._makers.process_scheduled_activity(
+                ctx, self, named.streams.process_scheduled_activity
+            ),
+            process_scheduled_workflow=self._makers.process_scheduled_workflow(
+                ctx, self, named.streams.process_scheduled_workflow
+            ),
+            process_workflow_job=self._makers.process_workflow_job(
+                ctx, self, named.streams.process_workflow_job
+            ),
+            scheduled_activity_pause=self._makers.scheduled_activity_pause(
+                ctx, self, named.streams.scheduled_activity_pause
+            ),
+            scheduled_workflow_pause=self._makers.scheduled_workflow_pause(
+                ctx, self, named.streams.scheduled_workflow_pause
+            ),
+            temporal_activity_schedule=self._makers.temporal_activity_schedule(
+                ctx, self, named.endpoints.temporal_activity_schedule
+            ),
+            temporal_workflow_schedule=self._makers.temporal_workflow_schedule(
+                ctx, self, named.endpoints.temporal_workflow_schedule
+            ),
+            workflow_pause=self._makers.workflow_pause(
+                ctx, self, named.streams.workflow_pause
             ),
         )
         await self.custom_functions_init(ctx)
@@ -141,14 +249,28 @@ class GeneratedService(ServiceApp):
                 "Automation Service requires automation_service.internal.config.Config"
             )
         named = cfg.named
-        self._service_streams.consume_durable_job = transformation.Input[str, str, Exception](named.streams.consume_durable_job, self)
-        self._service_streams.durable_pause = transformation.Delay[str](named.streams.durable_pause, self._service_streams.consume_durable_job, self.functions.durable_pause)
+        self._service_streams.consume_activity_job = transformation.Input[str, str, Exception](named.streams.consume_activity_job, self)
+        self._service_streams.activity_pause = transformation.Delay[str](named.streams.activity_pause, self._service_streams.consume_activity_job, self.functions.activity_pause)
+        self._service_streams.consume_workflow_job = transformation.Input[str, str, Exception](named.streams.consume_workflow_job, self)
         self._service_streams.local_schedule = transformation.Input[str, object, Exception](named.streams.local_schedule, self)
-        self._service_streams.temporal_schedule = transformation.Input[str, object, Exception](named.streams.temporal_schedule, self)
-        self._service_streams.merge_job_submissions = transformation.Merge[str](named.streams.merge_job_submissions, self._service_streams.local_schedule, self._service_streams.temporal_schedule)
-        self._service_streams.process_durable_job = transformation.Map[str, str](named.streams.process_durable_job, self._service_streams.durable_pause, self.functions.process_durable_job)
-        self._service_streams.submit_durable_job = transformation.Sink[str, Exception](named.streams.submit_durable_job, self._service_streams.merge_job_submissions)
-        self._service_streams.consume_durable_job.set_source(self._service_streams.process_durable_job)
+        self._service_streams.split_on_demand_jobs = transformation.Split[str](named.streams.split_on_demand_jobs, self._service_streams.local_schedule)
+        self._service_streams.submit_activity_job = transformation.SinkWithResult[str, str, Exception](named.streams.submit_activity_job, self._service_streams.split_on_demand_jobs.add_stream())
+        self._service_streams.observe_activity_result = transformation.Map[str, str](named.streams.observe_activity_result, self._service_streams.submit_activity_job, self.functions.observe_activity_result)
+        self._service_streams.submit_workflow_job = transformation.SinkWithResult[str, str, Exception](named.streams.submit_workflow_job, self._service_streams.split_on_demand_jobs.add_stream())
+        self._service_streams.observe_workflow_result = transformation.Map[str, str](named.streams.observe_workflow_result, self._service_streams.submit_workflow_job, self.functions.observe_workflow_result)
+        self._service_streams.process_activity_job = transformation.Map[str, str](named.streams.process_activity_job, self._service_streams.activity_pause, self.functions.process_activity_job)
+        self._service_streams.temporal_activity_schedule = transformation.Input[str, str, Exception](named.streams.temporal_activity_schedule, self)
+        self._service_streams.scheduled_activity_pause = transformation.Delay[str](named.streams.scheduled_activity_pause, self._service_streams.temporal_activity_schedule, self.functions.scheduled_activity_pause)
+        self._service_streams.process_scheduled_activity = transformation.Map[str, str](named.streams.process_scheduled_activity, self._service_streams.scheduled_activity_pause, self.functions.process_scheduled_activity)
+        self._service_streams.temporal_workflow_schedule = transformation.Input[str, str, Exception](named.streams.temporal_workflow_schedule, self)
+        self._service_streams.scheduled_workflow_pause = transformation.Delay[str](named.streams.scheduled_workflow_pause, self._service_streams.temporal_workflow_schedule, self.functions.scheduled_workflow_pause)
+        self._service_streams.process_scheduled_workflow = transformation.Map[str, str](named.streams.process_scheduled_workflow, self._service_streams.scheduled_workflow_pause, self.functions.process_scheduled_workflow)
+        self._service_streams.workflow_pause = transformation.Delay[str](named.streams.workflow_pause, self._service_streams.consume_workflow_job, self.functions.workflow_pause)
+        self._service_streams.process_workflow_job = transformation.Map[str, str](named.streams.process_workflow_job, self._service_streams.workflow_pause, self.functions.process_workflow_job)
+        self._service_streams.consume_activity_job.set_source(self._service_streams.process_activity_job)
+        self._service_streams.consume_workflow_job.set_source(self._service_streams.process_workflow_job)
+        self._service_streams.temporal_activity_schedule.set_source(self._service_streams.process_scheduled_activity)
+        self._service_streams.temporal_workflow_schedule.set_source(self._service_streams.process_scheduled_workflow)
 
     def bind_transports(self) -> None:
         """Bind configured endpoints to the already constructed streams."""
@@ -159,14 +281,20 @@ class GeneratedService(ServiceApp):
                 "Automation Service requires automation_service.internal.config.Config"
             )
         self._transport_consumers = []
-        consume_durable_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_durable_job)
-        self._transport_consumers.append(consume_durable_job_consumer)
+        consume_activity_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_activity_job)
+        self._transport_consumers.append(consume_activity_job_consumer)
+        consume_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_workflow_job)
+        self._transport_consumers.append(consume_workflow_job_consumer)
         local_schedule_consumer = cron_source.APSchedulerEndpointConsumer(self._service_streams.local_schedule, self.functions.local_schedule)
         self._transport_consumers.append(local_schedule_consumer)
-        submit_durable_job_consumer = temporal_sink.make_direct_endpoint_consumer(self._service_streams.submit_durable_job)
-        self._transport_consumers.append(submit_durable_job_consumer)
-        temporal_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_schedule, self.functions.temporal_schedule)
-        self._transport_consumers.append(temporal_schedule_consumer)
+        submit_activity_job_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.submit_activity_job)
+        self._transport_consumers.append(submit_activity_job_consumer)
+        submit_workflow_job_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.submit_workflow_job)
+        self._transport_consumers.append(submit_workflow_job_consumer)
+        temporal_activity_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_activity_schedule, self.functions.temporal_activity_schedule)
+        self._transport_consumers.append(temporal_activity_schedule_consumer)
+        temporal_workflow_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_workflow_schedule, self.functions.temporal_workflow_schedule)
+        self._transport_consumers.append(temporal_workflow_schedule_consumer)
     def initialize_runtime_connectors(self) -> None:
         cfg = self.config
         if not isinstance(cfg, Config):

@@ -5,8 +5,10 @@ from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig
 from datetime import timedelta
 from pyservicelib_gorundebug.runtime.common import Collect, Stream
-class DurablePause:
-    """Suspend a DurableCall through a Temporal timer, then resume the pipeline without occupying an Activity slot."""
+
+
+class ScheduledWorkflowPause:
+    """Use the official Temporal Workflow timer for a scheduled Workflow."""
 
     async def duration(self, stream: Stream, value: str) -> timedelta:
         del value
@@ -23,11 +25,11 @@ class DurablePause:
         del stream, value, error, out
 
 
-def make_durable_pause(
+def make_scheduled_workflow_pause(
     ctx: Context,
     environment: ServiceEnvironment,
     config: DelayStreamConfig,
-) -> DurablePause:
-    """Construct DurablePause for the configured service graph."""
+) -> ScheduledWorkflowPause:
+    """Construct ScheduledWorkflowPause for the configured service graph."""
     del ctx, config, environment
-    return DurablePause()
+    return ScheduledWorkflowPause()

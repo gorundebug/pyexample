@@ -6,8 +6,8 @@ from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
 from pyservicelib_gorundebug.runtime.common import Collect, Stream
 
 
-class ProcessDurableJob:
-    """Process one accepted automation job and return its result."""
+class ProcessScheduledWorkflow:
+    """Return the visible result of one scheduled Workflow execution."""
 
     async def map(
         self,
@@ -16,14 +16,14 @@ class ProcessDurableJob:
         out: Collect[str],
     ) -> None:
         del stream
-        await out.out(f"processed:{value}")
+        await out.out(f"workflow:processed:{value}")
 
 
-def make_process_durable_job(
+def make_process_scheduled_workflow(
     ctx: Context,
     environment: ServiceEnvironment,
     config: MapStreamConfig,
-) -> ProcessDurableJob:
-    """Construct ProcessDurableJob for the configured service graph."""
+) -> ProcessScheduledWorkflow:
+    """Construct ProcessScheduledWorkflow for the configured service graph."""
     del ctx, config, environment
-    return ProcessDurableJob()
+    return ProcessScheduledWorkflow()

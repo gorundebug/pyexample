@@ -20,8 +20,8 @@ from .grpc_service_generated import GrpcHandlers, GrpcServer
 
 from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import ProcessStreamConfig
 from pyservicelib_gorundebug.runtime.config.endpoint_types import GrpcEndpointConfig
+from pyservicelib_gorundebug.runtime.config.stream_types import ProcessStreamConfig
 from model.models.order_item import (
     OrderItem,
 )

@@ -22,14 +22,8 @@ import inventory_service_api.generated.proto.inventoryserviceapi.inventoryservic
 
 from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
-from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
-from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
-from pyservicelib_gorundebug.runtime.config.endpoint_types import KafkaEndpointConfig
-from pyservicelib_gorundebug.runtime.config.endpoint_types import HttpEndpointConfig
-from pyservicelib_gorundebug.runtime.config.endpoint_types import GrpcEndpointConfig
-from pyservicelib_gorundebug.runtime.config.stream_types import FlatMapStreamConfig
-from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig
+from pyservicelib_gorundebug.runtime.config.endpoint_types import GrpcEndpointConfig, HttpEndpointConfig, KafkaEndpointConfig
+from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig, FlatMapStreamConfig, MapStreamConfig
 from model.models.order_item import (
     OrderItem,
 )
