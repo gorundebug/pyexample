@@ -7,16 +7,16 @@ from automation_service.internal.functions.local_schedule import LocalSchedule
 from pyservicelib_gorundebug.runtime.schedule import ScheduleBackend, ScheduleTrigger
 
 
-def test_local_schedule_emits_the_trigger() -> None:
+def test_local_schedule_converts_the_trigger_to_the_input_value() -> None:
     function = LocalSchedule()
-    collected: list[ScheduleTrigger] = []
+    collected: list[str] = []
 
     class Collector:
-        async def out(self, value: ScheduleTrigger) -> None:
+        async def out(self, value: str) -> None:
             collected.append(value)
 
     now = datetime(2026, 8, 24, tzinfo=timezone.utc)
     trigger = ScheduleTrigger("trigger-1", "local-cleanup", now, now, ScheduleBackend.LOCAL)
     asyncio.run(function.on_trigger(trigger, Collector()))  # type: ignore[arg-type]
 
-    assert collected == [trigger]
+    assert collected == ["local:local-cleanup:trigger-1"]

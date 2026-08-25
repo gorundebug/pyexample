@@ -13,35 +13,25 @@ from pyservicelib_gorundebug.runtime.serviceapp import (
     run_shutdown_operations,
 )
 from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
-from pyservicelib_gorundebug.runtime.schedule import ScheduleTrigger
 from pyservicelib_gorundebug import transformation
 from pyservicelib_gorundebug.datasource import cron as cron_source
 from pyservicelib_gorundebug.datasource import temporal as temporal_source
 from pyservicelib_gorundebug.datasink import temporal as temporal_sink
-from pyservicelib_gorundebug.runtime.temporal import make_connector as make_temporal_connector
+from pyservicelib_gorundebug.datasource.temporal import make_connector as make_temporal_connector
 
 from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
 from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig
-from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
 from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
 from pyservicelib_gorundebug.runtime.config.endpoint_types import TemporalEndpointConfig
 from automation_service.models.string import (
     String,
 )
-from pyservicelib_gorundebug.runtime.schedule import (
-    ScheduleTrigger,
-)
 from ..functions import (
-    LocalJob,
-    make_local_job,
     LocalSchedule,
     make_local_schedule,
     ProcessDurableJob,
     make_process_durable_job,
-    TemporalJob,
-    make_temporal_job,
     TemporalSchedule,
     make_temporal_schedule,
 )
@@ -51,20 +41,13 @@ from ..functions import (
 class ServiceStreams:
     consume_durable_job: Any = None
     local_schedule: Any = None
-    make_local_job: Any = None
     temporal_schedule: Any = None
-    make_temporal_job: Any = None
     merge_job_submissions: Any = None
     process_durable_job: Any = None
     submit_durable_job: Any = None
 
 @dataclass(slots=True)
 class ServiceMakers:
-    local_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], LocalJob] = (
-        lambda ctx, environment, config: make_local_job(
-            ctx, environment, config
-        )
-    )
     local_schedule: Callable[[Context, ServiceEnvironment, CronEndpointConfig], LocalSchedule] = (
         lambda ctx, environment, config: make_local_schedule(
             ctx, environment, config
@@ -72,11 +55,6 @@ class ServiceMakers:
     )
     process_durable_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessDurableJob] = (
         lambda ctx, environment, config: make_process_durable_job(
-            ctx, environment, config
-        )
-    )
-    temporal_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], TemporalJob] = (
-        lambda ctx, environment, config: make_temporal_job(
             ctx, environment, config
         )
     )
@@ -89,10 +67,8 @@ class ServiceMakers:
 
 @dataclass(slots=True)
 class ServiceFunctions:
-    local_job: LocalJob
     local_schedule: LocalSchedule
     process_durable_job: ProcessDurableJob
-    temporal_job: TemporalJob
     temporal_schedule: TemporalSchedule
 
 
@@ -117,8 +93,6 @@ class GeneratedService(ServiceApp):
         return self._functions
 
     def get_serde(self, type_name: str) -> Optional[Serializer]:
-        if type_name == "ScheduleTrigger":
-            return DataclassJsonSerde("ScheduleTrigger", ScheduleTrigger)
         return None
 
     async def initialize_functions(self, ctx: Context) -> None:
@@ -132,17 +106,11 @@ class GeneratedService(ServiceApp):
             )
         named = cfg.named
         self._functions = ServiceFunctions(
-            local_job=self._makers.local_job(
-                ctx, self, named.streams.make_local_job
-            ),
             local_schedule=self._makers.local_schedule(
                 ctx, self, named.endpoints.local_schedule
             ),
             process_durable_job=self._makers.process_durable_job(
                 ctx, self, named.streams.process_durable_job
-            ),
-            temporal_job=self._makers.temporal_job(
-                ctx, self, named.streams.make_temporal_job
             ),
             temporal_schedule=self._makers.temporal_schedule(
                 ctx, self, named.endpoints.temporal_schedule
@@ -161,11 +129,9 @@ class GeneratedService(ServiceApp):
             )
         named = cfg.named
         self._service_streams.consume_durable_job = transformation.Input[str, str, Exception](named.streams.consume_durable_job, self)
-        self._service_streams.local_schedule = transformation.Input[ScheduleTrigger, object, Exception](named.streams.local_schedule, self)
-        self._service_streams.make_local_job = transformation.Map[ScheduleTrigger, str](named.streams.make_local_job, self._service_streams.local_schedule, self.functions.local_job)
-        self._service_streams.temporal_schedule = transformation.Input[ScheduleTrigger, object, Exception](named.streams.temporal_schedule, self)
-        self._service_streams.make_temporal_job = transformation.Map[ScheduleTrigger, str](named.streams.make_temporal_job, self._service_streams.temporal_schedule, self.functions.temporal_job)
-        self._service_streams.merge_job_submissions = transformation.Merge[str](named.streams.merge_job_submissions, self._service_streams.make_local_job, self._service_streams.make_temporal_job)
+        self._service_streams.local_schedule = transformation.Input[str, object, Exception](named.streams.local_schedule, self)
+        self._service_streams.temporal_schedule = transformation.Input[str, object, Exception](named.streams.temporal_schedule, self)
+        self._service_streams.merge_job_submissions = transformation.Merge[str](named.streams.merge_job_submissions, self._service_streams.local_schedule, self._service_streams.temporal_schedule)
         self._service_streams.process_durable_job = transformation.Map[str, str](named.streams.process_durable_job, self._service_streams.consume_durable_job, self.functions.process_durable_job)
         self._service_streams.submit_durable_job = transformation.Sink[str, Exception](named.streams.submit_durable_job, self._service_streams.merge_job_submissions)
         self._service_streams.consume_durable_job.set_source(self._service_streams.process_durable_job)

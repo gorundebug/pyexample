@@ -57,16 +57,16 @@ class Service(GeneratedService):
     async def custom_makers_init(self, ctx: Context) -> None:
         """Replace generated makers here before any function is constructed."""
         del ctx
-        # self.makers.local_job = custom_local_job_maker
+        # self.makers.local_schedule = custom_local_schedule_maker
         # self.makers.process_durable_job = custom_process_durable_job_maker
-        # self.makers.temporal_job = custom_temporal_job_maker
+        # self.makers.temporal_schedule = custom_temporal_schedule_maker
 
     async def custom_functions_init(self, ctx: Context) -> None:
         """Configure constructed functions here before the graph is wired."""
         del ctx
-        # Configure self.functions.local_job here when needed.
+        # Configure self.functions.local_schedule here when needed.
         # Configure self.functions.process_durable_job here when needed.
-        # Configure self.functions.temporal_job here when needed.
+        # Configure self.functions.temporal_schedule here when needed.
 
     async def on_start(self, ctx: Context) -> None:
         del ctx

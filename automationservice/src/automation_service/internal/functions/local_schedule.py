@@ -8,14 +8,14 @@ from pyservicelib_gorundebug.runtime.common import Collect
 
 
 class LocalSchedule:
-    """Implement LocalSchedule."""
+    """Create a job message identifying the local scheduled firing."""
 
     async def on_trigger(
         self,
         trigger: ScheduleTrigger,
-        out: Collect[ScheduleTrigger],
+        out: Collect[str],
     ) -> None:
-        await out.out(trigger)
+        await out.out(f"local:{trigger.schedule_id}:{trigger.trigger_id}")
 
 
 def make_local_schedule(

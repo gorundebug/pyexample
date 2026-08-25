@@ -8,14 +8,14 @@ from pyservicelib_gorundebug.runtime.common import Collect
 
 
 class TemporalSchedule:
-    """Implement TemporalSchedule."""
+    """Create a job message identifying the durable scheduled firing."""
 
     async def on_trigger(
         self,
         trigger: ScheduleTrigger,
-        out: Collect[ScheduleTrigger],
+        out: Collect[str],
     ) -> None:
-        await out.out(trigger)
+        await out.out(f"temporal:{trigger.schedule_id}:{trigger.trigger_id}")
 
 
 def make_temporal_schedule(
