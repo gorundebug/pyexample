@@ -33,14 +33,28 @@ from ..functions import (
     make_local_schedule,
     ObserveActivityResult,
     make_observe_activity_result,
+    ObserveFanoutActivityB,
+    make_observe_fanout_activity_b,
+    ObserveFanoutActivityC,
+    make_observe_fanout_activity_c,
     ObserveWorkflowResult,
     make_observe_workflow_result,
     ProcessActivityJob,
     make_process_activity_job,
+    ProcessFanoutActivityA,
+    make_process_fanout_activity_a,
+    ProcessFanoutActivityB,
+    make_process_fanout_activity_b,
+    ProcessFanoutActivityC,
+    make_process_fanout_activity_c,
     ProcessScheduledActivity,
     make_process_scheduled_activity,
     ProcessScheduledWorkflow,
     make_process_scheduled_workflow,
+    ProcessSequentialActivityA,
+    make_process_sequential_activity_a,
+    ProcessSequentialActivityB,
+    make_process_sequential_activity_b,
     ProcessWorkflowJob,
     make_process_workflow_job,
     ScheduledActivityPause,
@@ -60,22 +74,42 @@ from ..functions import (
 class ServiceStreams:
     consume_activity_job: Any = None
     activity_pause: Any = None
+    consume_fan_out_workflow_job: Any = None
+    call_fan_out_activity_a: Any = None
+    split_activity_a_result: Any = None
+    call_fan_out_activity_b: Any = None
+    call_fan_out_activity_c: Any = None
     consume_workflow_job: Any = None
+    workflow_pause: Any = None
+    call_sequential_activity_a: Any = None
+    call_sequential_activity_b: Any = None
+    consume_fan_out_activity_a: Any = None
+    consume_fan_out_activity_b: Any = None
+    consume_fan_out_activity_c: Any = None
+    consume_sequential_activity_a: Any = None
+    consume_sequential_activity_b: Any = None
     local_schedule: Any = None
     split_on_demand_jobs: Any = None
     submit_activity_job: Any = None
     observe_activity_result: Any = None
+    observe_fan_out_activity_b: Any = None
+    observe_fan_out_activity_c: Any = None
     submit_workflow_job: Any = None
     observe_workflow_result: Any = None
     process_activity_job: Any = None
+    process_fan_out_activity_a: Any = None
+    process_fan_out_activity_b: Any = None
+    process_fan_out_activity_c: Any = None
     temporal_activity_schedule: Any = None
     scheduled_activity_pause: Any = None
     process_scheduled_activity: Any = None
     temporal_workflow_schedule: Any = None
     scheduled_workflow_pause: Any = None
     process_scheduled_workflow: Any = None
-    workflow_pause: Any = None
+    process_sequential_activity_a: Any = None
+    process_sequential_activity_b: Any = None
     process_workflow_job: Any = None
+    submit_fan_out_workflow_job: Any = None
 
 @dataclass(slots=True)
 class ServiceMakers:
@@ -94,6 +128,16 @@ class ServiceMakers:
             ctx, environment, config
         )
     )
+    observe_fanout_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveFanoutActivityB] = (
+        lambda ctx, environment, config: make_observe_fanout_activity_b(
+            ctx, environment, config
+        )
+    )
+    observe_fanout_activity_c: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveFanoutActivityC] = (
+        lambda ctx, environment, config: make_observe_fanout_activity_c(
+            ctx, environment, config
+        )
+    )
     observe_workflow_result: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveWorkflowResult] = (
         lambda ctx, environment, config: make_observe_workflow_result(
             ctx, environment, config
@@ -104,6 +148,21 @@ class ServiceMakers:
             ctx, environment, config
         )
     )
+    process_fanout_activity_a: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityA] = (
+        lambda ctx, environment, config: make_process_fanout_activity_a(
+            ctx, environment, config
+        )
+    )
+    process_fanout_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityB] = (
+        lambda ctx, environment, config: make_process_fanout_activity_b(
+            ctx, environment, config
+        )
+    )
+    process_fanout_activity_c: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityC] = (
+        lambda ctx, environment, config: make_process_fanout_activity_c(
+            ctx, environment, config
+        )
+    )
     process_scheduled_activity: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessScheduledActivity] = (
         lambda ctx, environment, config: make_process_scheduled_activity(
             ctx, environment, config
@@ -111,6 +170,16 @@ class ServiceMakers:
     )
     process_scheduled_workflow: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessScheduledWorkflow] = (
         lambda ctx, environment, config: make_process_scheduled_workflow(
+            ctx, environment, config
+        )
+    )
+    process_sequential_activity_a: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessSequentialActivityA] = (
+        lambda ctx, environment, config: make_process_sequential_activity_a(
+            ctx, environment, config
+        )
+    )
+    process_sequential_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessSequentialActivityB] = (
+        lambda ctx, environment, config: make_process_sequential_activity_b(
             ctx, environment, config
         )
     )
@@ -151,10 +220,17 @@ class ServiceFunctions:
     activity_pause: ActivityPause
     local_schedule: LocalSchedule
     observe_activity_result: ObserveActivityResult
+    observe_fanout_activity_b: ObserveFanoutActivityB
+    observe_fanout_activity_c: ObserveFanoutActivityC
     observe_workflow_result: ObserveWorkflowResult
     process_activity_job: ProcessActivityJob
+    process_fanout_activity_a: ProcessFanoutActivityA
+    process_fanout_activity_b: ProcessFanoutActivityB
+    process_fanout_activity_c: ProcessFanoutActivityC
     process_scheduled_activity: ProcessScheduledActivity
     process_scheduled_workflow: ProcessScheduledWorkflow
+    process_sequential_activity_a: ProcessSequentialActivityA
+    process_sequential_activity_b: ProcessSequentialActivityB
     process_workflow_job: ProcessWorkflowJob
     scheduled_activity_pause: ScheduledActivityPause
     scheduled_workflow_pause: ScheduledWorkflowPause
@@ -206,17 +282,38 @@ class GeneratedService(ServiceApp):
             observe_activity_result=self._makers.observe_activity_result(
                 ctx, self, named.streams.observe_activity_result
             ),
+            observe_fanout_activity_b=self._makers.observe_fanout_activity_b(
+                ctx, self, named.streams.observe_fan_out_activity_b
+            ),
+            observe_fanout_activity_c=self._makers.observe_fanout_activity_c(
+                ctx, self, named.streams.observe_fan_out_activity_c
+            ),
             observe_workflow_result=self._makers.observe_workflow_result(
                 ctx, self, named.streams.observe_workflow_result
             ),
             process_activity_job=self._makers.process_activity_job(
                 ctx, self, named.streams.process_activity_job
             ),
+            process_fanout_activity_a=self._makers.process_fanout_activity_a(
+                ctx, self, named.streams.process_fan_out_activity_a
+            ),
+            process_fanout_activity_b=self._makers.process_fanout_activity_b(
+                ctx, self, named.streams.process_fan_out_activity_b
+            ),
+            process_fanout_activity_c=self._makers.process_fanout_activity_c(
+                ctx, self, named.streams.process_fan_out_activity_c
+            ),
             process_scheduled_activity=self._makers.process_scheduled_activity(
                 ctx, self, named.streams.process_scheduled_activity
             ),
             process_scheduled_workflow=self._makers.process_scheduled_workflow(
                 ctx, self, named.streams.process_scheduled_workflow
+            ),
+            process_sequential_activity_a=self._makers.process_sequential_activity_a(
+                ctx, self, named.streams.process_sequential_activity_a
+            ),
+            process_sequential_activity_b=self._makers.process_sequential_activity_b(
+                ctx, self, named.streams.process_sequential_activity_b
             ),
             process_workflow_job=self._makers.process_workflow_job(
                 ctx, self, named.streams.process_workflow_job
@@ -251,24 +348,49 @@ class GeneratedService(ServiceApp):
         named = cfg.named
         self._service_streams.consume_activity_job = transformation.Input[str, str, Exception](named.streams.consume_activity_job, self)
         self._service_streams.activity_pause = transformation.Delay[str](named.streams.activity_pause, self._service_streams.consume_activity_job, self.functions.activity_pause)
+        self._service_streams.consume_fan_out_workflow_job = transformation.Input[str, object, Exception](named.streams.consume_fan_out_workflow_job, self)
+        self._service_streams.call_fan_out_activity_a = transformation.SinkWithResult[str, str, Exception](named.streams.call_fan_out_activity_a, self._service_streams.consume_fan_out_workflow_job)
+        self._service_streams.split_activity_a_result = transformation.Split[str](named.streams.split_activity_a_result, self._service_streams.call_fan_out_activity_a)
+        self._service_streams.call_fan_out_activity_b = transformation.SinkWithResult[str, str, Exception](named.streams.call_fan_out_activity_b, self._service_streams.split_activity_a_result.add_stream())
+        self._service_streams.call_fan_out_activity_c = transformation.SinkWithResult[str, str, Exception](named.streams.call_fan_out_activity_c, self._service_streams.split_activity_a_result.add_stream())
         self._service_streams.consume_workflow_job = transformation.Input[str, str, Exception](named.streams.consume_workflow_job, self)
+        self._service_streams.workflow_pause = transformation.Delay[str](named.streams.workflow_pause, self._service_streams.consume_workflow_job, self.functions.workflow_pause)
+        self._service_streams.call_sequential_activity_a = transformation.SinkWithResult[str, str, Exception](named.streams.call_sequential_activity_a, self._service_streams.workflow_pause)
+        self._service_streams.call_sequential_activity_b = transformation.SinkWithResult[str, str, Exception](named.streams.call_sequential_activity_b, self._service_streams.call_sequential_activity_a)
+        self._service_streams.consume_fan_out_activity_a = transformation.Input[str, str, Exception](named.streams.consume_fan_out_activity_a, self)
+        self._service_streams.consume_fan_out_activity_b = transformation.Input[str, str, Exception](named.streams.consume_fan_out_activity_b, self)
+        self._service_streams.consume_fan_out_activity_c = transformation.Input[str, str, Exception](named.streams.consume_fan_out_activity_c, self)
+        self._service_streams.consume_sequential_activity_a = transformation.Input[str, str, Exception](named.streams.consume_sequential_activity_a, self)
+        self._service_streams.consume_sequential_activity_b = transformation.Input[str, str, Exception](named.streams.consume_sequential_activity_b, self)
         self._service_streams.local_schedule = transformation.Input[str, object, Exception](named.streams.local_schedule, self)
         self._service_streams.split_on_demand_jobs = transformation.Split[str](named.streams.split_on_demand_jobs, self._service_streams.local_schedule)
         self._service_streams.submit_activity_job = transformation.SinkWithResult[str, str, Exception](named.streams.submit_activity_job, self._service_streams.split_on_demand_jobs.add_stream())
         self._service_streams.observe_activity_result = transformation.Map[str, str](named.streams.observe_activity_result, self._service_streams.submit_activity_job, self.functions.observe_activity_result)
+        self._service_streams.observe_fan_out_activity_b = transformation.Map[str, str](named.streams.observe_fan_out_activity_b, self._service_streams.call_fan_out_activity_b, self.functions.observe_fanout_activity_b)
+        self._service_streams.observe_fan_out_activity_c = transformation.Map[str, str](named.streams.observe_fan_out_activity_c, self._service_streams.call_fan_out_activity_c, self.functions.observe_fanout_activity_c)
         self._service_streams.submit_workflow_job = transformation.SinkWithResult[str, str, Exception](named.streams.submit_workflow_job, self._service_streams.split_on_demand_jobs.add_stream())
         self._service_streams.observe_workflow_result = transformation.Map[str, str](named.streams.observe_workflow_result, self._service_streams.submit_workflow_job, self.functions.observe_workflow_result)
         self._service_streams.process_activity_job = transformation.Map[str, str](named.streams.process_activity_job, self._service_streams.activity_pause, self.functions.process_activity_job)
+        self._service_streams.process_fan_out_activity_a = transformation.Map[str, str](named.streams.process_fan_out_activity_a, self._service_streams.consume_fan_out_activity_a, self.functions.process_fanout_activity_a)
+        self._service_streams.process_fan_out_activity_b = transformation.Map[str, str](named.streams.process_fan_out_activity_b, self._service_streams.consume_fan_out_activity_b, self.functions.process_fanout_activity_b)
+        self._service_streams.process_fan_out_activity_c = transformation.Map[str, str](named.streams.process_fan_out_activity_c, self._service_streams.consume_fan_out_activity_c, self.functions.process_fanout_activity_c)
         self._service_streams.temporal_activity_schedule = transformation.Input[str, str, Exception](named.streams.temporal_activity_schedule, self)
         self._service_streams.scheduled_activity_pause = transformation.Delay[str](named.streams.scheduled_activity_pause, self._service_streams.temporal_activity_schedule, self.functions.scheduled_activity_pause)
         self._service_streams.process_scheduled_activity = transformation.Map[str, str](named.streams.process_scheduled_activity, self._service_streams.scheduled_activity_pause, self.functions.process_scheduled_activity)
         self._service_streams.temporal_workflow_schedule = transformation.Input[str, str, Exception](named.streams.temporal_workflow_schedule, self)
         self._service_streams.scheduled_workflow_pause = transformation.Delay[str](named.streams.scheduled_workflow_pause, self._service_streams.temporal_workflow_schedule, self.functions.scheduled_workflow_pause)
         self._service_streams.process_scheduled_workflow = transformation.Map[str, str](named.streams.process_scheduled_workflow, self._service_streams.scheduled_workflow_pause, self.functions.process_scheduled_workflow)
-        self._service_streams.workflow_pause = transformation.Delay[str](named.streams.workflow_pause, self._service_streams.consume_workflow_job, self.functions.workflow_pause)
-        self._service_streams.process_workflow_job = transformation.Map[str, str](named.streams.process_workflow_job, self._service_streams.workflow_pause, self.functions.process_workflow_job)
+        self._service_streams.process_sequential_activity_a = transformation.Map[str, str](named.streams.process_sequential_activity_a, self._service_streams.consume_sequential_activity_a, self.functions.process_sequential_activity_a)
+        self._service_streams.process_sequential_activity_b = transformation.Map[str, str](named.streams.process_sequential_activity_b, self._service_streams.consume_sequential_activity_b, self.functions.process_sequential_activity_b)
+        self._service_streams.process_workflow_job = transformation.Map[str, str](named.streams.process_workflow_job, self._service_streams.call_sequential_activity_b, self.functions.process_workflow_job)
+        self._service_streams.submit_fan_out_workflow_job = transformation.Sink[str, Exception](named.streams.submit_fan_out_workflow_job, self._service_streams.split_on_demand_jobs.add_stream())
         self._service_streams.consume_activity_job.set_source(self._service_streams.process_activity_job)
         self._service_streams.consume_workflow_job.set_source(self._service_streams.process_workflow_job)
+        self._service_streams.consume_fan_out_activity_a.set_source(self._service_streams.process_fan_out_activity_a)
+        self._service_streams.consume_fan_out_activity_b.set_source(self._service_streams.process_fan_out_activity_b)
+        self._service_streams.consume_fan_out_activity_c.set_source(self._service_streams.process_fan_out_activity_c)
+        self._service_streams.consume_sequential_activity_a.set_source(self._service_streams.process_sequential_activity_a)
+        self._service_streams.consume_sequential_activity_b.set_source(self._service_streams.process_sequential_activity_b)
         self._service_streams.temporal_activity_schedule.set_source(self._service_streams.process_scheduled_activity)
         self._service_streams.temporal_workflow_schedule.set_source(self._service_streams.process_scheduled_workflow)
 
@@ -281,14 +403,38 @@ class GeneratedService(ServiceApp):
                 "Automation Service requires automation_service.internal.config.Config"
             )
         self._transport_consumers = []
+        call_fan_out_activity_a_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.call_fan_out_activity_a)
+        self._transport_consumers.append(call_fan_out_activity_a_consumer)
+        call_fan_out_activity_b_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.call_fan_out_activity_b)
+        self._transport_consumers.append(call_fan_out_activity_b_consumer)
+        call_fan_out_activity_c_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.call_fan_out_activity_c)
+        self._transport_consumers.append(call_fan_out_activity_c_consumer)
+        call_sequential_activity_a_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.call_sequential_activity_a)
+        self._transport_consumers.append(call_sequential_activity_a_consumer)
+        call_sequential_activity_b_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.call_sequential_activity_b)
+        self._transport_consumers.append(call_sequential_activity_b_consumer)
         consume_activity_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_activity_job)
         self._transport_consumers.append(consume_activity_job_consumer)
+        consume_fan_out_activity_a_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_fan_out_activity_a)
+        self._transport_consumers.append(consume_fan_out_activity_a_consumer)
+        consume_fan_out_activity_b_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_fan_out_activity_b)
+        self._transport_consumers.append(consume_fan_out_activity_b_consumer)
+        consume_fan_out_activity_c_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_fan_out_activity_c)
+        self._transport_consumers.append(consume_fan_out_activity_c_consumer)
+        consume_fan_out_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_fan_out_workflow_job)
+        self._transport_consumers.append(consume_fan_out_workflow_job_consumer)
+        consume_sequential_activity_a_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_sequential_activity_a)
+        self._transport_consumers.append(consume_sequential_activity_a_consumer)
+        consume_sequential_activity_b_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_sequential_activity_b)
+        self._transport_consumers.append(consume_sequential_activity_b_consumer)
         consume_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_workflow_job)
         self._transport_consumers.append(consume_workflow_job_consumer)
         local_schedule_consumer = cron_source.APSchedulerEndpointConsumer(self._service_streams.local_schedule, self.functions.local_schedule)
         self._transport_consumers.append(local_schedule_consumer)
         submit_activity_job_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.submit_activity_job)
         self._transport_consumers.append(submit_activity_job_consumer)
+        submit_fan_out_workflow_job_consumer = temporal_sink.make_direct_endpoint_consumer(self._service_streams.submit_fan_out_workflow_job)
+        self._transport_consumers.append(submit_fan_out_workflow_job_consumer)
         submit_workflow_job_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.submit_workflow_job)
         self._transport_consumers.append(submit_workflow_job_consumer)
         temporal_activity_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_activity_schedule, self.functions.temporal_activity_schedule)

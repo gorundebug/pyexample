@@ -84,11 +84,11 @@ from pyservicelib_gorundebug.runtime.config.stream_types import (
 _DEFAULT_CONFIG: dict[str, Any] = {
     "settings": ProjectSettings(moduleVersion="v0.2.12", name="Example", repoPath="github.com/gorundebug/pyexample", ),
     "services": { "automationService": ServiceConfig(color="#00A86B", defaultCallSemantics=CallSemantics(2), defaultGrpcTimeout=0, environment=Environment(""), golangVersion="1.25.4", grpcHost="0.0.0.0", grpcPort=9204, httpHost="0.0.0.0", httpPort=9094, id=2, kubernetesWorkloadType=KubernetesWorkloadType("Deployment"), livenessHandler="health/live", metricsHandler="metrics", modulePath="github.com/gorundebug/pyexample-automationservice", name="Automation Service", programmingLanguage=ProgrammingLanguage(3), readinessHandler="health/ready", shutdownTimeout=30000, startupHandler="health/startup", statusHandler="status", ), },
-    "streams": { "activityPause": StreamConfig(duration=250, functionDescription="Apply the ordinary local Delay while processing an on-demand Temporal Activity.\n", functionInitializerGroup="", functionModule="", functionName="ActivityPause", functionPackage="", id=3, idService=2, idSource=4, name="Activity Pause", pipeline="automation", type=TransformationType(16), xPos=-250, yPos=-720, ), "consumeActivityJob": StreamConfig(id=4, idEndpoint=5, idService=2, idSource=9, name="Consume Activity Job", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-500, yPos=-720, ), "consumeWorkflowJob": StreamConfig(id=5, idEndpoint=8, idService=2, idSource=12, name="Consume Workflow Job", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-500, yPos=-420, ), "localSchedule": StreamConfig(id=6, idEndpoint=2, idService=2, idSource=0, name="Local Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-1250, yPos=-570, ), "observeActivityResult": StreamConfig(functionDescription="Preserve the result returned through the on-demand Activity endpoint.\n", functionInitializerGroup="", functionModule="", functionName="ObserveActivityResult", functionPackage="", id=7, idService=2, idSource=16, name="Observe Activity Result", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-500, yPos=-570, ), "observeWorkflowResult": StreamConfig(functionDescription="Preserve the result returned through the on-demand Workflow endpoint.\n", functionInitializerGroup="", functionModule="", functionName="ObserveWorkflowResult", functionPackage="", id=8, idService=2, idSource=17, name="Observe Workflow Result", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-500, yPos=-270, ), "processActivityJob": StreamConfig(functionDescription="Record Activity progress with DurableCallHeartbeat and return the processed job result.\n", functionInitializerGroup="", functionModule="", functionName="ProcessActivityJob", functionPackage="", id=9, idService=2, idSource=3, name="Process Activity Job", pipeline="automation", type=TransformationType(2), valueType="string", xPos=10, yPos=-720, ), "processScheduledActivity": StreamConfig(functionDescription="Return the visible result of one scheduled Activity execution.\n", functionInitializerGroup="", functionModule="", functionName="ProcessScheduledActivity", functionPackage="", id=10, idService=2, idSource=13, name="Process Scheduled Activity", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-250, yPos=-60, ), "processScheduledWorkflow": StreamConfig(functionDescription="Return the visible result of one scheduled Workflow execution.\n", functionInitializerGroup="", functionModule="", functionName="ProcessScheduledWorkflow", functionPackage="", id=11, idService=2, idSource=14, name="Process Scheduled Workflow", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-250, yPos=240, ), "processWorkflowJob": StreamConfig(functionDescription="Continue the Workflow as new once, then return its final result.\n", functionInitializerGroup="", functionModule="", functionName="ProcessWorkflowJob", functionPackage="", id=12, idService=2, idSource=20, name="Process Workflow Job", pipeline="automation", type=TransformationType(2), valueType="string", xPos=10, yPos=-420, ), "scheduledActivityPause": StreamConfig(duration=250, functionDescription="Apply the ordinary local Delay inside an Activity started by Temporal Schedule.\n", functionInitializerGroup="", functionModule="", functionName="ScheduledActivityPause", functionPackage="", id=13, idService=2, idSource=18, name="Scheduled Activity Pause", pipeline="automation", type=TransformationType(16), xPos=-500, yPos=-60, ), "scheduledWorkflowPause": StreamConfig(duration=250, functionDescription="Use the official Temporal Workflow timer for a scheduled Workflow.\n", functionInitializerGroup="", functionModule="", functionName="ScheduledWorkflowPause", functionPackage="", id=14, idService=2, idSource=19, name="Scheduled Workflow Pause", pipeline="automation", type=TransformationType(16), xPos=-500, yPos=240, ), "splitOnDemandJobs": StreamConfig(id=15, idService=2, idSource=6, name="Split On-Demand Jobs", pipeline="automation", type=TransformationType(11), xPos=-1010, yPos=-570, ), "submitActivityJob": StreamConfig(id=16, idEndpoint=5, idService=2, idSource=15, name="Submit Activity Job", pipeline="automation", type=TransformationType(13), valueType="string", xPos=-760, yPos=-720, ), "submitWorkflowJob": StreamConfig(id=17, idEndpoint=8, idService=2, idSource=15, name="Submit Workflow Job", pipeline="automation", type=TransformationType(13), valueType="string", xPos=-760, yPos=-420, ), "temporalActivitySchedule": StreamConfig(id=18, idEndpoint=6, idService=2, idSource=10, name="Temporal Activity Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-760, yPos=-60, ), "temporalWorkflowSchedule": StreamConfig(id=19, idEndpoint=7, idService=2, idSource=11, name="Temporal Workflow Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-760, yPos=240, ), "workflowPause": StreamConfig(duration=250, functionDescription="Use the same Delay contract backed by the Temporal Workflow timer.\n", functionInitializerGroup="", functionModule="", functionName="WorkflowPause", functionPackage="", id=20, idService=2, idSource=5, name="Workflow Pause", pipeline="automation", type=TransformationType(16), xPos=-250, yPos=-420, ), },
+    "streams": { "activityPause": StreamConfig(duration=250, functionDescription="Apply the ordinary local Delay while processing an on-demand Temporal Activity.\n", functionInitializerGroup="", functionModule="", functionName="ActivityPause", functionPackage="", id=3, idService=2, idSource=9, name="Activity Pause", pipeline="automation", type=TransformationType(16), xPos=-250, yPos=-720, ), "callFanOutActivityA": StreamConfig(id=4, idEndpoint=6, idService=2, idSource=13, name="Call Fan-Out Activity A", pipeline="automation", type=TransformationType(13), valueType="string", xPos=-250, yPos=800, ), "callFanOutActivityB": StreamConfig(id=5, idEndpoint=7, idService=2, idSource=33, name="Call Fan-Out Activity B", pipeline="automation", type=TransformationType(13), valueType="string", xPos=270, yPos=720, ), "callFanOutActivityC": StreamConfig(id=6, idEndpoint=8, idService=2, idSource=33, name="Call Fan-Out Activity C", pipeline="automation", type=TransformationType(13), valueType="string", xPos=270, yPos=880, ), "callSequentialActivityA": StreamConfig(id=7, idEndpoint=10, idService=2, idSource=40, name="Call Sequential Activity A", pipeline="automation", type=TransformationType(13), valueType="string", xPos=10, yPos=-420, ), "callSequentialActivityB": StreamConfig(id=8, idEndpoint=11, idService=2, idSource=7, name="Call Sequential Activity B", pipeline="automation", type=TransformationType(13), valueType="string", xPos=270, yPos=-420, ), "consumeActivityJob": StreamConfig(id=9, idEndpoint=5, idService=2, idSource=22, name="Consume Activity Job", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-500, yPos=-720, ), "consumeFanOutActivityA": StreamConfig(id=10, idEndpoint=6, idService=2, idSource=23, name="Consume Fan-Out Activity A", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-500, yPos=1050, ), "consumeFanOutActivityB": StreamConfig(id=11, idEndpoint=7, idService=2, idSource=24, name="Consume Fan-Out Activity B", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-500, yPos=1200, ), "consumeFanOutActivityC": StreamConfig(id=12, idEndpoint=8, idService=2, idSource=25, name="Consume Fan-Out Activity C", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-500, yPos=1350, ), "consumeFanOutWorkflowJob": StreamConfig(id=13, idEndpoint=9, idService=2, idSource=0, name="Consume Fan-Out Workflow Job", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-500, yPos=800, ), "consumeSequentialActivityA": StreamConfig(id=14, idEndpoint=10, idService=2, idSource=28, name="Consume Sequential Activity A", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-500, yPos=500, ), "consumeSequentialActivityB": StreamConfig(id=15, idEndpoint=11, idService=2, idSource=29, name="Consume Sequential Activity B", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-500, yPos=650, ), "consumeWorkflowJob": StreamConfig(id=16, idEndpoint=14, idService=2, idSource=30, name="Consume Workflow Job", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-500, yPos=-420, ), "localSchedule": StreamConfig(id=17, idEndpoint=2, idService=2, idSource=0, name="Local Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-1250, yPos=-570, ), "observeActivityResult": StreamConfig(functionDescription="Preserve the result returned through the on-demand Activity endpoint.\n", functionInitializerGroup="", functionModule="", functionName="ObserveActivityResult", functionPackage="", id=18, idService=2, idSource=35, name="Observe Activity Result", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-500, yPos=-570, ), "observeFanOutActivityB": StreamConfig(functionDescription="Observe the typed result returned by the Activity B fan-out branch.\n", functionInitializerGroup="", functionModule="", functionName="ObserveFanoutActivityB", functionPackage="", id=19, idService=2, idSource=5, name="Observe Fan-Out Activity B", pipeline="automation", type=TransformationType(2), valueType="string", xPos=530, yPos=720, ), "observeFanOutActivityC": StreamConfig(functionDescription="Observe the typed result returned by the Activity C fan-out branch.\n", functionInitializerGroup="", functionModule="", functionName="ObserveFanoutActivityC", functionPackage="", id=20, idService=2, idSource=6, name="Observe Fan-Out Activity C", pipeline="automation", type=TransformationType(2), valueType="string", xPos=530, yPos=880, ), "observeWorkflowResult": StreamConfig(functionDescription="Preserve the result returned through the on-demand Workflow endpoint.\n", functionInitializerGroup="", functionModule="", functionName="ObserveWorkflowResult", functionPackage="", id=21, idService=2, idSource=37, name="Observe Workflow Result", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-500, yPos=-270, ), "processActivityJob": StreamConfig(functionDescription="Record Activity progress with DurableCallHeartbeat and return the processed job result.\n", functionInitializerGroup="", functionModule="", functionName="ProcessActivityJob", functionPackage="", id=22, idService=2, idSource=3, name="Process Activity Job", pipeline="automation", type=TransformationType(2), valueType="string", xPos=10, yPos=-720, ), "processFanOutActivityA": StreamConfig(functionDescription="Return Activity A's typed result before the Workflow Split.\n", functionInitializerGroup="", functionModule="", functionName="ProcessFanoutActivityA", functionPackage="", id=23, idService=2, idSource=10, name="Process Fan-Out Activity A", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-250, yPos=1050, ), "processFanOutActivityB": StreamConfig(functionDescription="Return Activity B's typed fan-out result.\n", functionInitializerGroup="", functionModule="", functionName="ProcessFanoutActivityB", functionPackage="", id=24, idService=2, idSource=11, name="Process Fan-Out Activity B", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-250, yPos=1200, ), "processFanOutActivityC": StreamConfig(functionDescription="Return Activity C's typed fan-out result.\n", functionInitializerGroup="", functionModule="", functionName="ProcessFanoutActivityC", functionPackage="", id=25, idService=2, idSource=12, name="Process Fan-Out Activity C", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-250, yPos=1350, ), "processScheduledActivity": StreamConfig(functionDescription="Return the visible result of one scheduled Activity execution.\n", functionInitializerGroup="", functionModule="", functionName="ProcessScheduledActivity", functionPackage="", id=26, idService=2, idSource=31, name="Process Scheduled Activity", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-250, yPos=-60, ), "processScheduledWorkflow": StreamConfig(functionDescription="Return the visible result of one scheduled Workflow execution.\n", functionInitializerGroup="", functionModule="", functionName="ProcessScheduledWorkflow", functionPackage="", id=27, idService=2, idSource=32, name="Process Scheduled Workflow", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-250, yPos=240, ), "processSequentialActivityA": StreamConfig(functionDescription="Return sequential Activity A's typed result to its Temporal sink.\n", functionInitializerGroup="", functionModule="", functionName="ProcessSequentialActivityA", functionPackage="", id=28, idService=2, idSource=14, name="Process Sequential Activity A", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-250, yPos=500, ), "processSequentialActivityB": StreamConfig(functionDescription="Return sequential Activity B's typed result to its Temporal sink.\n", functionInitializerGroup="", functionModule="", functionName="ProcessSequentialActivityB", functionPackage="", id=29, idService=2, idSource=15, name="Process Sequential Activity B", pipeline="automation", type=TransformationType(2), valueType="string", xPos=-250, yPos=650, ), "processWorkflowJob": StreamConfig(functionDescription="Continue the Workflow as new once, then return its final result.\n", functionInitializerGroup="", functionModule="", functionName="ProcessWorkflowJob", functionPackage="", id=30, idService=2, idSource=8, name="Process Workflow Job", pipeline="automation", type=TransformationType(2), valueType="string", xPos=530, yPos=-420, ), "scheduledActivityPause": StreamConfig(duration=250, functionDescription="Apply the ordinary local Delay inside an Activity started by Temporal Schedule.\n", functionInitializerGroup="", functionModule="", functionName="ScheduledActivityPause", functionPackage="", id=31, idService=2, idSource=38, name="Scheduled Activity Pause", pipeline="automation", type=TransformationType(16), xPos=-500, yPos=-60, ), "scheduledWorkflowPause": StreamConfig(duration=250, functionDescription="Use the official Temporal Workflow timer for a scheduled Workflow.\n", functionInitializerGroup="", functionModule="", functionName="ScheduledWorkflowPause", functionPackage="", id=32, idService=2, idSource=39, name="Scheduled Workflow Pause", pipeline="automation", type=TransformationType(16), xPos=-500, yPos=240, ), "splitActivityAResult": StreamConfig(id=33, idService=2, idSource=4, name="Split Activity A Result", pipeline="automation", type=TransformationType(11), xPos=10, yPos=800, ), "splitOnDemandJobs": StreamConfig(id=34, idService=2, idSource=17, name="Split On-Demand Jobs", pipeline="automation", type=TransformationType(11), xPos=-1010, yPos=-570, ), "submitActivityJob": StreamConfig(id=35, idEndpoint=5, idService=2, idSource=34, name="Submit Activity Job", pipeline="automation", type=TransformationType(13), valueType="string", xPos=-760, yPos=-720, ), "submitFanOutWorkflowJob": StreamConfig(id=36, idEndpoint=9, idService=2, idSource=34, name="Submit Fan-Out Workflow Job", pipeline="automation", type=TransformationType(13), valueType="string", xPos=-760, yPos=800, ), "submitWorkflowJob": StreamConfig(id=37, idEndpoint=14, idService=2, idSource=34, name="Submit Workflow Job", pipeline="automation", type=TransformationType(13), valueType="string", xPos=-760, yPos=-420, ), "temporalActivitySchedule": StreamConfig(id=38, idEndpoint=12, idService=2, idSource=26, name="Temporal Activity Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-760, yPos=-60, ), "temporalWorkflowSchedule": StreamConfig(id=39, idEndpoint=13, idService=2, idSource=27, name="Temporal Workflow Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-760, yPos=240, ), "workflowPause": StreamConfig(duration=250, functionDescription="Use the same Delay contract backed by the Temporal Workflow timer.\n", functionInitializerGroup="", functionModule="", functionName="WorkflowPause", functionPackage="", id=40, idService=2, idSource=16, name="Workflow Pause", pipeline="automation", type=TransformationType(16), xPos=-250, yPos=-420, ), },
     "dataConnectors": { "localCron": DataConnectorConfig(id=2, implementation="python/apscheduler", name="Local Cron", type=DataConnectorType(5), ), "temporal": DataConnectorConfig(address="temporal:7233", id=5, identity="example-automation", implementation="temporal/python", maxConcurrentActivities=2, maxConcurrentWorkflows=4, name="Temporal", namespace="default", type=DataConnectorType(6), ), },
-    "endpoints": { "activityJob": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, id=5, idDataConnector=5, maximumAttempts=3, name="Activity Job", taskQueue="automation-activity-jobs", temporalExecutionType=TemporalExecutionType("Activity"), workflowExecutionTimeout=60000, ), "localSchedule": EndpointConfig(enabled=True, functionDescription="Create a job message identifying the local scheduled firing.\n", functionName="LocalSchedule", id=2, idDataConnector=2, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Local Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/5 * * * *", timezone="UTC", ), "temporalActivitySchedule": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, functionDescription="Create an Activity job message identifying the durable scheduled firing.\n", functionName="TemporalActivitySchedule", id=6, idDataConnector=5, maximumAttempts=3, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Temporal Activity Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/10 * * * *", scheduleId="example-automation-activity-schedule", taskQueue="automation-activity-schedules", temporalExecutionType=TemporalExecutionType("Activity"), timezone="UTC", workflowExecutionTimeout=60000, ), "temporalWorkflowSchedule": EndpointConfig(enabled=True, functionDescription="Create a Workflow job message identifying the durable scheduled firing.\n", functionName="TemporalWorkflowSchedule", id=7, idDataConnector=5, maximumAttempts=3, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Temporal Workflow Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/10 * * * *", scheduleId="example-automation-workflow-schedule", taskQueue="automation-workflow-schedules", temporalExecutionType=TemporalExecutionType("Workflow"), timezone="UTC", workflowExecutionTimeout=60000, ), "workflowJob": EndpointConfig(enabled=True, id=8, idDataConnector=5, maximumAttempts=3, name="Workflow Job", taskQueue="automation-workflow-jobs", temporalExecutionType=TemporalExecutionType("Workflow"), workflowExecutionTimeout=60000, ), },
+    "endpoints": { "activityJob": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, id=5, idDataConnector=5, maximumAttempts=3, name="Activity Job", taskQueue="automation-activity-jobs", temporalExecutionType=TemporalExecutionType("Activity"), workflowExecutionTimeout=60000, ), "fanOutActivityA": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, id=6, idDataConnector=5, maximumAttempts=3, name="Fan-Out Activity A", taskQueue="automation-activity-jobs", temporalExecutionType=TemporalExecutionType("Activity"), workflowExecutionTimeout=60000, ), "fanOutActivityB": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, id=7, idDataConnector=5, maximumAttempts=3, name="Fan-Out Activity B", taskQueue="automation-activity-jobs", temporalExecutionType=TemporalExecutionType("Activity"), workflowExecutionTimeout=60000, ), "fanOutActivityC": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, id=8, idDataConnector=5, maximumAttempts=3, name="Fan-Out Activity C", taskQueue="automation-activity-jobs", temporalExecutionType=TemporalExecutionType("Activity"), workflowExecutionTimeout=60000, ), "fanOutWorkflowJob": EndpointConfig(enabled=True, id=9, idDataConnector=5, maximumAttempts=3, name="Fan-Out Workflow Job", taskQueue="automation-workflow-jobs", temporalExecutionType=TemporalExecutionType("Workflow"), workflowExecutionTimeout=60000, ), "localSchedule": EndpointConfig(enabled=True, functionDescription="Create a job message identifying the local scheduled firing.\n", functionName="LocalSchedule", id=2, idDataConnector=2, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Local Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/5 * * * *", timezone="UTC", ), "sequentialActivityA": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, id=10, idDataConnector=5, maximumAttempts=3, name="Sequential Activity A", taskQueue="automation-activity-jobs", temporalExecutionType=TemporalExecutionType("Activity"), workflowExecutionTimeout=60000, ), "sequentialActivityB": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, id=11, idDataConnector=5, maximumAttempts=3, name="Sequential Activity B", taskQueue="automation-activity-jobs", temporalExecutionType=TemporalExecutionType("Activity"), workflowExecutionTimeout=60000, ), "temporalActivitySchedule": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, functionDescription="Create an Activity job message identifying the durable scheduled firing.\n", functionName="TemporalActivitySchedule", id=12, idDataConnector=5, maximumAttempts=3, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Temporal Activity Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/10 * * * *", scheduleId="example-automation-activity-schedule", taskQueue="automation-activity-schedules", temporalExecutionType=TemporalExecutionType("Activity"), timezone="UTC", workflowExecutionTimeout=60000, ), "temporalWorkflowSchedule": EndpointConfig(enabled=True, functionDescription="Create a Workflow job message identifying the durable scheduled firing.\n", functionName="TemporalWorkflowSchedule", id=13, idDataConnector=5, maximumAttempts=3, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Temporal Workflow Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/10 * * * *", scheduleId="example-automation-workflow-schedule", taskQueue="automation-workflow-schedules", temporalExecutionType=TemporalExecutionType("Workflow"), timezone="UTC", workflowExecutionTimeout=60000, ), "workflowJob": EndpointConfig(enabled=True, id=14, idDataConnector=5, maximumAttempts=3, name="Workflow Job", taskQueue="automation-workflow-jobs", temporalExecutionType=TemporalExecutionType("Workflow"), workflowExecutionTimeout=60000, ), },
     "pools": { },
-    "links": { "consumeActivityJobToActivityPause": LinkConfig(callSemantics=CallSemantics(2), var_from=4, to=3, ), "consumeWorkflowJobToWorkflowPause": LinkConfig(callSemantics=CallSemantics(2), var_from=5, to=20, ), },
+    "links": { "consumeActivityJobToActivityPause": LinkConfig(callSemantics=CallSemantics(2), var_from=9, to=3, ), "consumeFanOutActivityAToProcessFanOutActivityA": LinkConfig(callSemantics=CallSemantics(2), var_from=10, to=23, ), "consumeFanOutActivityBToProcessFanOutActivityB": LinkConfig(callSemantics=CallSemantics(2), var_from=11, to=24, ), "consumeFanOutActivityCToProcessFanOutActivityC": LinkConfig(callSemantics=CallSemantics(2), var_from=12, to=25, ), "consumeSequentialActivityAToProcessSequentialActivityA": LinkConfig(callSemantics=CallSemantics(2), var_from=14, to=28, ), "consumeSequentialActivityBToProcessSequentialActivityB": LinkConfig(callSemantics=CallSemantics(2), var_from=15, to=29, ), "consumeWorkflowJobToWorkflowPause": LinkConfig(callSemantics=CallSemantics(2), var_from=16, to=40, ), },
     "modules": { "inventoryServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-inventory-service-api", name="inventory_service_api", ), "model": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-model", name="model", ), "orderServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-order-service-api", name="order_service_api", ), },
     "types": { "string": TypeConfig(description="Automation job payload and result.", name="string", publicType=False, type=DataType.string, useAlias=False, ), },
 }
@@ -102,9 +102,15 @@ _ENVIRONMENT_VARIABLES: tuple[tuple[str, tuple[str, ...], str], ...] = (
     ("AUTOMATION_SERVICE_GRPC_PORT", ("services", "automationService", "grpcPort", ), "int"),
     ("AUTOMATION_SERVICE_HTTP_HOST", ("services", "automationService", "httpHost", ), "string"),
     ("AUTOMATION_SERVICE_HTTP_PORT", ("services", "automationService", "httpPort", ), "int"),
+    ("FAN_OUT_ACTIVITY_A_ENABLED", ("endpoints", "fanOutActivityA", "enabled", ), "bool"),
+    ("FAN_OUT_ACTIVITY_B_ENABLED", ("endpoints", "fanOutActivityB", "enabled", ), "bool"),
+    ("FAN_OUT_ACTIVITY_C_ENABLED", ("endpoints", "fanOutActivityC", "enabled", ), "bool"),
+    ("FAN_OUT_WORKFLOW_JOB_ENABLED", ("endpoints", "fanOutWorkflowJob", "enabled", ), "bool"),
     ("LOCAL_SCHEDULE_ENABLED", ("endpoints", "localSchedule", "enabled", ), "bool"),
     ("SCHEDULED_ACTIVITY_PAUSE_DURATION", ("streams", "scheduledActivityPause", "duration", ), "int"),
     ("SCHEDULED_WORKFLOW_PAUSE_DURATION", ("streams", "scheduledWorkflowPause", "duration", ), "int"),
+    ("SEQUENTIAL_ACTIVITY_A_ENABLED", ("endpoints", "sequentialActivityA", "enabled", ), "bool"),
+    ("SEQUENTIAL_ACTIVITY_B_ENABLED", ("endpoints", "sequentialActivityB", "enabled", ), "bool"),
     ("TEMPORAL_ACTIVITY_SCHEDULE_ENABLED", ("endpoints", "temporalActivitySchedule", "enabled", ), "bool"),
     ("TEMPORAL_ADDRESS", ("dataConnectors", "temporal", "address", ), "string"),
     ("TEMPORAL_WORKFLOW_SCHEDULE_ENABLED", ("endpoints", "temporalWorkflowSchedule", "enabled", ), "bool"),
@@ -119,31 +125,57 @@ class ServiceIds:
 
 class StreamIds:
     ACTIVITY_PAUSE: Final[int] = 3
-    CONSUME_ACTIVITY_JOB: Final[int] = 4
-    CONSUME_WORKFLOW_JOB: Final[int] = 5
-    LOCAL_SCHEDULE: Final[int] = 6
-    OBSERVE_ACTIVITY_RESULT: Final[int] = 7
-    OBSERVE_WORKFLOW_RESULT: Final[int] = 8
-    PROCESS_ACTIVITY_JOB: Final[int] = 9
-    PROCESS_SCHEDULED_ACTIVITY: Final[int] = 10
-    PROCESS_SCHEDULED_WORKFLOW: Final[int] = 11
-    PROCESS_WORKFLOW_JOB: Final[int] = 12
-    SCHEDULED_ACTIVITY_PAUSE: Final[int] = 13
-    SCHEDULED_WORKFLOW_PAUSE: Final[int] = 14
-    SPLIT_ON_DEMAND_JOBS: Final[int] = 15
-    SUBMIT_ACTIVITY_JOB: Final[int] = 16
-    SUBMIT_WORKFLOW_JOB: Final[int] = 17
-    TEMPORAL_ACTIVITY_SCHEDULE: Final[int] = 18
-    TEMPORAL_WORKFLOW_SCHEDULE: Final[int] = 19
-    WORKFLOW_PAUSE: Final[int] = 20
+    CALL_FAN_OUT_ACTIVITY_A: Final[int] = 4
+    CALL_FAN_OUT_ACTIVITY_B: Final[int] = 5
+    CALL_FAN_OUT_ACTIVITY_C: Final[int] = 6
+    CALL_SEQUENTIAL_ACTIVITY_A: Final[int] = 7
+    CALL_SEQUENTIAL_ACTIVITY_B: Final[int] = 8
+    CONSUME_ACTIVITY_JOB: Final[int] = 9
+    CONSUME_FAN_OUT_ACTIVITY_A: Final[int] = 10
+    CONSUME_FAN_OUT_ACTIVITY_B: Final[int] = 11
+    CONSUME_FAN_OUT_ACTIVITY_C: Final[int] = 12
+    CONSUME_FAN_OUT_WORKFLOW_JOB: Final[int] = 13
+    CONSUME_SEQUENTIAL_ACTIVITY_A: Final[int] = 14
+    CONSUME_SEQUENTIAL_ACTIVITY_B: Final[int] = 15
+    CONSUME_WORKFLOW_JOB: Final[int] = 16
+    LOCAL_SCHEDULE: Final[int] = 17
+    OBSERVE_ACTIVITY_RESULT: Final[int] = 18
+    OBSERVE_FAN_OUT_ACTIVITY_B: Final[int] = 19
+    OBSERVE_FAN_OUT_ACTIVITY_C: Final[int] = 20
+    OBSERVE_WORKFLOW_RESULT: Final[int] = 21
+    PROCESS_ACTIVITY_JOB: Final[int] = 22
+    PROCESS_FAN_OUT_ACTIVITY_A: Final[int] = 23
+    PROCESS_FAN_OUT_ACTIVITY_B: Final[int] = 24
+    PROCESS_FAN_OUT_ACTIVITY_C: Final[int] = 25
+    PROCESS_SCHEDULED_ACTIVITY: Final[int] = 26
+    PROCESS_SCHEDULED_WORKFLOW: Final[int] = 27
+    PROCESS_SEQUENTIAL_ACTIVITY_A: Final[int] = 28
+    PROCESS_SEQUENTIAL_ACTIVITY_B: Final[int] = 29
+    PROCESS_WORKFLOW_JOB: Final[int] = 30
+    SCHEDULED_ACTIVITY_PAUSE: Final[int] = 31
+    SCHEDULED_WORKFLOW_PAUSE: Final[int] = 32
+    SPLIT_ACTIVITY_A_RESULT: Final[int] = 33
+    SPLIT_ON_DEMAND_JOBS: Final[int] = 34
+    SUBMIT_ACTIVITY_JOB: Final[int] = 35
+    SUBMIT_FAN_OUT_WORKFLOW_JOB: Final[int] = 36
+    SUBMIT_WORKFLOW_JOB: Final[int] = 37
+    TEMPORAL_ACTIVITY_SCHEDULE: Final[int] = 38
+    TEMPORAL_WORKFLOW_SCHEDULE: Final[int] = 39
+    WORKFLOW_PAUSE: Final[int] = 40
 
 
 class EndpointIds:
     ACTIVITY_JOB: Final[int] = 5
+    FAN_OUT_ACTIVITY_A: Final[int] = 6
+    FAN_OUT_ACTIVITY_B: Final[int] = 7
+    FAN_OUT_ACTIVITY_C: Final[int] = 8
+    FAN_OUT_WORKFLOW_JOB: Final[int] = 9
     LOCAL_SCHEDULE: Final[int] = 2
-    TEMPORAL_ACTIVITY_SCHEDULE: Final[int] = 6
-    TEMPORAL_WORKFLOW_SCHEDULE: Final[int] = 7
-    WORKFLOW_JOB: Final[int] = 8
+    SEQUENTIAL_ACTIVITY_A: Final[int] = 10
+    SEQUENTIAL_ACTIVITY_B: Final[int] = 11
+    TEMPORAL_ACTIVITY_SCHEDULE: Final[int] = 12
+    TEMPORAL_WORKFLOW_SCHEDULE: Final[int] = 13
+    WORKFLOW_JOB: Final[int] = 14
 
 
 class DataConnectorIds:
@@ -154,19 +186,39 @@ class DataConnectorIds:
 @dataclass(frozen=True, slots=True)
 class Streams:
     activity_pause: DelayStreamConfig
+    call_fan_out_activity_a: SinkStreamConfig
+    call_fan_out_activity_b: SinkStreamConfig
+    call_fan_out_activity_c: SinkStreamConfig
+    call_sequential_activity_a: SinkStreamConfig
+    call_sequential_activity_b: SinkStreamConfig
     consume_activity_job: InputStreamConfig
+    consume_fan_out_activity_a: InputStreamConfig
+    consume_fan_out_activity_b: InputStreamConfig
+    consume_fan_out_activity_c: InputStreamConfig
+    consume_fan_out_workflow_job: InputStreamConfig
+    consume_sequential_activity_a: InputStreamConfig
+    consume_sequential_activity_b: InputStreamConfig
     consume_workflow_job: InputStreamConfig
     local_schedule: InputStreamConfig
     observe_activity_result: MapStreamConfig
+    observe_fan_out_activity_b: MapStreamConfig
+    observe_fan_out_activity_c: MapStreamConfig
     observe_workflow_result: MapStreamConfig
     process_activity_job: MapStreamConfig
+    process_fan_out_activity_a: MapStreamConfig
+    process_fan_out_activity_b: MapStreamConfig
+    process_fan_out_activity_c: MapStreamConfig
     process_scheduled_activity: MapStreamConfig
     process_scheduled_workflow: MapStreamConfig
+    process_sequential_activity_a: MapStreamConfig
+    process_sequential_activity_b: MapStreamConfig
     process_workflow_job: MapStreamConfig
     scheduled_activity_pause: DelayStreamConfig
     scheduled_workflow_pause: DelayStreamConfig
+    split_activity_a_result: SplitStreamConfig
     split_on_demand_jobs: SplitStreamConfig
     submit_activity_job: SinkStreamConfig
+    submit_fan_out_workflow_job: SinkStreamConfig
     submit_workflow_job: SinkStreamConfig
     temporal_activity_schedule: InputStreamConfig
     temporal_workflow_schedule: InputStreamConfig
@@ -176,7 +228,13 @@ class Streams:
 @dataclass(frozen=True, slots=True)
 class Endpoints:
     activity_job: TemporalEndpointConfig
+    fan_out_activity_a: TemporalEndpointConfig
+    fan_out_activity_b: TemporalEndpointConfig
+    fan_out_activity_c: TemporalEndpointConfig
+    fan_out_workflow_job: TemporalEndpointConfig
     local_schedule: CronEndpointConfig
+    sequential_activity_a: TemporalEndpointConfig
+    sequential_activity_b: TemporalEndpointConfig
     temporal_activity_schedule: TemporalEndpointConfig
     temporal_workflow_schedule: TemporalEndpointConfig
     workflow_job: TemporalEndpointConfig
@@ -280,8 +338,41 @@ class GeneratedConfig(ServiceAppConfig):
                 activity_pause=DelayStreamConfig(
                     self.get_stream_config_by_id(StreamIds.ACTIVITY_PAUSE)
                 ),
+                call_fan_out_activity_a=SinkStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CALL_FAN_OUT_ACTIVITY_A)
+                ),
+                call_fan_out_activity_b=SinkStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CALL_FAN_OUT_ACTIVITY_B)
+                ),
+                call_fan_out_activity_c=SinkStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CALL_FAN_OUT_ACTIVITY_C)
+                ),
+                call_sequential_activity_a=SinkStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CALL_SEQUENTIAL_ACTIVITY_A)
+                ),
+                call_sequential_activity_b=SinkStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CALL_SEQUENTIAL_ACTIVITY_B)
+                ),
                 consume_activity_job=InputStreamConfig(
                     self.get_stream_config_by_id(StreamIds.CONSUME_ACTIVITY_JOB)
+                ),
+                consume_fan_out_activity_a=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CONSUME_FAN_OUT_ACTIVITY_A)
+                ),
+                consume_fan_out_activity_b=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CONSUME_FAN_OUT_ACTIVITY_B)
+                ),
+                consume_fan_out_activity_c=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CONSUME_FAN_OUT_ACTIVITY_C)
+                ),
+                consume_fan_out_workflow_job=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CONSUME_FAN_OUT_WORKFLOW_JOB)
+                ),
+                consume_sequential_activity_a=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CONSUME_SEQUENTIAL_ACTIVITY_A)
+                ),
+                consume_sequential_activity_b=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.CONSUME_SEQUENTIAL_ACTIVITY_B)
                 ),
                 consume_workflow_job=InputStreamConfig(
                     self.get_stream_config_by_id(StreamIds.CONSUME_WORKFLOW_JOB)
@@ -292,17 +383,38 @@ class GeneratedConfig(ServiceAppConfig):
                 observe_activity_result=MapStreamConfig(
                     self.get_stream_config_by_id(StreamIds.OBSERVE_ACTIVITY_RESULT)
                 ),
+                observe_fan_out_activity_b=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.OBSERVE_FAN_OUT_ACTIVITY_B)
+                ),
+                observe_fan_out_activity_c=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.OBSERVE_FAN_OUT_ACTIVITY_C)
+                ),
                 observe_workflow_result=MapStreamConfig(
                     self.get_stream_config_by_id(StreamIds.OBSERVE_WORKFLOW_RESULT)
                 ),
                 process_activity_job=MapStreamConfig(
                     self.get_stream_config_by_id(StreamIds.PROCESS_ACTIVITY_JOB)
                 ),
+                process_fan_out_activity_a=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.PROCESS_FAN_OUT_ACTIVITY_A)
+                ),
+                process_fan_out_activity_b=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.PROCESS_FAN_OUT_ACTIVITY_B)
+                ),
+                process_fan_out_activity_c=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.PROCESS_FAN_OUT_ACTIVITY_C)
+                ),
                 process_scheduled_activity=MapStreamConfig(
                     self.get_stream_config_by_id(StreamIds.PROCESS_SCHEDULED_ACTIVITY)
                 ),
                 process_scheduled_workflow=MapStreamConfig(
                     self.get_stream_config_by_id(StreamIds.PROCESS_SCHEDULED_WORKFLOW)
+                ),
+                process_sequential_activity_a=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.PROCESS_SEQUENTIAL_ACTIVITY_A)
+                ),
+                process_sequential_activity_b=MapStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.PROCESS_SEQUENTIAL_ACTIVITY_B)
                 ),
                 process_workflow_job=MapStreamConfig(
                     self.get_stream_config_by_id(StreamIds.PROCESS_WORKFLOW_JOB)
@@ -313,11 +425,17 @@ class GeneratedConfig(ServiceAppConfig):
                 scheduled_workflow_pause=DelayStreamConfig(
                     self.get_stream_config_by_id(StreamIds.SCHEDULED_WORKFLOW_PAUSE)
                 ),
+                split_activity_a_result=SplitStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.SPLIT_ACTIVITY_A_RESULT)
+                ),
                 split_on_demand_jobs=SplitStreamConfig(
                     self.get_stream_config_by_id(StreamIds.SPLIT_ON_DEMAND_JOBS)
                 ),
                 submit_activity_job=SinkStreamConfig(
                     self.get_stream_config_by_id(StreamIds.SUBMIT_ACTIVITY_JOB)
+                ),
+                submit_fan_out_workflow_job=SinkStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.SUBMIT_FAN_OUT_WORKFLOW_JOB)
                 ),
                 submit_workflow_job=SinkStreamConfig(
                     self.get_stream_config_by_id(StreamIds.SUBMIT_WORKFLOW_JOB)
@@ -336,8 +454,26 @@ class GeneratedConfig(ServiceAppConfig):
                 activity_job=_temporal_endpoint(
                     self.get_endpoint_config_by_id(EndpointIds.ACTIVITY_JOB)
                 ),
+                fan_out_activity_a=_temporal_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.FAN_OUT_ACTIVITY_A)
+                ),
+                fan_out_activity_b=_temporal_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.FAN_OUT_ACTIVITY_B)
+                ),
+                fan_out_activity_c=_temporal_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.FAN_OUT_ACTIVITY_C)
+                ),
+                fan_out_workflow_job=_temporal_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.FAN_OUT_WORKFLOW_JOB)
+                ),
                 local_schedule=_cron_endpoint(
                     self.get_endpoint_config_by_id(EndpointIds.LOCAL_SCHEDULE)
+                ),
+                sequential_activity_a=_temporal_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.SEQUENTIAL_ACTIVITY_A)
+                ),
+                sequential_activity_b=_temporal_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.SEQUENTIAL_ACTIVITY_B)
                 ),
                 temporal_activity_schedule=_temporal_endpoint(
                     self.get_endpoint_config_by_id(EndpointIds.TEMPORAL_ACTIVITY_SCHEDULE)
