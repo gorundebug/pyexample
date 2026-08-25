@@ -1,5 +1,4 @@
 """Generated exports for service functions."""
-
 from .activity_pause import ActivityPause, make_activity_pause
 from .local_schedule import LocalSchedule, make_local_schedule
 from .observe_activity_result import ObserveActivityResult, make_observe_activity_result
@@ -12,14 +11,8 @@ from .process_fanout_activity_b import ProcessFanoutActivityB, make_process_fano
 from .process_fanout_activity_c import ProcessFanoutActivityC, make_process_fanout_activity_c
 from .process_scheduled_activity import ProcessScheduledActivity, make_process_scheduled_activity
 from .process_scheduled_workflow import ProcessScheduledWorkflow, make_process_scheduled_workflow
-from .process_sequential_activity_a import (
-    ProcessSequentialActivityA,
-    make_process_sequential_activity_a,
-)
-from .process_sequential_activity_b import (
-    ProcessSequentialActivityB,
-    make_process_sequential_activity_b,
-)
+from .process_sequential_activity_a import ProcessSequentialActivityA, make_process_sequential_activity_a
+from .process_sequential_activity_b import ProcessSequentialActivityB, make_process_sequential_activity_b
 from .process_workflow_job import ProcessWorkflowJob, make_process_workflow_job
 from .scheduled_activity_pause import ScheduledActivityPause, make_scheduled_activity_pause
 from .scheduled_workflow_pause import ScheduledWorkflowPause, make_scheduled_workflow_pause

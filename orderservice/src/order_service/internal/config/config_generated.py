@@ -3,7 +3,7 @@
 
 import os
 from dataclasses import dataclass
-from typing import Any, Final
+from typing import Any, Final, Self
 
 from pyservicelib_gorundebug.api.models.data_connector_implementation import (
     DataConnectorImplementation,
@@ -241,23 +241,26 @@ class GeneratedConfig(ServiceAppConfig):
 
     @classmethod
     def _load_config(cls, obj: dict[str, Any]) -> dict[str, Any]:
-        def values(name: str) -> list[dict[str, Any]]:
-            section = normalized.get(name, {})
-            if isinstance(section, dict):
-                return list(section.values())
-            if isinstance(section, list):
-                return section
-            raise TypeError(f"config section '{name}' must be a mapping or list")
-
         defaults = _dump_default_config(_DEFAULT_CONFIG)
         normalized = _deep_merge(defaults, obj)
         for name, path, kind in _ENVIRONMENT_VARIABLES:
             if (value := _environment_value(name, kind)) is not None:
                 _set_config_path(normalized, path, value)
-        for name in ("services", "streams", "links", "types", "pools", "modules", "endpoints"):
-            normalized[name] = values(name)
-        normalized["dataConnectors"] = values("dataConnectors")
-        return super()._load_config(normalized)
+        return super()._load_config(_normalize_sections(normalized))
+
+    @classmethod
+    def from_snapshot(cls, obj: dict[str, Any]) -> Self:
+        """Restore a fully resolved immutable Workflow configuration.
+
+        Unlike ``from_dict``, this path deliberately applies neither generated
+        defaults nor process environment variables. The submitting process has
+        already resolved both and serialized the exact snapshot into Temporal
+        history; replay must reconstruct that value byte-for-byte.
+        """
+
+        cfg = cls.model_validate(super()._load_config(_normalize_sections(obj)))
+        cfg.init_runtime_config()
+        return cfg
 
     @property
     def named(self) -> NamedConfig:
@@ -613,6 +616,25 @@ def _deep_merge(
         else:
             result[key] = override
     return result
+
+
+def _normalize_sections(obj: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(obj)
+
+    def values(name: str) -> list[dict[str, Any]]:
+        section = normalized.get(name, {})
+        if isinstance(section, dict):
+            return list(section.values())
+        if isinstance(section, list):
+            return list(section)
+        raise TypeError(f"config section '{name}' must be a mapping or list")
+
+    for name in (
+        "services", "streams", "links", "types", "pools", "modules", "endpoints",
+    ):
+        normalized[name] = values(name)
+    normalized["dataConnectors"] = values("dataConnectors")
+    return normalized
 
 
 def _dump_default_config(value: Any) -> Any:

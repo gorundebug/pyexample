@@ -18,6 +18,11 @@ from pyservicelib_gorundebug.datasource import cron as cron_source
 from pyservicelib_gorundebug.datasource import temporal as temporal_source
 from pyservicelib_gorundebug.datasink import temporal as temporal_sink
 from pyservicelib_gorundebug.datasource.temporal import make_connector as make_temporal_connector
+from .temporal_workflows_generated import (
+    FanOutWorkflowJobTemporalWorkflow,
+    WorkflowJobTemporalWorkflow,
+    TemporalWorkflowScheduleTemporalWorkflow,
+)
 
 from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
@@ -421,13 +426,13 @@ class GeneratedService(ServiceApp):
         self._transport_consumers.append(consume_fan_out_activity_b_consumer)
         consume_fan_out_activity_c_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_fan_out_activity_c)
         self._transport_consumers.append(consume_fan_out_activity_c_consumer)
-        consume_fan_out_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_fan_out_workflow_job)
+        consume_fan_out_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_fan_out_workflow_job, workflow_class=FanOutWorkflowJobTemporalWorkflow)
         self._transport_consumers.append(consume_fan_out_workflow_job_consumer)
         consume_sequential_activity_a_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_sequential_activity_a)
         self._transport_consumers.append(consume_sequential_activity_a_consumer)
         consume_sequential_activity_b_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_sequential_activity_b)
         self._transport_consumers.append(consume_sequential_activity_b_consumer)
-        consume_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_workflow_job)
+        consume_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_workflow_job, workflow_class=WorkflowJobTemporalWorkflow)
         self._transport_consumers.append(consume_workflow_job_consumer)
         local_schedule_consumer = cron_source.APSchedulerEndpointConsumer(self._service_streams.local_schedule, self.functions.local_schedule)
         self._transport_consumers.append(local_schedule_consumer)
@@ -439,7 +444,7 @@ class GeneratedService(ServiceApp):
         self._transport_consumers.append(submit_workflow_job_consumer)
         temporal_activity_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_activity_schedule, self.functions.temporal_activity_schedule)
         self._transport_consumers.append(temporal_activity_schedule_consumer)
-        temporal_workflow_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_workflow_schedule, self.functions.temporal_workflow_schedule)
+        temporal_workflow_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_workflow_schedule, self.functions.temporal_workflow_schedule, workflow_class=TemporalWorkflowScheduleTemporalWorkflow)
         self._transport_consumers.append(temporal_workflow_schedule_consumer)
     def initialize_runtime_connectors(self) -> None:
         cfg = self.config
