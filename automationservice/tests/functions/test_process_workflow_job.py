@@ -37,8 +37,12 @@ def test_process_workflow_job_continues_once_and_returns_final_result() -> None:
         second = DurableCallContext("workflow-2", delay=timer, workflow=True)
         await run_durable_call_workflow(
             second,
-            lambda: function.map(None, "continued:job-1", Collector()),  # type: ignore[arg-type]
+            lambda: function.map(  # type: ignore[arg-type]
+                None,
+                "sequential:b:sequential:a:continued:job-1",
+                Collector(),
+            ),
         )
 
     asyncio.run(run())
-    assert collected == ["workflow:processed:job-1"]
+    assert collected == ["workflow:processed:sequential:b:sequential:a:job-1"]

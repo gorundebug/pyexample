@@ -18,9 +18,9 @@ class ProcessWorkflowJob:
     ) -> None:
         del stream
         continued_prefix = "continued:"
-        if not value.startswith(continued_prefix):
+        if continued_prefix not in value:
             temporal_continue_as_new(f"{continued_prefix}{value}")
-        await out.out(f"workflow:processed:{value.removeprefix(continued_prefix)}")
+        await out.out(f"workflow:processed:{value.replace(continued_prefix, '', 1)}")
 
 
 def make_process_workflow_job(
