@@ -1,19 +1,19 @@
-# Task 3/3: `TemporalSchedule`
+# Task 3/4: `ProcessDurableJob`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `schedule-source` |
-| File | `automationservice/src/automation_service/internal/functions/temporal_schedule.py` |
-| Test | `automationservice/tests/functions/test_temporal_schedule.py` |
+| Kind | `map` |
+| File | `automationservice/src/automation_service/internal/functions/process_durable_job.py` |
+| Test | `automationservice/tests/functions/test_process_durable_job.py` |
 | Service | `Automation Service` |
 
 
 ## Behaviour
 
-Create a job message identifying the durable scheduled firing.
+Process one accepted automation job and return its result.
 
 
 
@@ -23,10 +23,10 @@ Create a job message identifying the durable scheduled firing.
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `automationservice/src/automation_service/internal/functions/temporal_schedule.py` and preserve its generated contract
+- [ ] Open `automationservice/src/automation_service/internal/functions/process_durable_job.py` and preserve its generated contract
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_temporal_schedule.py`
+- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_process_durable_job.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] automationservice/task3.md — TemporalSchedule — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] automationservice/task3.md — ProcessDurableJob — Python — done`

@@ -70,6 +70,7 @@ from pyservicelib_gorundebug.runtime.config.endpoint_types import (
 )
 
 from pyservicelib_gorundebug.runtime.config.stream_types import (
+    DelayStreamConfig,
     InputStreamConfig,
     MapStreamConfig,
     MergeStreamConfig,
@@ -80,11 +81,11 @@ from pyservicelib_gorundebug.runtime.config.stream_types import (
 _DEFAULT_CONFIG: dict[str, Any] = {
     "settings": ProjectSettings(moduleVersion="v0.2.12", name="Example", repoPath="github.com/gorundebug/pyexample", ),
     "services": { "automationService": ServiceConfig(color="#00A86B", defaultCallSemantics=CallSemantics(2), defaultGrpcTimeout=0, environment=Environment(""), golangVersion="1.25.4", grpcHost="0.0.0.0", grpcPort=9204, httpHost="0.0.0.0", httpPort=9094, id=2, kubernetesWorkloadType=KubernetesWorkloadType("Deployment"), livenessHandler="health/live", metricsHandler="metrics", modulePath="github.com/gorundebug/pyexample-automationservice", name="Automation Service", programmingLanguage=ProgrammingLanguage(3), readinessHandler="health/ready", shutdownTimeout=30000, startupHandler="health/startup", statusHandler="status", ), },
-    "streams": { "consumeDurableJob": StreamConfig(id=3, idEndpoint=5, idService=2, idSource=6, name="Consume Durable Job", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-130, yPos=-330, ), "localSchedule": StreamConfig(id=4, idEndpoint=2, idService=2, idSource=0, name="Local Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-1050, yPos=-480, ), "mergeJobSubmissions": StreamConfig(id=5, idService=2, idSource=0, idSources=[4, 8], name="Merge Job Submissions", pipeline="automation", type=TransformationType(10), xPos=-570, yPos=-330, ), "processDurableJob": StreamConfig(functionDescription="Process one accepted automation job and return its result.\n", functionInitializerGroup="", functionModule="", functionName="ProcessDurableJob", functionPackage="", id=6, idService=2, idSource=3, name="Process Durable Job", pipeline="automation", type=TransformationType(2), valueType="string", xPos=140, yPos=-330, ), "submitDurableJob": StreamConfig(id=7, idEndpoint=5, idService=2, idSource=5, name="Submit Durable Job", pipeline="automation", type=TransformationType(13), valueType="string", xPos=-360, yPos=-330, ), "temporalSchedule": StreamConfig(id=8, idEndpoint=6, idService=2, idSource=0, name="Temporal Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-1050, yPos=-180, ), },
+    "streams": { "consumeDurableJob": StreamConfig(id=3, idEndpoint=5, idService=2, idSource=7, name="Consume Durable Job", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-130, yPos=-330, ), "durablePause": StreamConfig(duration=250, functionDescription="Suspend a DurableCall through a Temporal timer, then resume the pipeline without occupying an Activity slot.\n", functionInitializerGroup="", functionModule="", functionName="DurablePause", functionPackage="", id=4, idService=2, idSource=3, name="Durable Pause", pipeline="automation", type=TransformationType(16), xPos=90, yPos=-330, ), "localSchedule": StreamConfig(id=5, idEndpoint=2, idService=2, idSource=0, name="Local Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-1050, yPos=-480, ), "mergeJobSubmissions": StreamConfig(id=6, idService=2, idSource=0, idSources=[5, 9], name="Merge Job Submissions", pipeline="automation", type=TransformationType(10), xPos=-570, yPos=-330, ), "processDurableJob": StreamConfig(functionDescription="Process one accepted automation job and return its result.\n", functionInitializerGroup="", functionModule="", functionName="ProcessDurableJob", functionPackage="", id=7, idService=2, idSource=4, name="Process Durable Job", pipeline="automation", type=TransformationType(2), valueType="string", xPos=330, yPos=-330, ), "submitDurableJob": StreamConfig(id=8, idEndpoint=5, idService=2, idSource=6, name="Submit Durable Job", pipeline="automation", type=TransformationType(13), valueType="string", xPos=-360, yPos=-330, ), "temporalSchedule": StreamConfig(id=9, idEndpoint=6, idService=2, idSource=0, name="Temporal Schedule", pipeline="automation", type=TransformationType(1), valueType="string", xPos=-1050, yPos=-180, ), },
     "dataConnectors": { "localCron": DataConnectorConfig(id=2, implementation="python/apscheduler", name="Local Cron", type=DataConnectorType(5), ), "temporal": DataConnectorConfig(address="temporal:7233", id=5, identity="example-automation", implementation="temporal/python", maxConcurrentActivities=2, maxConcurrentWorkflows=4, name="Temporal", namespace="default", type=DataConnectorType(6), ), },
     "endpoints": { "durableJob": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, id=5, idDataConnector=5, maximumAttempts=3, name="Durable Job", taskQueue="automation-jobs", workflowExecutionTimeout=60000, ), "localSchedule": EndpointConfig(enabled=True, functionDescription="Create a job message identifying the local scheduled firing.\n", functionName="LocalSchedule", id=2, idDataConnector=2, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Local Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/5 * * * *", timezone="UTC", ), "temporalSchedule": EndpointConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, enabled=True, functionDescription="Create a job message identifying the durable scheduled firing.\n", functionName="TemporalSchedule", id=6, idDataConnector=5, maximumAttempts=3, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Temporal Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), schedule="*/10 * * * *", scheduleId="example-automation-schedule", taskQueue="automation-schedules", timezone="UTC", workflowExecutionTimeout=60000, ), },
     "pools": { },
-    "links": { "consumeDurableJobToProcessDurableJob": LinkConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, callSemantics=CallSemantics(6), var_from=3, idDataConnector=5, maximumAttempts=3, taskQueue="automation-durable-calls", to=6, workflowExecutionTimeout=60000, ), },
+    "links": { "consumeDurableJobToDurablePause": LinkConfig(activityHeartbeatTimeout=5000, activityStartToCloseTimeout=30000, callSemantics=CallSemantics(6), var_from=3, idDataConnector=5, maximumAttempts=3, taskQueue="automation-durable-calls", to=4, workflowExecutionTimeout=60000, ), },
     "modules": { "inventoryServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-inventory-service-api", name="inventory_service_api", ), "model": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-model", name="model", ), "orderServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-order-service-api", name="order_service_api", ), },
     "types": { "string": TypeConfig(description="Automation job payload and result.", name="string", publicType=False, type=DataType.string, useAlias=False, ), },
 }
@@ -97,6 +98,7 @@ _ENVIRONMENT_VARIABLES: tuple[tuple[str, tuple[str, ...], str], ...] = (
     ("AUTOMATION_SERVICE_HTTP_HOST", ("services", "automationService", "httpHost", ), "string"),
     ("AUTOMATION_SERVICE_HTTP_PORT", ("services", "automationService", "httpPort", ), "int"),
     ("DURABLE_JOB_ENABLED", ("endpoints", "durableJob", "enabled", ), "bool"),
+    ("DURABLE_PAUSE_DURATION", ("streams", "durablePause", "duration", ), "int"),
     ("LOCAL_SCHEDULE_ENABLED", ("endpoints", "localSchedule", "enabled", ), "bool"),
     ("TEMPORAL_ADDRESS", ("dataConnectors", "temporal", "address", ), "string"),
     ("TEMPORAL_SCHEDULE_ENABLED", ("endpoints", "temporalSchedule", "enabled", ), "bool"),
@@ -109,11 +111,12 @@ class ServiceIds:
 
 class StreamIds:
     CONSUME_DURABLE_JOB: Final[int] = 3
-    LOCAL_SCHEDULE: Final[int] = 4
-    MERGE_JOB_SUBMISSIONS: Final[int] = 5
-    PROCESS_DURABLE_JOB: Final[int] = 6
-    SUBMIT_DURABLE_JOB: Final[int] = 7
-    TEMPORAL_SCHEDULE: Final[int] = 8
+    DURABLE_PAUSE: Final[int] = 4
+    LOCAL_SCHEDULE: Final[int] = 5
+    MERGE_JOB_SUBMISSIONS: Final[int] = 6
+    PROCESS_DURABLE_JOB: Final[int] = 7
+    SUBMIT_DURABLE_JOB: Final[int] = 8
+    TEMPORAL_SCHEDULE: Final[int] = 9
 
 
 class EndpointIds:
@@ -130,6 +133,7 @@ class DataConnectorIds:
 @dataclass(frozen=True, slots=True)
 class Streams:
     consume_durable_job: InputStreamConfig
+    durable_pause: DelayStreamConfig
     local_schedule: InputStreamConfig
     merge_job_submissions: MergeStreamConfig
     process_durable_job: MapStreamConfig
@@ -241,6 +245,9 @@ class GeneratedConfig(ServiceAppConfig):
             streams=Streams(
                 consume_durable_job=InputStreamConfig(
                     self.get_stream_config_by_id(StreamIds.CONSUME_DURABLE_JOB)
+                ),
+                durable_pause=DelayStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.DURABLE_PAUSE)
                 ),
                 local_schedule=InputStreamConfig(
                     self.get_stream_config_by_id(StreamIds.LOCAL_SCHEDULE)

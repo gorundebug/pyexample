@@ -21,6 +21,7 @@ from pyservicelib_gorundebug.datasource.temporal import make_connector as make_t
 
 from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
+from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig
 from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig
 from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
 from pyservicelib_gorundebug.runtime.config.endpoint_types import TemporalEndpointConfig
@@ -28,6 +29,8 @@ from automation_service.models.string import (
     String,
 )
 from ..functions import (
+    DurablePause,
+    make_durable_pause,
     LocalSchedule,
     make_local_schedule,
     ProcessDurableJob,
@@ -40,6 +43,7 @@ from ..functions import (
 @dataclass(slots=True)
 class ServiceStreams:
     consume_durable_job: Any = None
+    durable_pause: Any = None
     local_schedule: Any = None
     temporal_schedule: Any = None
     merge_job_submissions: Any = None
@@ -48,6 +52,11 @@ class ServiceStreams:
 
 @dataclass(slots=True)
 class ServiceMakers:
+    durable_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], DurablePause] = (
+        lambda ctx, environment, config: make_durable_pause(
+            ctx, environment, config
+        )
+    )
     local_schedule: Callable[[Context, ServiceEnvironment, CronEndpointConfig], LocalSchedule] = (
         lambda ctx, environment, config: make_local_schedule(
             ctx, environment, config
@@ -67,6 +76,7 @@ class ServiceMakers:
 
 @dataclass(slots=True)
 class ServiceFunctions:
+    durable_pause: DurablePause
     local_schedule: LocalSchedule
     process_durable_job: ProcessDurableJob
     temporal_schedule: TemporalSchedule
@@ -106,6 +116,9 @@ class GeneratedService(ServiceApp):
             )
         named = cfg.named
         self._functions = ServiceFunctions(
+            durable_pause=self._makers.durable_pause(
+                ctx, self, named.streams.durable_pause
+            ),
             local_schedule=self._makers.local_schedule(
                 ctx, self, named.endpoints.local_schedule
             ),
@@ -129,10 +142,11 @@ class GeneratedService(ServiceApp):
             )
         named = cfg.named
         self._service_streams.consume_durable_job = transformation.Input[str, str, Exception](named.streams.consume_durable_job, self)
+        self._service_streams.durable_pause = transformation.Delay[str](named.streams.durable_pause, self._service_streams.consume_durable_job, self.functions.durable_pause)
         self._service_streams.local_schedule = transformation.Input[str, object, Exception](named.streams.local_schedule, self)
         self._service_streams.temporal_schedule = transformation.Input[str, object, Exception](named.streams.temporal_schedule, self)
         self._service_streams.merge_job_submissions = transformation.Merge[str](named.streams.merge_job_submissions, self._service_streams.local_schedule, self._service_streams.temporal_schedule)
-        self._service_streams.process_durable_job = transformation.Map[str, str](named.streams.process_durable_job, self._service_streams.consume_durable_job, self.functions.process_durable_job)
+        self._service_streams.process_durable_job = transformation.Map[str, str](named.streams.process_durable_job, self._service_streams.durable_pause, self.functions.process_durable_job)
         self._service_streams.submit_durable_job = transformation.Sink[str, Exception](named.streams.submit_durable_job, self._service_streams.merge_job_submissions)
         self._service_streams.consume_durable_job.set_source(self._service_streams.process_durable_job)
 
