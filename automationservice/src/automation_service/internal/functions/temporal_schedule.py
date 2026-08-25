@@ -5,7 +5,6 @@ from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.endpoint_types import TemporalEndpointConfig
 from pyservicelib_gorundebug.runtime.schedule import ScheduleTrigger
 from pyservicelib_gorundebug.runtime.common import Collect
-from pyservicelib_gorundebug.runtime.durable_context import durable_call_success
 
 
 class TemporalSchedule:
@@ -17,7 +16,6 @@ class TemporalSchedule:
         out: Collect[str],
     ) -> None:
         await out.out(f"temporal:{trigger.schedule_id}:{trigger.trigger_id}")
-        durable_call_success()
 
 
 def make_temporal_schedule(

@@ -1,7 +1,6 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
 from pyservicelib_gorundebug.runtime.context.context import Context
-from pyservicelib_gorundebug.runtime.durable_context import durable_call_error
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig
 from datetime import timedelta
@@ -21,8 +20,7 @@ class DurablePause:
         error: Exception,
         out: Collect[str],
     ) -> None:
-        del stream, value, out
-        durable_call_error(error)
+        del stream, value, error, out
 
 
 def make_durable_pause(
