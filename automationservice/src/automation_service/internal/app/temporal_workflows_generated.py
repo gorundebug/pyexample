@@ -173,3 +173,8 @@ class TemporalWorkflowScheduleTemporalWorkflow:
             EndpointIds.TEMPORAL_WORKFLOW_SCHEDULE,
             "temporal.endpoint.temporal_workflow_schedule.workflow.v1",
         )
+TEMPORAL_WORKFLOWS: tuple[type[Any], ...] = (
+    FanOutWorkflowJobTemporalWorkflow,
+    WorkflowJobTemporalWorkflow,
+    TemporalWorkflowScheduleTemporalWorkflow,
+)
