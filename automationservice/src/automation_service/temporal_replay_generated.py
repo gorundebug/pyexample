@@ -10,7 +10,6 @@ import asyncio
 from pathlib import Path
 
 from temporalio.client import WorkflowHistory
-from temporalio.contrib.opentelemetry import OpenTelemetryPlugin
 from temporalio.worker import Replayer
 
 from pyservicelib_gorundebug.datasource.temporal.context_propagation import (
@@ -25,7 +24,6 @@ async def replay(history_path: Path, workflow_id: str) -> None:
     replayer = Replayer(
         workflows=TEMPORAL_WORKFLOWS,
         interceptors=[TemporalContextPropagationInterceptor(None)],
-        plugins=[OpenTelemetryPlugin(add_temporal_spans=True)],
     )
     await replayer.replay_workflow(history)
 
