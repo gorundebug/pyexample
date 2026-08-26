@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 # Automation job payload and result.
 @dataclass(slots=True)
-class String:
+class AutomationJob:
     """Generated domain type. Add schema fields to the service specification."""
 
     pass

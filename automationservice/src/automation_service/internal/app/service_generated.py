@@ -28,8 +28,8 @@ from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig, TemporalEndpointConfig
 from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig, MapStreamConfig
-from automation_service.models.string import (
-    String,
+from automation_service.models.automation_job import (
+    AutomationJob,
 )
 from ..functions import (
     ActivityPause,
