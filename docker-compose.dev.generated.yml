@@ -7,7 +7,7 @@ services:
     build: !reset null
     command:
       - /bin/sh
-      - -lc
+      - -c
       - >-
         if [ "$${DEBUG:-0}" = "1" ]; then
           exec python -m debugpy --listen 0.0.0.0:2345
@@ -31,7 +31,7 @@ services:
     build: !reset null
     command:
       - /bin/sh
-      - -lc
+      - -c
       - >-
         if [ "$${DEBUG:-0}" = "1" ]; then
           exec python -m debugpy --listen 0.0.0.0:2345
@@ -55,7 +55,7 @@ services:
     build: !reset null
     command:
       - /bin/sh
-      - -lc
+      - -c
       - >-
         if [ "$${DEBUG:-0}" = "1" ]; then
           exec python -m debugpy --listen 0.0.0.0:2345
@@ -79,7 +79,7 @@ services:
     build: !reset null
     command:
       - /bin/sh
-      - -lc
+      - -c
       - >-
         if [ "$${DEBUG:-0}" = "1" ]; then
           exec python -m debugpy --listen 0.0.0.0:2345

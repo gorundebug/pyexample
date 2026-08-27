@@ -3,7 +3,7 @@ services:
     image: analyticsservice-python-development:latest
     command:
       - /bin/sh
-      - -lc
+      - -c
       - |
         if [ "$${DEBUG:-0}" = "1" ]; then
           exec python -m debugpy --listen 0.0.0.0:2345 -m analytics_service.main --config /workspace/config/config.yaml --overrides /workspace/config/docker_overrides.yaml
