@@ -9,7 +9,7 @@ if [[ ! -d .pyservicelib/.git ]]; then
     echo ".pyservicelib exists but is not a Git checkout" >&2
     exit 1
   fi
-  git clone --branch "v0.2.14" \
+  git clone --branch "v0.2.17" \
     --depth 1 \
     "https://github.com/gorundebug/pyservicelib.git" \
     .pyservicelib
