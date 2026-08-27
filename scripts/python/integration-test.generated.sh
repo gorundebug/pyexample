@@ -33,8 +33,8 @@ for target in targets:
             time.sleep(0.25)
 PY
 
-if [[ -n "${SERVICEGEN_INTEGRATION_COMMAND:-}" ]]; then
-  /bin/bash -lc "${SERVICEGEN_INTEGRATION_COMMAND}"
+if [[ -n "${INTEGRATION_COMMAND:-}" ]]; then
+  /bin/bash -lc "${INTEGRATION_COMMAND}"
 fi
 
 # SIGTERM exercises generated stop_service() and its bounded named shutdown.
