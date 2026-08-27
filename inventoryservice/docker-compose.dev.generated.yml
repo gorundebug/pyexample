@@ -10,5 +10,5 @@ services:
         fi
         exec python -m inventory_service.main --config /workspace/config/config.yaml --overrides /workspace/config/docker_overrides.yaml
     volumes:
-      - .:/workspace
+      - .:/workspace:ro
       - /workspace/.venv

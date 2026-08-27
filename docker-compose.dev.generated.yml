@@ -20,7 +20,7 @@ services:
           --overrides /workspace/config/docker_overrides.yaml;
         fi
     volumes:
-      - ./analyticsservice:/workspace
+      - ./analyticsservice:/workspace:ro
       - /workspace/.venv
     security_opt:
       - seccomp:unconfined
@@ -44,7 +44,7 @@ services:
           --overrides /workspace/config/docker_overrides.yaml;
         fi
     volumes:
-      - ./automationservice:/workspace
+      - ./automationservice:/workspace:ro
       - /workspace/.venv
     security_opt:
       - seccomp:unconfined
@@ -68,7 +68,7 @@ services:
           --overrides /workspace/config/docker_overrides.yaml;
         fi
     volumes:
-      - ./inventoryservice:/workspace
+      - ./inventoryservice:/workspace:ro
       - /workspace/.venv
     security_opt:
       - seccomp:unconfined
@@ -92,7 +92,7 @@ services:
           --overrides /workspace/config/docker_overrides.yaml;
         fi
     volumes:
-      - ./orderservice:/workspace
+      - ./orderservice:/workspace:ro
       - /workspace/.venv
     security_opt:
       - seccomp:unconfined
