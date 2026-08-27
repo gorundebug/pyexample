@@ -2,6 +2,11 @@
 
 .DEFAULT_GOAL := build
 RUNTIME_IMAGE ?= 0
+SERVICEGEN_GITHUB_RAW_URL ?= https://github.com
+SERVICEGEN_DOWNLOAD_MIRROR_ENV := $(or $(wildcard $(abspath ./dependency-download-env.generated.sh)),$(wildcard $(abspath ../dependency-download-env.generated.sh)),/bin/sh)
+SHELL := $(SERVICEGEN_DOWNLOAD_MIRROR_ENV)
+.SHELLFLAGS := -c
+export
 
 ifneq ($(strip $(SERVICEGEN_DEPENDENCY_PROXY_DIR)),)
 SERVICEGEN_DEPENDENCY_PROXY_HOST ?= localhost
@@ -11,9 +16,11 @@ SERVICEGEN_DEPENDENCY_PROXY_DOCKER_ARGS := --add-host host.docker.internal:host-
 export PIP_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/pypi-proxy/simple
 export PIP_TRUSTED_HOST := $(SERVICEGEN_DEPENDENCY_PROXY_HOST)
 export UV_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/pypi-proxy/simple
+export SERVICEGEN_GITHUB_RAW_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/github-raw
 docker-build docker-up: export PIP_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/pypi-proxy/simple
 docker-build docker-up: export PIP_TRUSTED_HOST := $(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST)
 docker-build docker-up: export UV_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/pypi-proxy/simple
+docker-build docker-up: export SERVICEGEN_GITHUB_RAW_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/github-raw
 docker-build docker-up: export SERVICEGEN_APT_DEBIAN_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/apt-debian
 docker-build docker-up: export SERVICEGEN_APT_DEBIAN_SECURITY_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/apt-debian-security
 endif
@@ -65,6 +72,7 @@ docker-build: ## Build the standalone service image
 	  --build-arg PIP_INDEX_URL="$${PIP_INDEX_URL:-https://pypi.org/simple}" \
 	  --build-arg PIP_TRUSTED_HOST="$${PIP_TRUSTED_HOST:-}" \
 	  --build-arg UV_INDEX_URL="$${UV_INDEX_URL:-https://pypi.org/simple}" \
+	  --build-arg SERVICEGEN_GITHUB_RAW_URL="$${SERVICEGEN_GITHUB_RAW_URL:-https://github.com}" \
 	  --build-arg SERVICEGEN_APT_DEBIAN_URL="$${SERVICEGEN_APT_DEBIAN_URL:-}" \
 	  --build-arg SERVICEGEN_APT_DEBIAN_SECURITY_URL="$${SERVICEGEN_APT_DEBIAN_SECURITY_URL:-}" \
 	  -t "automationservice-python:latest" .
