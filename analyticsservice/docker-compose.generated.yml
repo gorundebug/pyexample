@@ -3,7 +3,7 @@ services:
     image: analyticsservice-python:latest
     restart: unless-stopped
     environment:
-      - DEBUG=${ANALYTICS_SERVICE_DEBUG:-0}
+      - DEBUG=${DEBUG:-0}
     ports:
       - "9093:9093"
       - "9203:9203"
