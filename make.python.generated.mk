@@ -12,11 +12,12 @@ LANG_CLEAN_TARGETS += python-clean
 LANG_TOOL_TARGETS += python-tools
 LANG_HOST_PREP_TARGETS += python-gen python-tools
 LANG_DOCKER_BUILD_TARGETS += python-docker-build
+LANG_DOCKER_DEV_BUILD_TARGETS += python-docker-dev-build
 LANG_INTEGRATION_TARGETS += python-integration-test
 DOCKER_COMPOSE_RUNTIME_FILES += docker-compose.python-runtime.generated.yml
 
 .PHONY: python-init python-build python-test python-lint python-format \
-	python-gen python-clean python-tools python-docker-build \
+	python-gen python-clean python-tools python-docker-build python-docker-dev-build \
 	python-integration-test python-package \
 	python-package-analyticsservice \
 	python-package-automationservice \
@@ -44,7 +45,10 @@ python-gen: python-tools ## Generate Python protobuf and OpenAPI code
 	@./scripts/python/generate.generated.sh
 
 python-docker-build: ## Build Python service Docker images
-	@docker compose build $(PYTHON_SERVICES)
+	@$(DOCKER_COMPOSE) build $(PYTHON_SERVICES)
+
+python-docker-dev-build: ## Build source-mounted Python development image
+	@SERVICEGEN_DOCKER_TARGET=development $(DOCKER_COMPOSE_DEV) build $(PYTHON_SERVICES)
 
 python-integration-test: ## Run Python integration tests
 	@./scripts/python/integration-test.generated.sh

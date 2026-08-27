@@ -1,10 +1,10 @@
 services:
   analyticsservice:
-    image: example-python:latest
+    image: analyticsservice-python:latest
     build:
       context: .
       dockerfile: Dockerfile.python
-      target: ${SERVICEGEN_DOCKER_TARGET:-development}
+      target: runtime-analyticsservice
       extra_hosts:
         - "host.docker.internal:host-gateway"
       args:
@@ -15,19 +15,10 @@ services:
       additional_contexts:
         pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.24}"
     command:
-      - python
-      - -m
-      - analytics_service.main
       - --config
-      - /workspace/analyticsservice/config/config.yaml
+      - /workspace/config/config.yaml
       - --overrides
-      - /workspace/analyticsservice/config/docker_overrides.yaml
-    volumes:
-      - .:/workspace
-      - /workspace/.venv
-      - /workspace/inventory_service_api/src/inventory_service_api/generated
-      - /workspace/model/src/model/generated
-      - /workspace/order_service_api/src/order_service_api/generated
+      - /workspace/config/docker_overrides.yaml
     restart: unless-stopped
     environment:
       - DEBUG=${ANALYTICS_SERVICE_DEBUG:-0}
@@ -35,19 +26,15 @@ services:
       - "9093:9093"
       - "9203:9203"
       - "2345:2345"
-    security_opt:
-      - seccomp:unconfined
-    cap_add:
-      - SYS_PTRACE
     networks:
       - app_net
 
   automationservice:
-    image: example-python:latest
+    image: automationservice-python:latest
     build:
       context: .
       dockerfile: Dockerfile.python
-      target: ${SERVICEGEN_DOCKER_TARGET:-development}
+      target: runtime-automationservice
       extra_hosts:
         - "host.docker.internal:host-gateway"
       args:
@@ -58,19 +45,10 @@ services:
       additional_contexts:
         pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.24}"
     command:
-      - python
-      - -m
-      - automation_service.main
       - --config
-      - /workspace/automationservice/config/config.yaml
+      - /workspace/config/config.yaml
       - --overrides
-      - /workspace/automationservice/config/docker_overrides.yaml
-    volumes:
-      - .:/workspace
-      - /workspace/.venv
-      - /workspace/inventory_service_api/src/inventory_service_api/generated
-      - /workspace/model/src/model/generated
-      - /workspace/order_service_api/src/order_service_api/generated
+      - /workspace/config/docker_overrides.yaml
     restart: unless-stopped
     environment:
       - DEBUG=${AUTOMATION_SERVICE_DEBUG:-0}
@@ -82,19 +60,15 @@ services:
     depends_on:
       temporal-create-namespace:
         condition: service_completed_successfully
-    security_opt:
-      - seccomp:unconfined
-    cap_add:
-      - SYS_PTRACE
     networks:
       - app_net
 
   inventoryservice:
-    image: example-python:latest
+    image: inventoryservice-python:latest
     build:
       context: .
       dockerfile: Dockerfile.python
-      target: ${SERVICEGEN_DOCKER_TARGET:-development}
+      target: runtime-inventoryservice
       extra_hosts:
         - "host.docker.internal:host-gateway"
       args:
@@ -105,19 +79,10 @@ services:
       additional_contexts:
         pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.24}"
     command:
-      - python
-      - -m
-      - inventory_service.main
       - --config
-      - /workspace/inventoryservice/config/config.yaml
+      - /workspace/config/config.yaml
       - --overrides
-      - /workspace/inventoryservice/config/docker_overrides.yaml
-    volumes:
-      - .:/workspace
-      - /workspace/.venv
-      - /workspace/inventory_service_api/src/inventory_service_api/generated
-      - /workspace/model/src/model/generated
-      - /workspace/order_service_api/src/order_service_api/generated
+      - /workspace/config/docker_overrides.yaml
     restart: unless-stopped
     environment:
       - DEBUG=${INVENTORY_SERVICE_DEBUG:-0}
@@ -125,19 +90,15 @@ services:
       - "9092:9092"
       - "9202:9202"
       - "2347:2345"
-    security_opt:
-      - seccomp:unconfined
-    cap_add:
-      - SYS_PTRACE
     networks:
       - app_net
 
   orderservice:
-    image: example-python:latest
+    image: orderservice-python:latest
     build:
       context: .
       dockerfile: Dockerfile.python
-      target: ${SERVICEGEN_DOCKER_TARGET:-development}
+      target: runtime-orderservice
       extra_hosts:
         - "host.docker.internal:host-gateway"
       args:
@@ -148,19 +109,10 @@ services:
       additional_contexts:
         pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.24}"
     command:
-      - python
-      - -m
-      - order_service.main
       - --config
-      - /workspace/orderservice/config/config.yaml
+      - /workspace/config/config.yaml
       - --overrides
-      - /workspace/orderservice/config/docker_overrides.yaml
-    volumes:
-      - .:/workspace
-      - /workspace/.venv
-      - /workspace/inventory_service_api/src/inventory_service_api/generated
-      - /workspace/model/src/model/generated
-      - /workspace/order_service_api/src/order_service_api/generated
+      - /workspace/config/docker_overrides.yaml
     restart: unless-stopped
     environment:
       - DEBUG=${ORDER_SERVICE_DEBUG:-0}
@@ -171,10 +123,6 @@ services:
     depends_on:
       inventoryservice:
         condition: service_started
-    security_opt:
-      - seccomp:unconfined
-    cap_add:
-      - SYS_PTRACE
     networks:
       - app_net
 

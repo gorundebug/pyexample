@@ -1,0 +1,14 @@
+services:
+  automationservice:
+    image: automationservice-python-development:latest
+    command:
+      - python
+      - -m
+      - automation_service.main
+      - --config
+      - /workspace/config/config.yaml
+      - --overrides
+      - /workspace/config/docker_overrides.yaml
+    volumes:
+      - .:/workspace
+      - /workspace/.venv
