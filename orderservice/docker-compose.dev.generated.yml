@@ -1,0 +1,14 @@
+services:
+  orderservice:
+    image: orderservice-python-development:latest
+    command:
+      - python
+      - -m
+      - order_service.main
+      - --config
+      - /workspace/config/config.yaml
+      - --overrides
+      - /workspace/config/docker_overrides.yaml
+    volumes:
+      - .:/workspace
+      - /workspace/.venv
