@@ -1,14 +1,22 @@
 services:
   inventoryservice:
     image: inventoryservice-python-development:latest
+    working_dir: /workspace/service
     command:
       - /bin/sh
       - -c
       - |
+        prepare-local-build /workspace/source /workspace/service
+        cd /workspace/service
         if [ "$${DEBUG:-0}" = "1" ]; then
-          exec python -m debugpy --listen 0.0.0.0:2345 -m inventory_service.main --config /workspace/config/config.yaml --overrides /workspace/config/docker_overrides.yaml
+          exec python -m debugpy --listen 0.0.0.0:2345 -m inventory_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml
         fi
-        exec python -m inventory_service.main --config /workspace/config/config.yaml --overrides /workspace/config/docker_overrides.yaml
+        exec python -m inventory_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml
+    environment:
+      PYTHONPATH: /workspace/service/src
     volumes:
-      - .:/workspace:ro
-      - /workspace/.venv
+      - .:/workspace/source:ro
+      - python-worktree:/workspace/service
+
+volumes:
+  python-worktree:

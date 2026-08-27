@@ -5,23 +5,29 @@ services:
   analyticsservice:
     image: analyticsservice-python-development:latest
     build: !reset null
+    working_dir: /workspace/service
     command:
       - /bin/sh
       - -c
       - >-
-        if [ "$${DEBUG:-0}" = "1" ]; then
+        /workspace/analyticsservice/prepare-local-build.generated.sh
+        /workspace/source /workspace/service
+        && cd /workspace/service
+        && if [ "$${DEBUG:-0}" = "1" ]; then
           exec python -m debugpy --listen 0.0.0.0:2345
           -m analytics_service.main
-          --config /workspace/config/config.yaml
-          --overrides /workspace/config/docker_overrides.yaml;
+          --config ./config/config.yaml
+          --overrides ./config/docker_overrides.yaml;
         else
           exec python -m analytics_service.main
-          --config /workspace/config/config.yaml
-          --overrides /workspace/config/docker_overrides.yaml;
+          --config ./config/config.yaml
+          --overrides ./config/docker_overrides.yaml;
         fi
+    environment:
+      PYTHONPATH: /workspace/service/src
     volumes:
-      - ./analyticsservice:/workspace:ro
-      - /workspace/.venv
+      - ./analyticsservice:/workspace/source:ro
+      - python-dev-worktree-analyticsservice:/workspace/service
     security_opt:
       - seccomp:unconfined
     cap_add:
@@ -29,23 +35,29 @@ services:
   automationservice:
     image: automationservice-python-development:latest
     build: !reset null
+    working_dir: /workspace/service
     command:
       - /bin/sh
       - -c
       - >-
-        if [ "$${DEBUG:-0}" = "1" ]; then
+        /workspace/automationservice/prepare-local-build.generated.sh
+        /workspace/source /workspace/service
+        && cd /workspace/service
+        && if [ "$${DEBUG:-0}" = "1" ]; then
           exec python -m debugpy --listen 0.0.0.0:2345
           -m automation_service.main
-          --config /workspace/config/config.yaml
-          --overrides /workspace/config/docker_overrides.yaml;
+          --config ./config/config.yaml
+          --overrides ./config/docker_overrides.yaml;
         else
           exec python -m automation_service.main
-          --config /workspace/config/config.yaml
-          --overrides /workspace/config/docker_overrides.yaml;
+          --config ./config/config.yaml
+          --overrides ./config/docker_overrides.yaml;
         fi
+    environment:
+      PYTHONPATH: /workspace/service/src
     volumes:
-      - ./automationservice:/workspace:ro
-      - /workspace/.venv
+      - ./automationservice:/workspace/source:ro
+      - python-dev-worktree-automationservice:/workspace/service
     security_opt:
       - seccomp:unconfined
     cap_add:
@@ -53,23 +65,29 @@ services:
   inventoryservice:
     image: inventoryservice-python-development:latest
     build: !reset null
+    working_dir: /workspace/service
     command:
       - /bin/sh
       - -c
       - >-
-        if [ "$${DEBUG:-0}" = "1" ]; then
+        /workspace/inventoryservice/prepare-local-build.generated.sh
+        /workspace/source /workspace/service
+        && cd /workspace/service
+        && if [ "$${DEBUG:-0}" = "1" ]; then
           exec python -m debugpy --listen 0.0.0.0:2345
           -m inventory_service.main
-          --config /workspace/config/config.yaml
-          --overrides /workspace/config/docker_overrides.yaml;
+          --config ./config/config.yaml
+          --overrides ./config/docker_overrides.yaml;
         else
           exec python -m inventory_service.main
-          --config /workspace/config/config.yaml
-          --overrides /workspace/config/docker_overrides.yaml;
+          --config ./config/config.yaml
+          --overrides ./config/docker_overrides.yaml;
         fi
+    environment:
+      PYTHONPATH: /workspace/service/src
     volumes:
-      - ./inventoryservice:/workspace:ro
-      - /workspace/.venv
+      - ./inventoryservice:/workspace/source:ro
+      - python-dev-worktree-inventoryservice:/workspace/service
     security_opt:
       - seccomp:unconfined
     cap_add:
@@ -77,23 +95,29 @@ services:
   orderservice:
     image: orderservice-python-development:latest
     build: !reset null
+    working_dir: /workspace/service
     command:
       - /bin/sh
       - -c
       - >-
-        if [ "$${DEBUG:-0}" = "1" ]; then
+        /workspace/orderservice/prepare-local-build.generated.sh
+        /workspace/source /workspace/service
+        && cd /workspace/service
+        && if [ "$${DEBUG:-0}" = "1" ]; then
           exec python -m debugpy --listen 0.0.0.0:2345
           -m order_service.main
-          --config /workspace/config/config.yaml
-          --overrides /workspace/config/docker_overrides.yaml;
+          --config ./config/config.yaml
+          --overrides ./config/docker_overrides.yaml;
         else
           exec python -m order_service.main
-          --config /workspace/config/config.yaml
-          --overrides /workspace/config/docker_overrides.yaml;
+          --config ./config/config.yaml
+          --overrides ./config/docker_overrides.yaml;
         fi
+    environment:
+      PYTHONPATH: /workspace/service/src
     volumes:
-      - ./orderservice:/workspace:ro
-      - /workspace/.venv
+      - ./orderservice:/workspace/source:ro
+      - python-dev-worktree-orderservice:/workspace/service
     security_opt:
       - seccomp:unconfined
     cap_add:
@@ -104,3 +128,7 @@ volumes:
   go-dev-build-cache:
   rust-dev-cargo-registry:
   rust-dev-cargo-git:
+  python-dev-worktree-analyticsservice:
+  python-dev-worktree-automationservice:
+  python-dev-worktree-inventoryservice:
+  python-dev-worktree-orderservice:
