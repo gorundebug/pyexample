@@ -1,7 +1,8 @@
+FROM module-model-source AS module-model-source
 FROM python:3.12-slim AS development
 
-ARG SERVICEGEN_GITHUB_RAW_URL=https://github.com
-ENV SERVICEGEN_GITHUB_RAW_URL=${SERVICEGEN_GITHUB_RAW_URL}
+ARG DEPENDENCY_GITHUB_RAW_URL=https://github.com
+ENV DEPENDENCY_GITHUB_RAW_URL=${DEPENDENCY_GITHUB_RAW_URL}
 COPY dependency-download-mirrors.generated.env /etc/servicegen/dependency-download-mirrors.generated.env
 COPY dependency-download-mirrors.env /etc/servicegen/dependency-download-mirrors.env
 COPY dependency-download-env.generated.sh /usr/local/bin/servicegen-download-env
@@ -10,8 +11,13 @@ SHELL ["/usr/local/bin/servicegen-download-env", "/bin/sh", "-c"]
 ARG PIP_INDEX_URL=https://pypi.org/simple
 ARG PIP_TRUSTED_HOST=
 ARG UV_INDEX_URL=https://pypi.org/simple
-ARG SERVICEGEN_APT_DEBIAN_URL=
-ARG SERVICEGEN_APT_DEBIAN_SECURITY_URL=
+ARG GIT_CONFIG_COUNT=0
+ARG GIT_CONFIG_KEY_0=
+ARG GIT_CONFIG_VALUE_0=
+ARG GIT_CONFIG_KEY_1=
+ARG GIT_CONFIG_VALUE_1=
+ARG DEPENDENCY_APT_DEBIAN_URL=
+ARG DEPENDENCY_APT_DEBIAN_SECURITY_URL=
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -19,13 +25,18 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_INDEX_URL=${PIP_INDEX_URL} \
     PIP_TRUSTED_HOST=${PIP_TRUSTED_HOST} \
     UV_INDEX_URL=${UV_INDEX_URL}
+ENV GIT_CONFIG_COUNT=${GIT_CONFIG_COUNT} \
+    GIT_CONFIG_KEY_0=${GIT_CONFIG_KEY_0} \
+    GIT_CONFIG_VALUE_0=${GIT_CONFIG_VALUE_0} \
+    GIT_CONFIG_KEY_1=${GIT_CONFIG_KEY_1} \
+    GIT_CONFIG_VALUE_1=${GIT_CONFIG_VALUE_1}
 
 WORKDIR /workspace
 
-RUN if [ -n "$SERVICEGEN_APT_DEBIAN_URL$SERVICEGEN_APT_DEBIAN_SECURITY_URL" ]; then \
+RUN if [ -n "$DEPENDENCY_APT_DEBIAN_URL$DEPENDENCY_APT_DEBIAN_SECURITY_URL" ]; then \
       find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) -exec sed -i \
-        -e "s|http://deb.debian.org/debian-security|$SERVICEGEN_APT_DEBIAN_SECURITY_URL|g" \
-        -e "s|http://deb.debian.org/debian|$SERVICEGEN_APT_DEBIAN_URL|g" {} +; \
+        -e "s|http://deb.debian.org/debian-security|$DEPENDENCY_APT_DEBIAN_SECURITY_URL|g" \
+        -e "s|http://deb.debian.org/debian|$DEPENDENCY_APT_DEBIAN_URL|g" {} +; \
     fi
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends git ca-certificates && \
@@ -33,6 +44,7 @@ RUN apt-get update && \
     python -m pip install --no-cache-dir uv
 
 COPY . .
+COPY --from=module-model-source / /local-dependencies/model
 
 RUN --mount=type=secret,id=github_token,required=false \
     --mount=type=secret,id=gitlab_token,required=false \
@@ -50,8 +62,10 @@ RUN --mount=type=secret,id=github_token,required=false \
         url."https://oauth2:${token}@gitlab.com/".insteadOf \
         "https://gitlab.com/"; \
     fi; \
-    ./scripts/fetch-dependencies.generated.sh; \
-    uv sync --all-extras --no-cache
+    LOCAL_DEPENDENCIES_DIR=/local-dependencies ./scripts/fetch-dependencies.generated.sh; \
+    uv sync --all-extras --no-cache; \
+    uv pip install --python /workspace/.venv/bin/python \
+      debugpy==1.8.17
 
 FROM development AS runtime-builder
 

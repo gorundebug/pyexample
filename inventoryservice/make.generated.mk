@@ -4,31 +4,36 @@
 SERVICEGEN_DOCKER_TARGET := runtime
 SERVICEGEN_DOCKER_DEV_TARGET := development
 STANDALONE_COMPOSE := $(if $(wildcard docker-compose.yml),docker-compose.yml,docker-compose.generated.yml)
-SERVICEGEN_GITHUB_RAW_URL ?= https://github.com
-SERVICEGEN_DOWNLOAD_MIRROR_ENV := $(or $(wildcard $(abspath ./dependency-download-env.generated.sh)),$(wildcard $(abspath ../dependency-download-env.generated.sh)),/bin/sh)
-SHELL := $(SERVICEGEN_DOWNLOAD_MIRROR_ENV)
+# Recursive expansion is intentional: USE_LOCAL_MODULES may replace the
+# individual source contexts below after this list has been declared.
+MODULE_CONTEXT_ARGS =
+INVENTORY_SERVICE_API_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample-inventory-service-api.git\#v0.2.14
+MODULE_CONTEXT_ARGS += --build-context module-inventory_service_api-source="$(INVENTORY_SERVICE_API_SOURCE_CONTEXT)"
+MODEL_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample-model.git\#v0.2.14
+MODULE_CONTEXT_ARGS += --build-context module-model-source="$(MODEL_SOURCE_CONTEXT)"
+DEPENDENCY_DOWNLOAD_ENV := $(or $(wildcard $(abspath ./dependency-download-env.generated.sh)),$(wildcard $(abspath ../dependency-download-env.generated.sh)),/bin/sh)
+SHELL := $(DEPENDENCY_DOWNLOAD_ENV)
 .SHELLFLAGS := -c
 export
 
-ifneq ($(strip $(SERVICEGEN_DEPENDENCY_PROXY_DIR)),)
-SERVICEGEN_DEPENDENCY_PROXY_HOST ?= localhost
-SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST ?= host.docker.internal
-SERVICEGEN_DEPENDENCY_PROXY_PORT ?= 18081
-SERVICEGEN_DEPENDENCY_PROXY_DOCKER_ARGS := --add-host host.docker.internal:host-gateway
-export PIP_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/pypi-proxy/simple
-export PIP_TRUSTED_HOST := $(SERVICEGEN_DEPENDENCY_PROXY_HOST)
-export UV_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/pypi-proxy/simple
-export SERVICEGEN_GITHUB_RAW_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/github-raw
-docker-build docker-up docker-build-dev docker-up-dev: export PIP_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/pypi-proxy/simple
-docker-build docker-up docker-build-dev docker-up-dev: export PIP_TRUSTED_HOST := $(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST)
-docker-build docker-up docker-build-dev docker-up-dev: export UV_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/pypi-proxy/simple
-docker-build docker-up docker-build-dev docker-up-dev: export SERVICEGEN_GITHUB_RAW_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/github-raw
-docker-build docker-up docker-build-dev docker-up-dev: export SERVICEGEN_APT_DEBIAN_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/apt-debian
-docker-build docker-up docker-build-dev docker-up-dev: export SERVICEGEN_APT_DEBIAN_SECURITY_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/apt-debian-security
+DEPENDENCY_DOCKER_TARGETS := docker-build docker-up docker-build-dev docker-up-dev debug
+include dependency-proxy.generated.mk
+
+ifeq ($(strip $(USE_LOCAL_MODULES)),1)
+export LOCAL_DEPENDENCIES_DIR := $(abspath ..)
+INVENTORY_SERVICE_API_SOURCE_CONTEXT := ../inventory_service_api
+MODEL_SOURCE_CONTEXT := ../model
+endif
+
+ifneq ($(strip $(DEPENDENCY_PROXY_DIR)),)
+ifneq ($(strip $(USE_LOCAL_MODULES)),1)
+INVENTORY_SERVICE_API_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample-inventory-service-api.git\#v0.2.14
+MODEL_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample-model.git\#v0.2.14
+endif
 endif
 
 .PHONY: init build test lint fmt clean docker-build docker-build-dev docker-up docker-up-dev \
-	docker-down docker-down-dev docker-clean help
+	debug docker-down docker-down-dev docker-clean help
 
 init: ## Create the environment and install service dependencies
 	@./scripts/fetch-dependencies.generated.sh
@@ -64,13 +69,19 @@ docker-build: ## Build the standalone service image
 	if [ -n "$${GITLAB_TOKEN:-}" ]; then \
 	  args="$$args --secret id=gitlab_token,env=GITLAB_TOKEN"; \
 	fi; \
-	docker build $$args $(SERVICEGEN_DEPENDENCY_PROXY_DOCKER_ARGS) --target "$(SERVICEGEN_DOCKER_TARGET)" \
+	docker build $$args $(DEPENDENCY_PROXY_DOCKER_ARGS) --target "$(SERVICEGEN_DOCKER_TARGET)" \
+	  $(MODULE_CONTEXT_ARGS) \
 	  --build-arg PIP_INDEX_URL="$${PIP_INDEX_URL:-https://pypi.org/simple}" \
 	  --build-arg PIP_TRUSTED_HOST="$${PIP_TRUSTED_HOST:-}" \
 	  --build-arg UV_INDEX_URL="$${UV_INDEX_URL:-https://pypi.org/simple}" \
-	  --build-arg SERVICEGEN_GITHUB_RAW_URL="$${SERVICEGEN_GITHUB_RAW_URL:-https://github.com}" \
-	  --build-arg SERVICEGEN_APT_DEBIAN_URL="$${SERVICEGEN_APT_DEBIAN_URL:-}" \
-	  --build-arg SERVICEGEN_APT_DEBIAN_SECURITY_URL="$${SERVICEGEN_APT_DEBIAN_SECURITY_URL:-}" \
+	  --build-arg GIT_CONFIG_COUNT="$${GIT_CONFIG_COUNT:-0}" \
+	  --build-arg GIT_CONFIG_KEY_0="$${GIT_CONFIG_KEY_0:-}" \
+	  --build-arg GIT_CONFIG_VALUE_0="$${GIT_CONFIG_VALUE_0:-}" \
+	  --build-arg GIT_CONFIG_KEY_1="$${GIT_CONFIG_KEY_1:-}" \
+	  --build-arg GIT_CONFIG_VALUE_1="$${GIT_CONFIG_VALUE_1:-}" \
+	  --build-arg DEPENDENCY_GITHUB_RAW_URL="$${DEPENDENCY_GITHUB_RAW_URL:-https://github.com}" \
+	  --build-arg DEPENDENCY_APT_DEBIAN_URL="$${DEPENDENCY_APT_DEBIAN_URL:-}" \
+	  --build-arg DEPENDENCY_APT_DEBIAN_SECURITY_URL="$${DEPENDENCY_APT_DEBIAN_SECURITY_URL:-}" \
 	  -t "inventoryservice-python:latest" .
 
 docker-build-dev: ## Build the source-mounted standalone development image
@@ -83,6 +94,10 @@ docker-up: docker-build ## Start this service through Docker Compose
 
 docker-up-dev: docker-build-dev ## Start this service with its source directory mounted
 	@docker compose -f "$(STANDALONE_COMPOSE)" -f docker-compose.dev.generated.yml up -d --no-build
+
+debug: docker-build-dev ## Start this service under debugpy on localhost:2345
+	@DEBUG=1 docker compose -f "$(STANDALONE_COMPOSE)" -f docker-compose.dev.generated.yml \
+		up -d --no-build --force-recreate
 
 docker-down: ## Stop this service
 	@docker compose -f "$(STANDALONE_COMPOSE)" down

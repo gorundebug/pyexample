@@ -14,8 +14,8 @@ if [[ ! -f "${service_dir}/pyproject.toml" ]]; then
   echo "Python service directory does not contain pyproject.toml: ${service_dir}" >&2
   exit 1
 fi
-for file in pyproject.standalone.generated.toml Makefile \
-  make.generated.mk Dockerfile.generated docker-compose.generated.yml \
+for file in Makefile \
+  make.generated.mk Dockerfile docker-compose.generated.yml \
   .gitignore scripts/fetch-dependencies.generated.sh; do
   if [[ ! -f "${service_dir}/${file}" ]]; then
     echo "Python service publishing file is missing: ${service_dir}/${file}" >&2
@@ -44,16 +44,9 @@ for file in .dockerignore; do
   fi
 done
 
-# Alternative standalone inputs live next to the service they describe.
-# Published repositories receive conventional root filenames.
-cp "${service_dir}/pyproject.standalone.generated.toml" \
-  "${output_dir}/pyproject.toml"
-cp "${service_dir}/Dockerfile.generated" "${output_dir}/Dockerfile"
 cp "${service_dir}/docker-compose.generated.yml" \
   "${output_dir}/docker-compose.yml"
 cp "${service_dir}/.gitignore" "${output_dir}/.gitignore"
-rm -f "${output_dir}/pyproject.standalone.generated.toml" \
-  "${output_dir}/Dockerfile.generated" \
-  "${output_dir}/docker-compose.generated.yml"
+rm -f "${output_dir}/docker-compose.generated.yml"
 
 echo "Packaged standalone Python service ${service_name} in ${output_dir}"

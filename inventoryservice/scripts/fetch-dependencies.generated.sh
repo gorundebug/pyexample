@@ -2,8 +2,8 @@
 set -euo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-DEPENDENCIES_DIR="${ROOT}/.servicegen/dependencies"
-LOCAL_DEPENDENCIES_DIR="${SERVICEGEN_LOCAL_DEPENDENCIES_DIR:-}"
+DEPENDENCIES_DIR="${ROOT}/.local-dependencies"
+LOCAL_DEPENDENCIES_DIR="${LOCAL_DEPENDENCIES_DIR:-}"
 mkdir -p "${DEPENDENCIES_DIR}"
 
 fetch_module() {

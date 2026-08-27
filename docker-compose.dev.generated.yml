@@ -3,89 +3,97 @@
 # service source code. Use it through `make docker-up-dev`.
 services:
   analyticsservice:
-    image: example-python-development:latest
-    build:
-      target: development
+    image: analyticsservice-python-development:latest
+    build: !reset null
     command:
-      - python
-      - -m
-      - analytics_service.main
-      - --config
-      - /workspace/analyticsservice/config/config.yaml
-      - --overrides
-      - /workspace/analyticsservice/config/docker_overrides.yaml
+      - /bin/sh
+      - -lc
+      - >-
+        if [ "$${DEBUG:-0}" = "1" ]; then
+          exec python -m debugpy --listen 0.0.0.0:2345
+          -m analytics_service.main
+          --config /workspace/config/config.yaml
+          --overrides /workspace/config/docker_overrides.yaml;
+        else
+          exec python -m analytics_service.main
+          --config /workspace/config/config.yaml
+          --overrides /workspace/config/docker_overrides.yaml;
+        fi
     volumes:
-      - .:/workspace
+      - ./analyticsservice:/workspace
       - /workspace/.venv
-      - /workspace/inventory_service_api/src/inventory_service_api/generated
-      - /workspace/model/src/model/generated
-      - /workspace/order_service_api/src/order_service_api/generated
     security_opt:
       - seccomp:unconfined
     cap_add:
       - SYS_PTRACE
   automationservice:
-    image: example-python-development:latest
-    build:
-      target: development
+    image: automationservice-python-development:latest
+    build: !reset null
     command:
-      - python
-      - -m
-      - automation_service.main
-      - --config
-      - /workspace/automationservice/config/config.yaml
-      - --overrides
-      - /workspace/automationservice/config/docker_overrides.yaml
+      - /bin/sh
+      - -lc
+      - >-
+        if [ "$${DEBUG:-0}" = "1" ]; then
+          exec python -m debugpy --listen 0.0.0.0:2345
+          -m automation_service.main
+          --config /workspace/config/config.yaml
+          --overrides /workspace/config/docker_overrides.yaml;
+        else
+          exec python -m automation_service.main
+          --config /workspace/config/config.yaml
+          --overrides /workspace/config/docker_overrides.yaml;
+        fi
     volumes:
-      - .:/workspace
+      - ./automationservice:/workspace
       - /workspace/.venv
-      - /workspace/inventory_service_api/src/inventory_service_api/generated
-      - /workspace/model/src/model/generated
-      - /workspace/order_service_api/src/order_service_api/generated
     security_opt:
       - seccomp:unconfined
     cap_add:
       - SYS_PTRACE
   inventoryservice:
-    image: example-python-development:latest
-    build:
-      target: development
+    image: inventoryservice-python-development:latest
+    build: !reset null
     command:
-      - python
-      - -m
-      - inventory_service.main
-      - --config
-      - /workspace/inventoryservice/config/config.yaml
-      - --overrides
-      - /workspace/inventoryservice/config/docker_overrides.yaml
+      - /bin/sh
+      - -lc
+      - >-
+        if [ "$${DEBUG:-0}" = "1" ]; then
+          exec python -m debugpy --listen 0.0.0.0:2345
+          -m inventory_service.main
+          --config /workspace/config/config.yaml
+          --overrides /workspace/config/docker_overrides.yaml;
+        else
+          exec python -m inventory_service.main
+          --config /workspace/config/config.yaml
+          --overrides /workspace/config/docker_overrides.yaml;
+        fi
     volumes:
-      - .:/workspace
+      - ./inventoryservice:/workspace
       - /workspace/.venv
-      - /workspace/inventory_service_api/src/inventory_service_api/generated
-      - /workspace/model/src/model/generated
-      - /workspace/order_service_api/src/order_service_api/generated
     security_opt:
       - seccomp:unconfined
     cap_add:
       - SYS_PTRACE
   orderservice:
-    image: example-python-development:latest
-    build:
-      target: development
+    image: orderservice-python-development:latest
+    build: !reset null
     command:
-      - python
-      - -m
-      - order_service.main
-      - --config
-      - /workspace/orderservice/config/config.yaml
-      - --overrides
-      - /workspace/orderservice/config/docker_overrides.yaml
+      - /bin/sh
+      - -lc
+      - >-
+        if [ "$${DEBUG:-0}" = "1" ]; then
+          exec python -m debugpy --listen 0.0.0.0:2345
+          -m order_service.main
+          --config /workspace/config/config.yaml
+          --overrides /workspace/config/docker_overrides.yaml;
+        else
+          exec python -m order_service.main
+          --config /workspace/config/config.yaml
+          --overrides /workspace/config/docker_overrides.yaml;
+        fi
     volumes:
-      - .:/workspace
+      - ./orderservice:/workspace
       - /workspace/.venv
-      - /workspace/inventory_service_api/src/inventory_service_api/generated
-      - /workspace/model/src/model/generated
-      - /workspace/order_service_api/src/order_service_api/generated
     security_opt:
       - seccomp:unconfined
     cap_add:
@@ -96,5 +104,3 @@ volumes:
   go-dev-build-cache:
   rust-dev-cargo-registry:
   rust-dev-cargo-git:
-  rust-dev-target:
-  cpp-dev-cmake-build:

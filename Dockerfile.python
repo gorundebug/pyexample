@@ -1,8 +1,8 @@
 FROM python:3.12-slim AS development
 
 ARG TARGETARCH
-ARG SERVICEGEN_GITHUB_RAW_URL=https://github.com
-ENV SERVICEGEN_GITHUB_RAW_URL=${SERVICEGEN_GITHUB_RAW_URL}
+ARG DEPENDENCY_GITHUB_RAW_URL=https://github.com
+ENV DEPENDENCY_GITHUB_RAW_URL=${DEPENDENCY_GITHUB_RAW_URL}
 COPY dependency-download-mirrors.generated.env /etc/servicegen/dependency-download-mirrors.generated.env
 COPY dependency-download-mirrors.env /etc/servicegen/dependency-download-mirrors.env
 COPY dependency-download-env.generated.sh /usr/local/bin/servicegen-download-env
@@ -24,6 +24,10 @@ WORKDIR /workspace
 RUN python -m pip install --no-cache-dir uv
 
 COPY . .
+RUN for service in analyticsservice automationservice inventoryservice orderservice ; do \
+      LOCAL_DEPENDENCIES_DIR=/workspace \
+        "/workspace/${service}/scripts/fetch-dependencies.generated.sh"; \
+    done
 COPY --from=pyservicelib-source . /tmp/pyservicelib-source
 RUN set -eu; \
     source_dir=/tmp/pyservicelib-source; \
@@ -44,6 +48,7 @@ RUN set -eu; \
 
 RUN --mount=type=cache,id=servicegen-python-uv-${TARGETARCH},target=/root/.cache/uv,sharing=locked \
     uv sync --all-packages --all-extras && \
+    uv pip install --python /workspace/.venv/bin/python debugpy==1.8.17 && \
     ./scripts/python/generate.generated.sh
 FROM development AS runtime-builder-analyticsservice
 

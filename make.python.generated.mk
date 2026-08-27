@@ -30,25 +30,25 @@ python-tools: ## Install the Python workspace and development tools with uv
 python-init: python-tools ## Initialize the Python workspace
 
 python-build: python-tools ## Build all Python workspace packages
-	@uv build --all-packages
+	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" build USE_LOCAL_MODULES=1 || exit $$?; done
 
 python-test: python-tools ## Run all Python tests
-	@./scripts/python/test.generated.sh
+	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" test USE_LOCAL_MODULES=1 || exit $$?; done
 
 python-lint: python-tools ## Run mypy and Ruff checks
-	@./scripts/python/typecheck.generated.sh
+	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" lint USE_LOCAL_MODULES=1 || exit $$?; done
 
 python-format: python-tools ## Format and auto-fix Python sources
-	@./scripts/python/format.generated.sh
+	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" fmt USE_LOCAL_MODULES=1 || exit $$?; done
 
 python-gen: python-tools ## Generate Python protobuf and OpenAPI code
 	@./scripts/python/generate.generated.sh
 
 python-docker-build: ## Build Python service Docker images
-	@$(DOCKER_COMPOSE) build $(PYTHON_SERVICES)
+	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" docker-build USE_LOCAL_MODULES=1 || exit $$?; done
 
 python-docker-dev-build: ## Build source-mounted Python development image
-	@SERVICEGEN_DOCKER_TARGET=development $(DOCKER_COMPOSE_DEV) build $(PYTHON_SERVICES)
+	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" docker-build-dev USE_LOCAL_MODULES=1 || exit $$?; done
 
 python-integration-test: ## Run Python integration tests
 	@./scripts/python/integration-test.generated.sh

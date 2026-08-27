@@ -2,13 +2,8 @@
 
 .DEFAULT_GOAL := build
 
-ifneq ($(strip $(SERVICEGEN_DEPENDENCY_PROXY_DIR)),)
-SERVICEGEN_DEPENDENCY_PROXY_HOST ?= localhost
-SERVICEGEN_DEPENDENCY_PROXY_PORT ?= 18081
-export PIP_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/pypi-proxy/simple
-export PIP_TRUSTED_HOST := $(SERVICEGEN_DEPENDENCY_PROXY_HOST)
-export UV_INDEX_URL := http://$(SERVICEGEN_DEPENDENCY_PROXY_HOST):$(SERVICEGEN_DEPENDENCY_PROXY_PORT)/repository/pypi-proxy/simple
-endif
+DEPENDENCY_DOCKER_TARGETS :=
+include dependency-proxy.generated.mk
 
 .PHONY: generate build test lint fmt clean help
 

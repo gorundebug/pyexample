@@ -4,6 +4,11 @@ set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${ROOT}"
 
+for service in analyticsservice automationservice inventoryservice orderservice ; do
+  LOCAL_DEPENDENCIES_DIR="${ROOT}" \
+    "${ROOT}/${service}/scripts/fetch-dependencies.generated.sh"
+done
+
 if [[ ! -d .pyservicelib/.git ]]; then
   if [[ -e .pyservicelib ]]; then
     echo ".pyservicelib exists but is not a Git checkout" >&2
