@@ -1,19 +1,15 @@
-# Task 1/20: `ActivityPause`
+# Task 1/36: `ActivityJobEndpointSink`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `delay` |
-| File | `automationservice/src/automation_service/internal/functions/activity_pause.py` |
-| Test | `automationservice/tests/functions/test_activity_pause.py` |
+| Kind | `temporal-sink` |
+| File | `automationservice/src/automation_service/internal/functions/activity/activity_job_endpoint_sink.py` |
+| Test | `automationservice/tests/functions/test_activity/activity_job_endpoint_sink.py` |
 | Service | `Automation Service` |
 
-
-## Behaviour
-
-Apply the ordinary local Delay while processing an on-demand Temporal Activity.
 
 
 
@@ -23,10 +19,10 @@ Apply the ordinary local Delay while processing an on-demand Temporal Activity.
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `automationservice/src/automation_service/internal/functions/activity_pause.py` and preserve its generated contract
+- [ ] Open `automationservice/src/automation_service/internal/functions/activity/activity_job_endpoint_sink.py` and preserve its generated contract
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_activity_pause.py`
+- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_activity/activity_job_endpoint_sink.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] automationservice/task1.md — ActivityPause — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] automationservice/task1.md — ActivityJobEndpointSink — Python — done`

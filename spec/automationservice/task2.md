@@ -1,19 +1,15 @@
-# Task 2/20: `LocalSchedule`
+# Task 2/36: `ActivityJobEndpointSource`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `schedule-source` |
-| File | `automationservice/src/automation_service/internal/functions/local_schedule.py` |
-| Test | `automationservice/tests/functions/test_local_schedule.py` |
+| Kind | `temporal-source` |
+| File | `automationservice/src/automation_service/internal/functions/activity/activity_job_endpoint_source.py` |
+| Test | `automationservice/tests/functions/test_activity/activity_job_endpoint_source.py` |
 | Service | `Automation Service` |
 
-
-## Behaviour
-
-Create a job message identifying the local scheduled firing.
 
 
 
@@ -23,10 +19,10 @@ Create a job message identifying the local scheduled firing.
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `automationservice/src/automation_service/internal/functions/local_schedule.py` and preserve its generated contract
+- [ ] Open `automationservice/src/automation_service/internal/functions/activity/activity_job_endpoint_source.py` and preserve its generated contract
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_local_schedule.py`
+- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_activity/activity_job_endpoint_source.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] automationservice/task2.md — LocalSchedule — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] automationservice/task2.md — ActivityJobEndpointSource — Python — done`

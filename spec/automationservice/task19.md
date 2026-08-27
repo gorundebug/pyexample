@@ -1,19 +1,19 @@
-# Task 19/20: `TemporalWorkflowSchedule`
+# Task 19/36: `ProcessActivityJob`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `schedule-source` |
-| File | `automationservice/src/automation_service/internal/functions/temporal_workflow_schedule.py` |
-| Test | `automationservice/tests/functions/test_temporal_workflow_schedule.py` |
+| Kind | `map` |
+| File | `automationservice/src/automation_service/internal/functions/automation/process_activity_job.py` |
+| Test | `automationservice/tests/functions/test_automation/process_activity_job.py` |
 | Service | `Automation Service` |
 
 
 ## Behaviour
 
-Create a Workflow job message identifying the durable scheduled firing.
+Record Activity progress with DurableCallHeartbeat and return the processed job result.
 
 
 
@@ -23,10 +23,10 @@ Create a Workflow job message identifying the durable scheduled firing.
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `automationservice/src/automation_service/internal/functions/temporal_workflow_schedule.py` and preserve its generated contract
+- [ ] Open `automationservice/src/automation_service/internal/functions/automation/process_activity_job.py` and preserve its generated contract
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_temporal_workflow_schedule.py`
+- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_automation/process_activity_job.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] automationservice/task19.md — TemporalWorkflowSchedule — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] automationservice/task19.md — ProcessActivityJob — Python — done`

@@ -1,19 +1,15 @@
-# Task 12/20: `ProcessScheduledWorkflow`
+# Task 12/36: `SequentialActivityBEndpointSource`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `map` |
-| File | `automationservice/src/automation_service/internal/functions/process_scheduled_workflow.py` |
-| Test | `automationservice/tests/functions/test_process_scheduled_workflow.py` |
+| Kind | `temporal-source` |
+| File | `automationservice/src/automation_service/internal/functions/activity/sequential_activity_b_endpoint_source.py` |
+| Test | `automationservice/tests/functions/test_activity/sequential_activity_b_endpoint_source.py` |
 | Service | `Automation Service` |
 
-
-## Behaviour
-
-Return the visible result of one scheduled Workflow execution.
 
 
 
@@ -23,10 +19,10 @@ Return the visible result of one scheduled Workflow execution.
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `automationservice/src/automation_service/internal/functions/process_scheduled_workflow.py` and preserve its generated contract
+- [ ] Open `automationservice/src/automation_service/internal/functions/activity/sequential_activity_b_endpoint_source.py` and preserve its generated contract
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_process_scheduled_workflow.py`
+- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_activity/sequential_activity_b_endpoint_source.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] automationservice/task12.md — ProcessScheduledWorkflow — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] automationservice/task12.md — SequentialActivityBEndpointSource — Python — done`

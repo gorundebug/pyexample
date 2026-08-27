@@ -29,10 +29,10 @@ from model.models.order_item_result import (
     OrderItemResult,
 )
 from ..functions import (
+    ProcessOrderItemSource,
+    make_process_order_item_source,
     GetInventoryItemData,
     make_get_inventory_item_data,
-    ProcessOrderItem,
-    make_process_order_item,
 )
 
 
@@ -45,13 +45,13 @@ class ServiceStreams:
 
 @dataclass(slots=True)
 class ServiceMakers:
-    get_inventory_item_data: Callable[[Context, ServiceEnvironment, ProcessStreamConfig], GetInventoryItemData] = (
-        lambda ctx, environment, config: make_get_inventory_item_data(
+    process_order_item_source: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], ProcessOrderItemSource] = (
+        lambda ctx, environment, config: make_process_order_item_source(
             ctx, environment, config
         )
     )
-    process_order_item: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], ProcessOrderItem] = (
-        lambda ctx, environment, config: make_process_order_item(
+    get_inventory_item_data: Callable[[Context, ServiceEnvironment, ProcessStreamConfig], GetInventoryItemData] = (
+        lambda ctx, environment, config: make_get_inventory_item_data(
             ctx, environment, config
         )
     )
@@ -59,8 +59,8 @@ class ServiceMakers:
 
 @dataclass(slots=True)
 class ServiceFunctions:
+    process_order_item_source: ProcessOrderItemSource
     get_inventory_item_data: GetInventoryItemData
-    process_order_item: ProcessOrderItem
 
 
 class GeneratedService(ServiceApp):
@@ -102,11 +102,11 @@ class GeneratedService(ServiceApp):
             )
         named = cfg.named
         self._functions = ServiceFunctions(
+            process_order_item_source=self._makers.process_order_item_source(
+                ctx, self, named.endpoints.process_order_item
+            ),
             get_inventory_item_data=self._makers.get_inventory_item_data(
                 ctx, self, named.streams.get_inventory_item_data
-            ),
-            process_order_item=self._makers.process_order_item(
-                ctx, self, named.endpoints.process_order_item
             ),
         )
         await self.custom_functions_init(ctx)
@@ -138,7 +138,7 @@ class GeneratedService(ServiceApp):
         self._transport_consumers = []
         self._grpc_channels = []
         grpc_handlers = GrpcHandlers()
-        process_inventory_item_consumer, process_inventory_item_grpc_handler = grpc_source.make_grpc_no_streaming_endpoint_consumer(self._service_streams.process_inventory_item, self.functions.process_order_item)
+        process_inventory_item_consumer, process_inventory_item_grpc_handler = grpc_source.make_grpc_no_streaming_endpoint_consumer(self._service_streams.process_inventory_item, self.functions.process_order_item_source)
         self._transport_consumers.append(process_inventory_item_consumer)
         grpc_handlers.process_inventory_item = process_inventory_item_grpc_handler
         self.add_component(GrpcServer(

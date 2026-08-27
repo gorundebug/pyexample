@@ -20,11 +20,11 @@ class _RecordingService(GeneratedService):
     async def custom_makers_init(self, ctx: Context) -> None:
         del ctx
         self.events.append("custom_makers_init")
-        self.makers.map_order_item_result_to_order_state = lambda ctx, env, cfg: _Function()
+        self.makers.order_processed_endpoint_sink = lambda ctx, env, cfg: _Function()
 
     async def custom_functions_init(self, ctx: Context) -> None:
         del ctx
-        assert isinstance(self.functions.map_order_item_result_to_order_state, _Function)
+        assert isinstance(self.functions.order_processed_endpoint_sink, _Function)
         self.events.append("custom_functions_init")
 
 
@@ -36,4 +36,4 @@ async def test_generated_function_hook_order() -> None:
     service.set_config(config)
     await service.initialize_functions(Context())
     assert service.events == ["custom_makers_init", "custom_functions_init"]
-    assert isinstance(service.functions.map_order_item_result_to_order_state, _Function)
+    assert isinstance(service.functions.order_processed_endpoint_sink, _Function)

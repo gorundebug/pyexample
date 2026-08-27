@@ -1,10 +1,10 @@
 """Generated exports for service functions."""
-from .count_order_processed import CountOrderProcessed, make_count_order_processed
-from .order_processed_endpoint import OrderProcessedEndpoint, make_order_processed_endpoint
+from .analytics.count_order_processed import CountOrderProcessed, make_count_order_processed
+from .endpoint.order_processed_endpoint_source import OrderProcessedEndpointSource, make_order_processed_endpoint_source
 
 __all__ = [
     "CountOrderProcessed",
     "make_count_order_processed",
-    "OrderProcessedEndpoint",
-    "make_order_processed_endpoint",
+    "OrderProcessedEndpointSource",
+    "make_order_processed_endpoint_source",
 ]

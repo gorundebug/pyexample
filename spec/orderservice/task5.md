@@ -1,48 +1,37 @@
-# Task 5/8: `ProcessOrder`
+# Task 5/8: `MapToOrderProcessed`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `http-source` |
-| File | `orderservice/src/order_service/internal/functions/process_order.py` |
-| Test | `orderservice/tests/functions/test_process_order.py` |
+| Kind | `map` |
+| File | `orderservice/src/order_service/internal/functions/order/map_to_order_processed.py` |
+| Test | `orderservice/tests/functions/test_order/map_to_order_processed.py` |
 | Service | `Order Service` |
 
 
 ## Behaviour
 
-Accept orders with at least one item and positive quantities; reject malformed or invalid requests as client errors.
-Reuse X-Request-ID when supplied, otherwise generate an order ID. Preserve customer, item, price, and X-Trace data, and apply the configured timeout of five seconds by default.
-Return one response per order. When all items finish, use CONFIRMED only if every item was reserved; otherwise use PARTIALLY_CONFIRMED. If the deadline wins, return TIMED_OUT with the item results received so far.
-Calculate the total from processed item prices, falling back to the submitted total when no item result arrived, and include individual item failures in the response.
+Create an OrderProcessed event from the final order state.
+Preserve the order ID, status, and processing time. Count all item results and reserved items; for unsuccessful orders use the final status as the failure reason.
 
 
-
-## External contract
-
-| Field | Value |
-|-------|-------|
-| Format | `openapi` |
-| Request | `object` |
-| Response | `object` |
 
 
 ## Stream types
-- Input: `Order` — `orderservice/src/order_service/models/order.py`
-- Output: `OrderState` — `orderservice/src/order_service/models/order_state.py`
+- Input: `OrderState` — `orderservice/src/order_service/models/order_state.py`
+- Output: `OrderProcessed` — `model/src/model/models/order_processed.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `orderservice/src/order_service/internal/functions/process_order.py` and preserve its generated contract
-- [ ] Inspect input type `Order` in `orderservice/src/order_service/models/order.py`
-- [ ] Inspect output type `OrderState` in `orderservice/src/order_service/models/order_state.py`
+- [ ] Open `orderservice/src/order_service/internal/functions/order/map_to_order_processed.py` and preserve its generated contract
+- [ ] Inspect input type `OrderState` in `orderservice/src/order_service/models/order_state.py`
+- [ ] Inspect output type `OrderProcessed` in `model/src/model/models/order_processed.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `orderservice/tests/functions/test_process_order.py`
-- [ ] Verify the endpoint/result lifecycle, including completion and error paths
+- [ ] Implement meaningful assertions in `orderservice/tests/functions/test_order/map_to_order_processed.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] orderservice/task5.md — ProcessOrder — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] orderservice/task5.md — MapToOrderProcessed — Python — done`

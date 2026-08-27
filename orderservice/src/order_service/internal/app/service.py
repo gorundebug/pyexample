@@ -60,26 +60,10 @@ class Service(GeneratedService):
     async def custom_makers_init(self, ctx: Context) -> None:
         """Replace generated makers here before any function is constructed."""
         del ctx
-        # self.makers.map_order_item_result_to_order_state = custom_map_order_item_result_to_order_state_maker
-        # self.makers.map_to_order_processed = custom_map_to_order_processed_maker
-        # self.makers.map_to_order_state = custom_map_to_order_state_maker
-        # self.makers.order_processed_endpoint = custom_order_processed_endpoint_maker
-        # self.makers.process_order = custom_process_order_maker
-        # self.makers.process_order_item = custom_process_order_item_maker
-        # self.makers.process_order_items = custom_process_order_items_maker
-        # self.makers.soft_deadline = custom_soft_deadline_maker
 
     async def custom_functions_init(self, ctx: Context) -> None:
         """Configure constructed functions here before the graph is wired."""
         del ctx
-        # Configure self.functions.map_order_item_result_to_order_state here when needed.
-        # Configure self.functions.map_to_order_processed here when needed.
-        # Configure self.functions.map_to_order_state here when needed.
-        # Configure self.functions.order_processed_endpoint here when needed.
-        # Configure self.functions.process_order here when needed.
-        # Configure self.functions.process_order_item here when needed.
-        # Configure self.functions.process_order_items here when needed.
-        # Configure self.functions.soft_deadline here when needed.
 
     async def on_start(self, ctx: Context) -> None:
         del ctx

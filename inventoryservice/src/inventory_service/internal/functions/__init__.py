@@ -1,10 +1,10 @@
 """Generated exports for service functions."""
-from .get_inventory_item_data import GetInventoryItemData, make_get_inventory_item_data
-from .process_order_item import ProcessOrderItem, make_process_order_item
+from .endpoint.process_order_item_source import ProcessOrderItemSource, make_process_order_item_source
+from .inventory_item.get_inventory_item_data import GetInventoryItemData, make_get_inventory_item_data
 
 __all__ = [
+    "ProcessOrderItemSource",
+    "make_process_order_item_source",
     "GetInventoryItemData",
     "make_get_inventory_item_data",
-    "ProcessOrderItem",
-    "make_process_order_item",
 ]

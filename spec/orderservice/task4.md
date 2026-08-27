@@ -1,38 +1,38 @@
-# Task 4/8: `OrderProcessedEndpoint`
+# Task 4/8: `MapOrderItemResultToOrderState`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `kafka-sink` |
-| File | `orderservice/src/order_service/internal/functions/order_processed_endpoint.py` |
-| Test | `orderservice/tests/functions/test_order_processed_endpoint.py` |
+| Kind | `map` |
+| File | `orderservice/src/order_service/internal/functions/order/map_order_item_result_to_order_state.py` |
+| Test | `orderservice/tests/functions/test_order/map_order_item_result_to_order_state.py` |
 | Service | `Order Service` |
 
 
 ## Behaviour
 
-Exchange OrderProcessed events keyed by order ID.
-Producers include the final status, processing time, total and confirmed item counts, and a failure reason for unsuccessful orders.
-Consumers decode the event and mark its Kafka message processed only after the pipeline handles it successfully.
+Produce an order result containing one inventory result and preserving its order ID.
+Mark it CONFIRMED when the item was reserved; otherwise mark it PARTIALLY_CONFIRMED.
+Record the time when this result is produced.
 
 
 
 
 ## Stream types
-- Input: `OrderProcessed` — `model/src/model/models/order_processed.py`
-- Output: `OrderProcessed` — `model/src/model/models/order_processed.py`
+- Input: `OrderItemResult` — `model/src/model/models/order_item_result.py`
+- Output: `OrderState` — `orderservice/src/order_service/models/order_state.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `orderservice/src/order_service/internal/functions/order_processed_endpoint.py` and preserve its generated contract
-- [ ] Inspect input type `OrderProcessed` in `model/src/model/models/order_processed.py`
-- [ ] Inspect output type `OrderProcessed` in `model/src/model/models/order_processed.py`
+- [ ] Open `orderservice/src/order_service/internal/functions/order/map_order_item_result_to_order_state.py` and preserve its generated contract
+- [ ] Inspect input type `OrderItemResult` in `model/src/model/models/order_item_result.py`
+- [ ] Inspect output type `OrderState` in `orderservice/src/order_service/models/order_state.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `orderservice/tests/functions/test_order_processed_endpoint.py`
+- [ ] Implement meaningful assertions in `orderservice/tests/functions/test_order/map_order_item_result_to_order_state.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] orderservice/task4.md — OrderProcessedEndpoint — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] orderservice/task4.md — MapOrderItemResultToOrderState — Python — done`

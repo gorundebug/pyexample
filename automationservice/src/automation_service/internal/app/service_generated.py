@@ -32,10 +32,34 @@ from automation_service.models.automation_job import (
     AutomationJob,
 )
 from ..functions import (
+    ActivityJobEndpointSink,
+    make_activity_job_endpoint_sink,
+    ActivityJobEndpointSource,
+    make_activity_job_endpoint_source,
+    FanoutActivityAEndpointSink,
+    make_fanout_activity_a_endpoint_sink,
+    FanoutActivityAEndpointSource,
+    make_fanout_activity_a_endpoint_source,
+    FanoutActivityBEndpointSink,
+    make_fanout_activity_b_endpoint_sink,
+    FanoutActivityBEndpointSource,
+    make_fanout_activity_b_endpoint_source,
+    FanoutActivityCEndpointSink,
+    make_fanout_activity_c_endpoint_sink,
+    FanoutActivityCEndpointSource,
+    make_fanout_activity_c_endpoint_source,
+    SequentialActivityAEndpointSink,
+    make_sequential_activity_a_endpoint_sink,
+    SequentialActivityAEndpointSource,
+    make_sequential_activity_a_endpoint_source,
+    SequentialActivityBEndpointSink,
+    make_sequential_activity_b_endpoint_sink,
+    SequentialActivityBEndpointSource,
+    make_sequential_activity_b_endpoint_source,
+    TemporalActivityScheduleSource,
+    make_temporal_activity_schedule_source,
     ActivityPause,
     make_activity_pause,
-    LocalSchedule,
-    make_local_schedule,
     ObserveActivityResult,
     make_observe_activity_result,
     ObserveFanoutActivityB,
@@ -66,12 +90,20 @@ from ..functions import (
     make_scheduled_activity_pause,
     ScheduledWorkflowPause,
     make_scheduled_workflow_pause,
-    TemporalActivitySchedule,
-    make_temporal_activity_schedule,
-    TemporalWorkflowSchedule,
-    make_temporal_workflow_schedule,
     WorkflowPause,
     make_workflow_pause,
+    LocalScheduleSource,
+    make_local_schedule_source,
+    FanoutWorkflowJobEndpointSink,
+    make_fanout_workflow_job_endpoint_sink,
+    FanoutWorkflowJobEndpointSource,
+    make_fanout_workflow_job_endpoint_source,
+    TemporalWorkflowScheduleSource,
+    make_temporal_workflow_schedule_source,
+    WorkflowJobEndpointSink,
+    make_workflow_job_endpoint_sink,
+    WorkflowJobEndpointSource,
+    make_workflow_job_endpoint_source,
 )
 
 
@@ -118,13 +150,73 @@ class ServiceStreams:
 
 @dataclass(slots=True)
 class ServiceMakers:
-    activity_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ActivityPause] = (
-        lambda ctx, environment, config: make_activity_pause(
+    activity_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], ActivityJobEndpointSink] = (
+        lambda ctx, environment, config: make_activity_job_endpoint_sink(
             ctx, environment, config
         )
     )
-    local_schedule: Callable[[Context, ServiceEnvironment, CronEndpointConfig], LocalSchedule] = (
-        lambda ctx, environment, config: make_local_schedule(
+    activity_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], ActivityJobEndpointSource] = (
+        lambda ctx, environment, config: make_activity_job_endpoint_source(
+            ctx, environment, config
+        )
+    )
+    fanout_activity_a_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityAEndpointSink] = (
+        lambda ctx, environment, config: make_fanout_activity_a_endpoint_sink(
+            ctx, environment, config
+        )
+    )
+    fanout_activity_a_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityAEndpointSource] = (
+        lambda ctx, environment, config: make_fanout_activity_a_endpoint_source(
+            ctx, environment, config
+        )
+    )
+    fanout_activity_b_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityBEndpointSink] = (
+        lambda ctx, environment, config: make_fanout_activity_b_endpoint_sink(
+            ctx, environment, config
+        )
+    )
+    fanout_activity_b_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityBEndpointSource] = (
+        lambda ctx, environment, config: make_fanout_activity_b_endpoint_source(
+            ctx, environment, config
+        )
+    )
+    fanout_activity_c_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityCEndpointSink] = (
+        lambda ctx, environment, config: make_fanout_activity_c_endpoint_sink(
+            ctx, environment, config
+        )
+    )
+    fanout_activity_c_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityCEndpointSource] = (
+        lambda ctx, environment, config: make_fanout_activity_c_endpoint_source(
+            ctx, environment, config
+        )
+    )
+    sequential_activity_a_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityAEndpointSink] = (
+        lambda ctx, environment, config: make_sequential_activity_a_endpoint_sink(
+            ctx, environment, config
+        )
+    )
+    sequential_activity_a_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityAEndpointSource] = (
+        lambda ctx, environment, config: make_sequential_activity_a_endpoint_source(
+            ctx, environment, config
+        )
+    )
+    sequential_activity_b_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityBEndpointSink] = (
+        lambda ctx, environment, config: make_sequential_activity_b_endpoint_sink(
+            ctx, environment, config
+        )
+    )
+    sequential_activity_b_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityBEndpointSource] = (
+        lambda ctx, environment, config: make_sequential_activity_b_endpoint_source(
+            ctx, environment, config
+        )
+    )
+    temporal_activity_schedule_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalActivityScheduleSource] = (
+        lambda ctx, environment, config: make_temporal_activity_schedule_source(
+            ctx, environment, config
+        )
+    )
+    activity_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ActivityPause] = (
+        lambda ctx, environment, config: make_activity_pause(
             ctx, environment, config
         )
     )
@@ -203,18 +295,38 @@ class ServiceMakers:
             ctx, environment, config
         )
     )
-    temporal_activity_schedule: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalActivitySchedule] = (
-        lambda ctx, environment, config: make_temporal_activity_schedule(
-            ctx, environment, config
-        )
-    )
-    temporal_workflow_schedule: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalWorkflowSchedule] = (
-        lambda ctx, environment, config: make_temporal_workflow_schedule(
-            ctx, environment, config
-        )
-    )
     workflow_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], WorkflowPause] = (
         lambda ctx, environment, config: make_workflow_pause(
+            ctx, environment, config
+        )
+    )
+    local_schedule_source: Callable[[Context, ServiceEnvironment, CronEndpointConfig], LocalScheduleSource] = (
+        lambda ctx, environment, config: make_local_schedule_source(
+            ctx, environment, config
+        )
+    )
+    fanout_workflow_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutWorkflowJobEndpointSink] = (
+        lambda ctx, environment, config: make_fanout_workflow_job_endpoint_sink(
+            ctx, environment, config
+        )
+    )
+    fanout_workflow_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutWorkflowJobEndpointSource] = (
+        lambda ctx, environment, config: make_fanout_workflow_job_endpoint_source(
+            ctx, environment, config
+        )
+    )
+    temporal_workflow_schedule_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalWorkflowScheduleSource] = (
+        lambda ctx, environment, config: make_temporal_workflow_schedule_source(
+            ctx, environment, config
+        )
+    )
+    workflow_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], WorkflowJobEndpointSink] = (
+        lambda ctx, environment, config: make_workflow_job_endpoint_sink(
+            ctx, environment, config
+        )
+    )
+    workflow_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], WorkflowJobEndpointSource] = (
+        lambda ctx, environment, config: make_workflow_job_endpoint_source(
             ctx, environment, config
         )
     )
@@ -222,8 +334,20 @@ class ServiceMakers:
 
 @dataclass(slots=True)
 class ServiceFunctions:
+    activity_job_endpoint_sink: ActivityJobEndpointSink
+    activity_job_endpoint_source: ActivityJobEndpointSource
+    fanout_activity_a_endpoint_sink: FanoutActivityAEndpointSink
+    fanout_activity_a_endpoint_source: FanoutActivityAEndpointSource
+    fanout_activity_b_endpoint_sink: FanoutActivityBEndpointSink
+    fanout_activity_b_endpoint_source: FanoutActivityBEndpointSource
+    fanout_activity_c_endpoint_sink: FanoutActivityCEndpointSink
+    fanout_activity_c_endpoint_source: FanoutActivityCEndpointSource
+    sequential_activity_a_endpoint_sink: SequentialActivityAEndpointSink
+    sequential_activity_a_endpoint_source: SequentialActivityAEndpointSource
+    sequential_activity_b_endpoint_sink: SequentialActivityBEndpointSink
+    sequential_activity_b_endpoint_source: SequentialActivityBEndpointSource
+    temporal_activity_schedule_source: TemporalActivityScheduleSource
     activity_pause: ActivityPause
-    local_schedule: LocalSchedule
     observe_activity_result: ObserveActivityResult
     observe_fanout_activity_b: ObserveFanoutActivityB
     observe_fanout_activity_c: ObserveFanoutActivityC
@@ -239,9 +363,13 @@ class ServiceFunctions:
     process_workflow_job: ProcessWorkflowJob
     scheduled_activity_pause: ScheduledActivityPause
     scheduled_workflow_pause: ScheduledWorkflowPause
-    temporal_activity_schedule: TemporalActivitySchedule
-    temporal_workflow_schedule: TemporalWorkflowSchedule
     workflow_pause: WorkflowPause
+    local_schedule_source: LocalScheduleSource
+    fanout_workflow_job_endpoint_sink: FanoutWorkflowJobEndpointSink
+    fanout_workflow_job_endpoint_source: FanoutWorkflowJobEndpointSource
+    temporal_workflow_schedule_source: TemporalWorkflowScheduleSource
+    workflow_job_endpoint_sink: WorkflowJobEndpointSink
+    workflow_job_endpoint_source: WorkflowJobEndpointSource
 
 
 class GeneratedService(ServiceApp):
@@ -278,11 +406,47 @@ class GeneratedService(ServiceApp):
             )
         named = cfg.named
         self._functions = ServiceFunctions(
+            activity_job_endpoint_sink=self._makers.activity_job_endpoint_sink(
+                ctx, self, named.endpoints.activity_job
+            ),
+            activity_job_endpoint_source=self._makers.activity_job_endpoint_source(
+                ctx, self, named.endpoints.activity_job
+            ),
+            fanout_activity_a_endpoint_sink=self._makers.fanout_activity_a_endpoint_sink(
+                ctx, self, named.endpoints.fan_out_activity_a
+            ),
+            fanout_activity_a_endpoint_source=self._makers.fanout_activity_a_endpoint_source(
+                ctx, self, named.endpoints.fan_out_activity_a
+            ),
+            fanout_activity_b_endpoint_sink=self._makers.fanout_activity_b_endpoint_sink(
+                ctx, self, named.endpoints.fan_out_activity_b
+            ),
+            fanout_activity_b_endpoint_source=self._makers.fanout_activity_b_endpoint_source(
+                ctx, self, named.endpoints.fan_out_activity_b
+            ),
+            fanout_activity_c_endpoint_sink=self._makers.fanout_activity_c_endpoint_sink(
+                ctx, self, named.endpoints.fan_out_activity_c
+            ),
+            fanout_activity_c_endpoint_source=self._makers.fanout_activity_c_endpoint_source(
+                ctx, self, named.endpoints.fan_out_activity_c
+            ),
+            sequential_activity_a_endpoint_sink=self._makers.sequential_activity_a_endpoint_sink(
+                ctx, self, named.endpoints.sequential_activity_a
+            ),
+            sequential_activity_a_endpoint_source=self._makers.sequential_activity_a_endpoint_source(
+                ctx, self, named.endpoints.sequential_activity_a
+            ),
+            sequential_activity_b_endpoint_sink=self._makers.sequential_activity_b_endpoint_sink(
+                ctx, self, named.endpoints.sequential_activity_b
+            ),
+            sequential_activity_b_endpoint_source=self._makers.sequential_activity_b_endpoint_source(
+                ctx, self, named.endpoints.sequential_activity_b
+            ),
+            temporal_activity_schedule_source=self._makers.temporal_activity_schedule_source(
+                ctx, self, named.endpoints.temporal_activity_schedule
+            ),
             activity_pause=self._makers.activity_pause(
                 ctx, self, named.streams.activity_pause
-            ),
-            local_schedule=self._makers.local_schedule(
-                ctx, self, named.endpoints.local_schedule
             ),
             observe_activity_result=self._makers.observe_activity_result(
                 ctx, self, named.streams.observe_activity_result
@@ -329,14 +493,26 @@ class GeneratedService(ServiceApp):
             scheduled_workflow_pause=self._makers.scheduled_workflow_pause(
                 ctx, self, named.streams.scheduled_workflow_pause
             ),
-            temporal_activity_schedule=self._makers.temporal_activity_schedule(
-                ctx, self, named.endpoints.temporal_activity_schedule
-            ),
-            temporal_workflow_schedule=self._makers.temporal_workflow_schedule(
-                ctx, self, named.endpoints.temporal_workflow_schedule
-            ),
             workflow_pause=self._makers.workflow_pause(
                 ctx, self, named.streams.workflow_pause
+            ),
+            local_schedule_source=self._makers.local_schedule_source(
+                ctx, self, named.endpoints.local_schedule
+            ),
+            fanout_workflow_job_endpoint_sink=self._makers.fanout_workflow_job_endpoint_sink(
+                ctx, self, named.endpoints.fan_out_workflow_job
+            ),
+            fanout_workflow_job_endpoint_source=self._makers.fanout_workflow_job_endpoint_source(
+                ctx, self, named.endpoints.fan_out_workflow_job
+            ),
+            temporal_workflow_schedule_source=self._makers.temporal_workflow_schedule_source(
+                ctx, self, named.endpoints.temporal_workflow_schedule
+            ),
+            workflow_job_endpoint_sink=self._makers.workflow_job_endpoint_sink(
+                ctx, self, named.endpoints.workflow_job
+            ),
+            workflow_job_endpoint_source=self._makers.workflow_job_endpoint_source(
+                ctx, self, named.endpoints.workflow_job
             ),
         )
         await self.custom_functions_init(ctx)
@@ -418,23 +594,23 @@ class GeneratedService(ServiceApp):
         self._transport_consumers.append(call_sequential_activity_a_consumer)
         call_sequential_activity_b_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.call_sequential_activity_b)
         self._transport_consumers.append(call_sequential_activity_b_consumer)
-        consume_activity_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_activity_job)
+        consume_activity_job_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_activity_job, self.functions.activity_job_endpoint_source)
         self._transport_consumers.append(consume_activity_job_consumer)
-        consume_fan_out_activity_a_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_fan_out_activity_a)
+        consume_fan_out_activity_a_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_fan_out_activity_a, self.functions.fanout_activity_a_endpoint_source)
         self._transport_consumers.append(consume_fan_out_activity_a_consumer)
-        consume_fan_out_activity_b_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_fan_out_activity_b)
+        consume_fan_out_activity_b_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_fan_out_activity_b, self.functions.fanout_activity_b_endpoint_source)
         self._transport_consumers.append(consume_fan_out_activity_b_consumer)
-        consume_fan_out_activity_c_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_fan_out_activity_c)
+        consume_fan_out_activity_c_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_fan_out_activity_c, self.functions.fanout_activity_c_endpoint_source)
         self._transport_consumers.append(consume_fan_out_activity_c_consumer)
-        consume_fan_out_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_fan_out_workflow_job, workflow_class=FanOutWorkflowJobTemporalWorkflow)
+        consume_fan_out_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_fan_out_workflow_job, self.functions.fanout_workflow_job_endpoint_source, workflow_class=FanOutWorkflowJobTemporalWorkflow)
         self._transport_consumers.append(consume_fan_out_workflow_job_consumer)
-        consume_sequential_activity_a_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_sequential_activity_a)
+        consume_sequential_activity_a_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_sequential_activity_a, self.functions.sequential_activity_a_endpoint_source)
         self._transport_consumers.append(consume_sequential_activity_a_consumer)
-        consume_sequential_activity_b_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_sequential_activity_b)
+        consume_sequential_activity_b_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_sequential_activity_b, self.functions.sequential_activity_b_endpoint_source)
         self._transport_consumers.append(consume_sequential_activity_b_consumer)
-        consume_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer(self._service_streams.consume_workflow_job, workflow_class=WorkflowJobTemporalWorkflow)
+        consume_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_workflow_job, self.functions.workflow_job_endpoint_source, workflow_class=WorkflowJobTemporalWorkflow)
         self._transport_consumers.append(consume_workflow_job_consumer)
-        local_schedule_consumer = cron_source.APSchedulerEndpointConsumer(self._service_streams.local_schedule, self.functions.local_schedule)
+        local_schedule_consumer = cron_source.APSchedulerEndpointConsumer(self._service_streams.local_schedule, self.functions.local_schedule_source)
         self._transport_consumers.append(local_schedule_consumer)
         submit_activity_job_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.submit_activity_job)
         self._transport_consumers.append(submit_activity_job_consumer)
@@ -442,9 +618,9 @@ class GeneratedService(ServiceApp):
         self._transport_consumers.append(submit_fan_out_workflow_job_consumer)
         submit_workflow_job_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.submit_workflow_job)
         self._transport_consumers.append(submit_workflow_job_consumer)
-        temporal_activity_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_activity_schedule, self.functions.temporal_activity_schedule)
+        temporal_activity_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_activity_schedule, self.functions.temporal_activity_schedule_source)
         self._transport_consumers.append(temporal_activity_schedule_consumer)
-        temporal_workflow_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_workflow_schedule, self.functions.temporal_workflow_schedule, workflow_class=TemporalWorkflowScheduleTemporalWorkflow)
+        temporal_workflow_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_workflow_schedule, self.functions.temporal_workflow_schedule_source, workflow_class=TemporalWorkflowScheduleTemporalWorkflow)
         self._transport_consumers.append(temporal_workflow_schedule_consumer)
     def initialize_runtime_connectors(self) -> None:
         cfg = self.config

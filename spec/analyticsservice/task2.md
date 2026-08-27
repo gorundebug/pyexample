@@ -1,4 +1,4 @@
-# Task 2/2: `OrderProcessedEndpoint`
+# Task 2/2: `OrderProcessedEndpointSource`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
@@ -6,8 +6,8 @@
 |-------|-------|
 | Language | `Python` |
 | Kind | `kafka-source` |
-| File | `analyticsservice/src/analytics_service/internal/functions/order_processed_endpoint.py` |
-| Test | `analyticsservice/tests/functions/test_order_processed_endpoint.py` |
+| File | `analyticsservice/src/analytics_service/internal/functions/endpoint/order_processed_endpoint_source.py` |
+| Test | `analyticsservice/tests/functions/test_endpoint/order_processed_endpoint_source.py` |
 | Service | `Analytics Service` |
 
 
@@ -27,12 +27,12 @@ Consumers decode the event and mark its Kafka message processed only after the p
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `analyticsservice/src/analytics_service/internal/functions/order_processed_endpoint.py` and preserve its generated contract
+- [ ] Open `analyticsservice/src/analytics_service/internal/functions/endpoint/order_processed_endpoint_source.py` and preserve its generated contract
 - [ ] Inspect input type `OrderProcessed` in `model/src/model/models/order_processed.py`
 - [ ] Inspect output type `OrderProcessed` in `model/src/model/models/order_processed.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_order_processed_endpoint.py`
+- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_endpoint/order_processed_endpoint_source.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task2.md — OrderProcessedEndpoint — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task2.md — OrderProcessedEndpointSource — Python — done`

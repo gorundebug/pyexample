@@ -26,8 +26,8 @@ from model.models.order_processed import (
 from ..functions import (
     CountOrderProcessed,
     make_count_order_processed,
-    OrderProcessedEndpoint,
-    make_order_processed_endpoint,
+    OrderProcessedEndpointSource,
+    make_order_processed_endpoint_source,
 )
 
 
@@ -43,8 +43,8 @@ class ServiceMakers:
             ctx, environment, config
         )
     )
-    order_processed_endpoint: Callable[[Context, ServiceEnvironment, KafkaEndpointConfig], OrderProcessedEndpoint] = (
-        lambda ctx, environment, config: make_order_processed_endpoint(
+    order_processed_endpoint_source: Callable[[Context, ServiceEnvironment, KafkaEndpointConfig], OrderProcessedEndpointSource] = (
+        lambda ctx, environment, config: make_order_processed_endpoint_source(
             ctx, environment, config
         )
     )
@@ -53,7 +53,7 @@ class ServiceMakers:
 @dataclass(slots=True)
 class ServiceFunctions:
     count_order_processed: CountOrderProcessed
-    order_processed_endpoint: OrderProcessedEndpoint
+    order_processed_endpoint_source: OrderProcessedEndpointSource
 
 
 class GeneratedService(ServiceApp):
@@ -95,7 +95,7 @@ class GeneratedService(ServiceApp):
             count_order_processed=self._makers.count_order_processed(
                 ctx, self, named.streams.count_order_processed
             ),
-            order_processed_endpoint=self._makers.order_processed_endpoint(
+            order_processed_endpoint_source=self._makers.order_processed_endpoint_source(
                 ctx, self, named.endpoints.order_processed
             ),
         )
@@ -124,7 +124,7 @@ class GeneratedService(ServiceApp):
                 "Analytics Service requires analytics_service.internal.config.Config"
             )
         self._transport_consumers = []
-        consume_order_processed_consumer = kafka_source.make_aiokafka_endpoint_consumer(self._service_streams.consume_order_processed, self.functions.order_processed_endpoint)
+        consume_order_processed_consumer = kafka_source.make_aiokafka_endpoint_consumer(self._service_streams.consume_order_processed, self.functions.order_processed_endpoint_source)
         self._transport_consumers.append(consume_order_processed_consumer)
 
     async def build_runtime(self, ctx: Context) -> None:

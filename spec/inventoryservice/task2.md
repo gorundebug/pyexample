@@ -1,31 +1,24 @@
-# Task 2/2: `ProcessOrderItem`
+# Task 2/2: `GetInventoryItemData`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `grpc-source` |
-| File | `inventoryservice/src/inventory_service/internal/functions/process_order_item.py` |
-| Test | `inventoryservice/tests/functions/test_process_order_item.py` |
+| Kind | `process` |
+| File | `inventoryservice/src/inventory_service/internal/functions/inventory_item/get_inventory_item_data.py` |
+| Test | `inventoryservice/tests/functions/test_inventory_item/get_inventory_item_data.py` |
 | Service | `Inventory Service` |
 
 
 ## Behaviour
 
-Reserve inventory for one order item using its order ID, item ID, SKU, and quantity.
-Return the available quantity, reservation outcome, and status. The caller combines this response with the original identity, requested quantity, and unit price.
-If the inventory call fails, the caller returns a non-reserved PROCESSING_ERROR result with the failure message.
+Reserve the requested quantity without allowing concurrent orders to overdraw stock.
+On success, return CONFIRMED with the requested quantity available. Otherwise return OUT_OF_STOCK with the current available quantity.
+Preserve the order and item identity, requested quantity, and unit price.
+The example starts with SKU-001: 100, SKU-002: 50, and SKU-003: 25.
 
 
-
-## External contract
-
-| Field | Value |
-|-------|-------|
-| Format | `proto` |
-| Request | `ProcessOrderItemRequest` |
-| Response | `ProcessOrderItemResponse` |
 
 
 ## Stream types
@@ -35,13 +28,12 @@ If the inventory call fails, the caller returns a non-reserved PROCESSING_ERROR 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `inventoryservice/src/inventory_service/internal/functions/process_order_item.py` and preserve its generated contract
+- [ ] Open `inventoryservice/src/inventory_service/internal/functions/inventory_item/get_inventory_item_data.py` and preserve its generated contract
 - [ ] Inspect input type `OrderItem` in `model/src/model/models/order_item.py`
 - [ ] Inspect output type `OrderItemResult` in `model/src/model/models/order_item_result.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `inventoryservice/tests/functions/test_process_order_item.py`
-- [ ] Verify the endpoint/result lifecycle, including completion and error paths
+- [ ] Implement meaningful assertions in `inventoryservice/tests/functions/test_inventory_item/get_inventory_item_data.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] inventoryservice/task2.md — ProcessOrderItem — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] inventoryservice/task2.md — GetInventoryItemData — Python — done`

@@ -1,19 +1,15 @@
-# Task 7/20: `ProcessActivityJob`
+# Task 7/36: `FanoutActivityCEndpointSink`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `map` |
-| File | `automationservice/src/automation_service/internal/functions/process_activity_job.py` |
-| Test | `automationservice/tests/functions/test_process_activity_job.py` |
+| Kind | `temporal-sink` |
+| File | `automationservice/src/automation_service/internal/functions/activity/fanout_activity_c_endpoint_sink.py` |
+| Test | `automationservice/tests/functions/test_activity/fanout_activity_c_endpoint_sink.py` |
 | Service | `Automation Service` |
 
-
-## Behaviour
-
-Record Activity progress with DurableCallHeartbeat and return the processed job result.
 
 
 
@@ -23,10 +19,10 @@ Record Activity progress with DurableCallHeartbeat and return the processed job 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `automationservice/src/automation_service/internal/functions/process_activity_job.py` and preserve its generated contract
+- [ ] Open `automationservice/src/automation_service/internal/functions/activity/fanout_activity_c_endpoint_sink.py` and preserve its generated contract
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_process_activity_job.py`
+- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_activity/fanout_activity_c_endpoint_sink.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] automationservice/task7.md — ProcessActivityJob — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] automationservice/task7.md — FanoutActivityCEndpointSink — Python — done`

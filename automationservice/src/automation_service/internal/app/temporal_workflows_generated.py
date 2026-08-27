@@ -104,7 +104,7 @@ async def _execute_generated_workflow(
                     ),
                     ScheduleBackend.TEMPORAL,
                 )
-                await functions.temporal_workflow_schedule.on_trigger(
+                await functions.temporal_workflow_schedule_source.on_trigger(
                     trigger,
                     CollectFunc(streams.temporal_workflow_schedule.consume),
                 )

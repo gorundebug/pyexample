@@ -60,14 +60,10 @@ class Service(GeneratedService):
     async def custom_makers_init(self, ctx: Context) -> None:
         """Replace generated makers here before any function is constructed."""
         del ctx
-        # self.makers.count_order_processed = custom_count_order_processed_maker
-        # self.makers.order_processed_endpoint = custom_order_processed_endpoint_maker
 
     async def custom_functions_init(self, ctx: Context) -> None:
         """Configure constructed functions here before the graph is wired."""
         del ctx
-        # Configure self.functions.count_order_processed here when needed.
-        # Configure self.functions.order_processed_endpoint here when needed.
 
     async def on_start(self, ctx: Context) -> None:
         del ctx

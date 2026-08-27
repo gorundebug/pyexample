@@ -1,19 +1,19 @@
-# Task 13/20: `ProcessSequentialActivityA`
+# Task 13/36: `TemporalActivityScheduleSource`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `map` |
-| File | `automationservice/src/automation_service/internal/functions/process_sequential_activity_a.py` |
-| Test | `automationservice/tests/functions/test_process_sequential_activity_a.py` |
+| Kind | `schedule-source` |
+| File | `automationservice/src/automation_service/internal/functions/activity/temporal_activity_schedule_source.py` |
+| Test | `automationservice/tests/functions/test_activity/temporal_activity_schedule_source.py` |
 | Service | `Automation Service` |
 
 
 ## Behaviour
 
-Return sequential Activity A's typed result to its Temporal sink.
+Create an Activity job message identifying the durable scheduled firing.
 
 
 
@@ -23,10 +23,10 @@ Return sequential Activity A's typed result to its Temporal sink.
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `automationservice/src/automation_service/internal/functions/process_sequential_activity_a.py` and preserve its generated contract
+- [ ] Open `automationservice/src/automation_service/internal/functions/activity/temporal_activity_schedule_source.py` and preserve its generated contract
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_process_sequential_activity_a.py`
+- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_activity/temporal_activity_schedule_source.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] automationservice/task13.md — ProcessSequentialActivityA — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] automationservice/task13.md — TemporalActivityScheduleSource — Python — done`

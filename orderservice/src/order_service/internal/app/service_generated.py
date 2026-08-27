@@ -40,18 +40,18 @@ from order_service.models.order_state import (
     OrderState,
 )
 from ..functions import (
+    OrderProcessedEndpointSink,
+    make_order_processed_endpoint_sink,
+    ProcessOrderItemSink,
+    make_process_order_item_sink,
+    ProcessOrderSource,
+    make_process_order_source,
     MapOrderItemResultToOrderState,
     make_map_order_item_result_to_order_state,
     MapToOrderProcessed,
     make_map_to_order_processed,
     MapToOrderState,
     make_map_to_order_state,
-    OrderProcessedEndpoint,
-    make_order_processed_endpoint,
-    ProcessOrder,
-    make_process_order,
-    ProcessOrderItem,
-    make_process_order_item,
     ProcessOrderItems,
     make_process_order_items,
     SoftDeadline,
@@ -76,6 +76,21 @@ class ServiceStreams:
 
 @dataclass(slots=True)
 class ServiceMakers:
+    order_processed_endpoint_sink: Callable[[Context, ServiceEnvironment, KafkaEndpointConfig], OrderProcessedEndpointSink] = (
+        lambda ctx, environment, config: make_order_processed_endpoint_sink(
+            ctx, environment, config
+        )
+    )
+    process_order_item_sink: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], ProcessOrderItemSink] = (
+        lambda ctx, environment, config: make_process_order_item_sink(
+            ctx, environment, config
+        )
+    )
+    process_order_source: Callable[[Context, ServiceEnvironment, HttpEndpointConfig], ProcessOrderSource] = (
+        lambda ctx, environment, config: make_process_order_source(
+            ctx, environment, config
+        )
+    )
     map_order_item_result_to_order_state: Callable[[Context, ServiceEnvironment, MapStreamConfig], MapOrderItemResultToOrderState] = (
         lambda ctx, environment, config: make_map_order_item_result_to_order_state(
             ctx, environment, config
@@ -88,21 +103,6 @@ class ServiceMakers:
     )
     map_to_order_state: Callable[[Context, ServiceEnvironment, MapStreamConfig], MapToOrderState] = (
         lambda ctx, environment, config: make_map_to_order_state(
-            ctx, environment, config
-        )
-    )
-    order_processed_endpoint: Callable[[Context, ServiceEnvironment, KafkaEndpointConfig], OrderProcessedEndpoint] = (
-        lambda ctx, environment, config: make_order_processed_endpoint(
-            ctx, environment, config
-        )
-    )
-    process_order: Callable[[Context, ServiceEnvironment, HttpEndpointConfig], ProcessOrder] = (
-        lambda ctx, environment, config: make_process_order(
-            ctx, environment, config
-        )
-    )
-    process_order_item: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], ProcessOrderItem] = (
-        lambda ctx, environment, config: make_process_order_item(
             ctx, environment, config
         )
     )
@@ -120,12 +120,12 @@ class ServiceMakers:
 
 @dataclass(slots=True)
 class ServiceFunctions:
+    order_processed_endpoint_sink: OrderProcessedEndpointSink
+    process_order_item_sink: ProcessOrderItemSink
+    process_order_source: ProcessOrderSource
     map_order_item_result_to_order_state: MapOrderItemResultToOrderState
     map_to_order_processed: MapToOrderProcessed
     map_to_order_state: MapToOrderState
-    order_processed_endpoint: OrderProcessedEndpoint
-    process_order: ProcessOrder
-    process_order_item: ProcessOrderItem
     process_order_items: ProcessOrderItems
     soft_deadline: SoftDeadline
 
@@ -189,6 +189,15 @@ class GeneratedService(ServiceApp):
             )
         named = cfg.named
         self._functions = ServiceFunctions(
+            order_processed_endpoint_sink=self._makers.order_processed_endpoint_sink(
+                ctx, self, named.endpoints.order_processed
+            ),
+            process_order_item_sink=self._makers.process_order_item_sink(
+                ctx, self, named.endpoints.process_order_item
+            ),
+            process_order_source=self._makers.process_order_source(
+                ctx, self, named.endpoints.process_order
+            ),
             map_order_item_result_to_order_state=self._makers.map_order_item_result_to_order_state(
                 ctx, self, named.streams.map_order_item_result_to_order_state
             ),
@@ -197,15 +206,6 @@ class GeneratedService(ServiceApp):
             ),
             map_to_order_state=self._makers.map_to_order_state(
                 ctx, self, named.streams.map_to_order_state
-            ),
-            order_processed_endpoint=self._makers.order_processed_endpoint(
-                ctx, self, named.endpoints.order_processed
-            ),
-            process_order=self._makers.process_order(
-                ctx, self, named.endpoints.process_order
-            ),
-            process_order_item=self._makers.process_order_item(
-                ctx, self, named.endpoints.process_order_item
             ),
             process_order_items=self._makers.process_order_items(
                 ctx, self, named.streams.process_order_items
@@ -251,7 +251,7 @@ class GeneratedService(ServiceApp):
         named = cfg.named
         self._transport_consumers = []
         self._grpc_channels = []
-        process_order_consumer = http_source.make_net_http_endpoint_consumer(self._service_streams.process_order, self.functions.process_order)
+        process_order_consumer = http_source.make_net_http_endpoint_consumer(self._service_streams.process_order, self.functions.process_order_source)
         self._transport_consumers.append(process_order_consumer)
         inventory_service_api_connections_count = named.data_connectors.inventory_service_api.connections_count
         inventory_service_api_grpc_channels = [
@@ -263,9 +263,9 @@ class GeneratedService(ServiceApp):
             inventory_service_api_grpc_api.InventoryServiceApiStub(channel)  # type: ignore[no-untyped-call]
             for channel in inventory_service_api_grpc_channels
         ]
-        process_order_item_consumer = grpc_sink.make_grpc_no_streaming_endpoint_consumer(self._service_streams.process_order_item, self.functions.process_order_item, _GrpcMethodPool([stub.ProcessOrderItem for stub in inventory_service_api_grpc_stub]))
+        process_order_item_consumer = grpc_sink.make_grpc_no_streaming_endpoint_consumer(self._service_streams.process_order_item, self.functions.process_order_item_sink, _GrpcMethodPool([stub.ProcessOrderItem for stub in inventory_service_api_grpc_stub]))
         self._transport_consumers.append(process_order_item_consumer)
-        publish_order_processed_consumer = kafka_sink.make_aiokafka_endpoint_consumer(self._service_streams.publish_order_processed, self.functions.order_processed_endpoint)
+        publish_order_processed_consumer = kafka_sink.make_aiokafka_endpoint_consumer(self._service_streams.publish_order_processed, self.functions.order_processed_endpoint_sink)
         self._transport_consumers.append(publish_order_processed_consumer)
 
     async def build_runtime(self, ctx: Context) -> None:

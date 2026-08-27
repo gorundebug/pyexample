@@ -6,8 +6,8 @@
 |-------|-------|
 | Language | `Python` |
 | Kind | `delay` |
-| File | `orderservice/src/order_service/internal/functions/soft_deadline.py` |
-| Test | `orderservice/tests/functions/test_soft_deadline.py` |
+| File | `orderservice/src/order_service/internal/functions/order/soft_deadline.py` |
+| Test | `orderservice/tests/functions/test_order/soft_deadline.py` |
 | Service | `Order Service` |
 
 
@@ -26,12 +26,12 @@ When no request deadline exists, use the configured duration itself. Never wait 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `orderservice/src/order_service/internal/functions/soft_deadline.py` and preserve its generated contract
+- [ ] Open `orderservice/src/order_service/internal/functions/order/soft_deadline.py` and preserve its generated contract
 - [ ] Inspect input type `Order` in `orderservice/src/order_service/models/order.py`
 - [ ] Inspect output type `Order` in `orderservice/src/order_service/models/order.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `orderservice/tests/functions/test_soft_deadline.py`
+- [ ] Implement meaningful assertions in `orderservice/tests/functions/test_order/soft_deadline.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] orderservice/task8.md — SoftDeadline — Python — done`

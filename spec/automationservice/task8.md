@@ -1,19 +1,15 @@
-# Task 8/20: `ProcessFanoutActivityA`
+# Task 8/36: `FanoutActivityCEndpointSource`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `map` |
-| File | `automationservice/src/automation_service/internal/functions/process_fanout_activity_a.py` |
-| Test | `automationservice/tests/functions/test_process_fanout_activity_a.py` |
+| Kind | `temporal-source` |
+| File | `automationservice/src/automation_service/internal/functions/activity/fanout_activity_c_endpoint_source.py` |
+| Test | `automationservice/tests/functions/test_activity/fanout_activity_c_endpoint_source.py` |
 | Service | `Automation Service` |
 
-
-## Behaviour
-
-Return Activity A's typed result before the Workflow Split.
 
 
 
@@ -23,10 +19,10 @@ Return Activity A's typed result before the Workflow Split.
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `automationservice/src/automation_service/internal/functions/process_fanout_activity_a.py` and preserve its generated contract
+- [ ] Open `automationservice/src/automation_service/internal/functions/activity/fanout_activity_c_endpoint_source.py` and preserve its generated contract
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_process_fanout_activity_a.py`
+- [ ] Implement meaningful assertions in `automationservice/tests/functions/test_activity/fanout_activity_c_endpoint_source.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] automationservice/task8.md — ProcessFanoutActivityA — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] automationservice/task8.md — FanoutActivityCEndpointSource — Python — done`
