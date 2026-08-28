@@ -10,6 +10,7 @@ fetch_module() {
   local name="$1"
   local repository="$2"
   local revision="$3"
+  local repository_subdir="$4"
   local destination="${DEPENDENCIES_DIR}/${name}"
 
   if [[ -n "${LOCAL_DEPENDENCIES_DIR}" ]]; then
@@ -29,18 +30,30 @@ fetch_module() {
       rm -rf "${destination}/.git"
     fi
   else
-    if [[ -d "${destination}/.git" ]] &&
-       [[ "$(git -C "${destination}" describe --tags --exact-match \
+    local repository_checkout="${DEPENDENCIES_DIR}/.repositories/${name}"
+    mkdir -p "${DEPENDENCIES_DIR}/.repositories"
+    if [[ -d "${repository_checkout}/.git" ]] &&
+       [[ "$(git -C "${repository_checkout}" describe --tags --exact-match \
             2>/dev/null || true)" != "${revision}" ]]; then
-      rm -rf "${destination}"
+      rm -rf "${repository_checkout}"
     fi
 
-    if [[ ! -d "${destination}/.git" ]]; then
-      rm -rf "${destination}"
+    if [[ ! -d "${repository_checkout}/.git" ]]; then
       git -c advice.detachedHead=false clone --quiet --depth 1 \
         --branch "${revision}" \
-        "${repository}" "${destination}"
+        "${repository}" "${repository_checkout}"
     fi
+    local source="${repository_checkout}"
+    if [[ -n "${repository_subdir}" ]]; then
+      source="${repository_checkout}/${repository_subdir}"
+    fi
+    if [[ ! -d "${source}" ]]; then
+      echo "Module ${name} is missing from ${repository} at ${repository_subdir}" >&2
+      return 1
+    fi
+    rm -rf "${destination}"
+    cp -R "${source}" "${destination}"
+    rm -rf "${destination}/.git"
   fi
 
   if [[ -x "${destination}/generate.generated.sh" ]]; then
@@ -51,6 +64,6 @@ fetch_module() {
   fi
 }
 
-fetch_module "inventory_service_api" "https://github.com/gorundebug/pyexample-inventory-service-api.git" "v0.2.14"
-fetch_module "model" "https://github.com/gorundebug/pyexample-model.git" "v0.2.14"
-fetch_module "order_service_api" "https://github.com/gorundebug/pyexample-order-service-api.git" "v0.2.14"
+fetch_module "inventory_service_api" "https://github.com/gorundebug/pyexample.git" "v0.2.14" "inventory_service_api"
+fetch_module "model" "https://github.com/gorundebug/pyexample.git" "v0.2.14" "model"
+fetch_module "order_service_api" "https://github.com/gorundebug/pyexample.git" "v0.2.14" "order_service_api"

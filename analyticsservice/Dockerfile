@@ -45,7 +45,23 @@ RUN apt-get update && \
     python -m pip install --no-cache-dir uv
 
 COPY . .
-COPY --from=module-model-source / /local-dependencies/model
+COPY --from=module-model-source / /tmp/module-model-source
+RUN set -eu; \
+    source_dir=/tmp/module-model-source; \
+    archive=$(find "$source_dir" -mindepth 1 -maxdepth 1 -type f \( -name context -o -name '*.tar' -o -name '*.tar.gz' -o -name '*.tgz' -o -name '*.tar.xz' \) -print -quit); \
+    if [ -n "$archive" ]; then \
+      mkdir -p /tmp/module-model-archive; \
+      tar -xf "$archive" -C /tmp/module-model-archive; \
+      source_dir=/tmp/module-model-archive; \
+    fi; \
+    manifest=$(find "$source_dir" -type f -path '*/model/pyproject.toml' -print -quit); \
+    if [ -z "$manifest" ]; then manifest="$source_dir/pyproject.toml"; fi; \
+    if [ ! -f "$manifest" ]; then manifest=$(find "$source_dir" -mindepth 2 -maxdepth 2 -type f -name pyproject.toml -print -quit); fi; \
+    if [ -z "$manifest" ] || [ ! -f "$manifest" ]; then echo "module model source context has no pyproject.toml" >&2; exit 1; fi; \
+    source_dir=${manifest%/pyproject.toml}; \
+    mkdir -p /local-dependencies/model; \
+    cp -a "$source_dir/." /local-dependencies/model/; \
+    rm -rf /tmp/module-model-source /tmp/module-model-archive
 
 RUN --mount=type=secret,id=github_token,required=false \
     --mount=type=secret,id=gitlab_token,required=false \

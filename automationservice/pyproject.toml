@@ -13,7 +13,7 @@ dependencies = [
   "temporalio==1.31.0",
 ]
 [tool.uv.sources]
-pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.24" }
+pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.25" }
 
 [dependency-groups]
 dev = [
