@@ -19,6 +19,8 @@ export
 DEPENDENCY_DOCKER_TARGETS := docker-build docker-up docker-build-dev docker-up-dev debug
 include dependency-proxy.generated.mk
 
+USE_LOCAL_MODULES ?= 0
+
 ifeq ($(strip $(USE_LOCAL_MODULES)),1)
 export LOCAL_DEPENDENCIES_DIR := $(abspath ..)
 INVENTORY_SERVICE_API_SOURCE_CONTEXT := ../inventory_service_api
