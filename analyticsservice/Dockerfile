@@ -81,6 +81,9 @@ RUN --mount=type=secret,id=github_token,required=false \
         "https://gitlab.com/"; \
     fi; \
     LOCAL_DEPENDENCIES_DIR=/local-dependencies ./scripts/fetch-dependencies.generated.sh; \
+    sed -i \
+      's|^model = { workspace = true }$|model = { path = ".local-dependencies/model_python" }|' \
+      pyproject.toml; \
     uv sync --all-extras --no-cache; \
     uv pip install --python /workspace/.venv/bin/python \
       debugpy==1.8.17
