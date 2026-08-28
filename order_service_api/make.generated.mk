@@ -10,10 +10,10 @@ include dependency-proxy.generated.mk
 generate: ## Regenerate protobuf/OpenAPI bindings
 	@./generate.generated.sh
 
-build: generate ## Build the Python package wheel
+build: generate ## [host] Build the Python package wheel
 	@uv build
 
-test: generate ## Validate the package
+test: generate ## [host] Validate the package
 	@uv run python -m compileall -q src
 
 lint: generate ## Run Ruff checks

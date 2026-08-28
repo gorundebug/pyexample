@@ -29,10 +29,10 @@ python-tools: ## Install the Python workspace and development tools with uv
 
 python-init: python-tools ## Initialize the Python workspace
 
-python-build: python-tools ## Build all Python workspace packages
+python-build: python-tools ## [host] Build all Python workspace packages
 	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" build USE_LOCAL_MODULES="$(USE_LOCAL_MODULES)" || exit $$?; done
 
-python-test: python-tools ## Run all Python tests
+python-test: python-tools ## [host] Run all Python tests
 	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" test USE_LOCAL_MODULES="$(USE_LOCAL_MODULES)" || exit $$?; done
 
 python-lint: python-tools ## Run mypy and Ruff checks

@@ -47,10 +47,10 @@ init: ## Create the environment and install service dependencies
 	@./scripts/fetch-dependencies.generated.sh
 	@uv sync --all-extras
 
-build: init ## Build the service wheel
+build: init ## [host] Build the service wheel
 	@uv build
 
-test: init ## Run the service tests
+test: init ## [host] Run the service tests
 	@uv run pytest tests
 
 lint: init ## Run mypy and Ruff checks
@@ -68,7 +68,7 @@ clean: ## Remove Python build and cache artifacts
 	@rm -rf .venv dist build .mypy_cache .pytest_cache .ruff_cache
 	@find . -type d -name __pycache__ -prune -exec rm -rf {} +
 
-docker-build: ## Build the standalone service image
+docker-build: ## [Docker] Build the autonomous copied-source runtime image
 	@set -e; \
 	args=""; \
 	if [ -n "$${GITHUB_TOKEN:-}" ]; then \

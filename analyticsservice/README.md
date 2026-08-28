@@ -3,20 +3,20 @@
 Standalone generated Python/asyncio service.
 
 ```bash
-make init            # create the environment and install dependencies
-make build           # build the service wheel
-make test            # run pytest
-make lint            # run mypy and Ruff
-make fmt             # format and apply supported Ruff fixes
-make docker-build    # build the autonomous runtime image from copied sources
-make docker-up       # build and start only this service
-make docker-up-dev   # start with this directory mounted read-only
-make debug DEBUG_PORT=2345 # start debugpy using this host port
-make docker-down
-make docker-down-dev
-make docker-clean    # stop the service and remove its volumes
-make clean           # remove Python build/cache artifacts
-make help
+make init            # [host] create the environment and install dependencies
+make build           # [host] build the service wheel
+make test            # [host] run pytest
+make lint            # [host] run mypy and Ruff
+make fmt             # [host] format and apply supported Ruff fixes
+make docker-build    # [Docker] build the autonomous runtime image from copied sources
+make docker-up       # [Docker] build and start only this service
+make docker-up-dev   # [Docker] start with this directory mounted read-only
+make debug DEBUG_PORT=2345 # [Docker] start debugpy using this host port
+make docker-down     # [Docker] stop the standalone runtime stack
+make docker-down-dev # [Docker] stop the standalone development stack
+make docker-clean    # [Docker] stop the service and remove its volumes
+make clean           # [host] remove Python build/cache artifacts
+make help            # [host] list generated targets
 ```
 
 The service defaults to pinned repository packages (`USE_LOCAL_MODULES=0`). A
