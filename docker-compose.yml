@@ -14,7 +14,7 @@ services:
         PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
         UV_INDEX_URL: ${UV_INDEX_URL:-https://pypi.org/simple}
       additional_contexts:
-        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.25}"
+        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.27}"
     command:
       - --config
       - /workspace/config/config.yaml
@@ -23,9 +23,11 @@ services:
     restart: unless-stopped
     environment:
       - DEBUG=${ANALYTICS_SERVICE_DEBUG:-0}
+      - ANALYTICS_SERVICE_HTTP_PORT
+      - ANALYTICS_SERVICE_GRPC_PORT
     ports:
-      - "9093:9093"
-      - "9203:9203"
+      - "${ANALYTICS_SERVICE_HTTP_PORT:-9093}:${ANALYTICS_SERVICE_HTTP_PORT:-9093}"
+      - "${ANALYTICS_SERVICE_GRPC_PORT:-9203}:${ANALYTICS_SERVICE_GRPC_PORT:-9203}"
       - "2345:2345"
     networks:
       - app_net
@@ -45,7 +47,7 @@ services:
         PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
         UV_INDEX_URL: ${UV_INDEX_URL:-https://pypi.org/simple}
       additional_contexts:
-        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.25}"
+        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.27}"
     command:
       - --config
       - /workspace/config/config.yaml
@@ -54,10 +56,12 @@ services:
     restart: unless-stopped
     environment:
       - DEBUG=${AUTOMATION_SERVICE_DEBUG:-0}
+      - AUTOMATION_SERVICE_HTTP_PORT
+      - AUTOMATION_SERVICE_GRPC_PORT
       - TEMPORAL_SDK_METRICS_BIND_ADDRESS=0.0.0.0:9464
     ports:
-      - "9094:9094"
-      - "9204:9204"
+      - "${AUTOMATION_SERVICE_HTTP_PORT:-9094}:${AUTOMATION_SERVICE_HTTP_PORT:-9094}"
+      - "${AUTOMATION_SERVICE_GRPC_PORT:-9204}:${AUTOMATION_SERVICE_GRPC_PORT:-9204}"
       - "2346:2345"
     depends_on:
       temporal-create-namespace:
@@ -80,7 +84,7 @@ services:
         PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
         UV_INDEX_URL: ${UV_INDEX_URL:-https://pypi.org/simple}
       additional_contexts:
-        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.25}"
+        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.27}"
     command:
       - --config
       - /workspace/config/config.yaml
@@ -89,9 +93,11 @@ services:
     restart: unless-stopped
     environment:
       - DEBUG=${INVENTORY_SERVICE_DEBUG:-0}
+      - INVENTORY_SERVICE_HTTP_PORT
+      - INVENTORY_SERVICE_GRPC_PORT
     ports:
-      - "9092:9092"
-      - "9202:9202"
+      - "${INVENTORY_SERVICE_HTTP_PORT:-9092}:${INVENTORY_SERVICE_HTTP_PORT:-9092}"
+      - "${INVENTORY_SERVICE_GRPC_PORT:-9202}:${INVENTORY_SERVICE_GRPC_PORT:-9202}"
       - "2347:2345"
     networks:
       - app_net
@@ -111,7 +117,7 @@ services:
         PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
         UV_INDEX_URL: ${UV_INDEX_URL:-https://pypi.org/simple}
       additional_contexts:
-        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.25}"
+        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.27}"
     command:
       - --config
       - /workspace/config/config.yaml
@@ -120,9 +126,11 @@ services:
     restart: unless-stopped
     environment:
       - DEBUG=${ORDER_SERVICE_DEBUG:-0}
+      - ORDER_SERVICE_HTTP_PORT
+      - ORDER_SERVICE_GRPC_PORT
     ports:
-      - "9091:9091"
-      - "9201:9201"
+      - "${ORDER_SERVICE_HTTP_PORT:-9091}:${ORDER_SERVICE_HTTP_PORT:-9091}"
+      - "${ORDER_SERVICE_GRPC_PORT:-9201}:${ORDER_SERVICE_GRPC_PORT:-9201}"
       - "2348:2345"
     depends_on:
       inventoryservice:

@@ -49,4 +49,20 @@ cp "${service_dir}/docker-compose.generated.yml" \
 cp "${service_dir}/.gitignore" "${output_dir}/.gitignore"
 rm -f "${output_dir}/docker-compose.generated.yml"
 
+# A service uses project modules as uv workspace members while it lives in the
+# generated project. The standalone artifact carries private copies fetched by
+# scripts/fetch-dependencies.generated.sh instead.
+sed \
+  's|^inventory_service_api = { workspace = true }$|inventory_service_api = { path = ".local-dependencies/inventory_service_api" }|' \
+  "${output_dir}/pyproject.toml" > "${output_dir}/pyproject.toml.tmp"
+mv "${output_dir}/pyproject.toml.tmp" "${output_dir}/pyproject.toml"
+sed \
+  's|^model = { workspace = true }$|model = { path = ".local-dependencies/model_python" }|' \
+  "${output_dir}/pyproject.toml" > "${output_dir}/pyproject.toml.tmp"
+mv "${output_dir}/pyproject.toml.tmp" "${output_dir}/pyproject.toml"
+sed \
+  's|^order_service_api = { workspace = true }$|order_service_api = { path = ".local-dependencies/order_service_api" }|' \
+  "${output_dir}/pyproject.toml" > "${output_dir}/pyproject.toml.tmp"
+mv "${output_dir}/pyproject.toml.tmp" "${output_dir}/pyproject.toml"
+
 echo "Packaged standalone Python service ${service_name} in ${output_dir}"

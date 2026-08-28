@@ -21,14 +21,14 @@ Preserve the order ID, status, and processing time. Count all item results and r
 
 ## Stream types
 - Input: `OrderState` — `orderservice/src/order_service/models/order_state.py`
-- Output: `OrderProcessed` — `model/src/model/models/order_processed.py`
+- Output: `OrderProcessed` — `model_python/src/model/models/order_processed.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
 - [ ] Open `orderservice/src/order_service/internal/functions/order/map_to_order_processed.py` and preserve its generated contract
 - [ ] Inspect input type `OrderState` in `orderservice/src/order_service/models/order_state.py`
-- [ ] Inspect output type `OrderProcessed` in `model/src/model/models/order_processed.py`
+- [ ] Inspect output type `OrderProcessed` in `model_python/src/model/models/order_processed.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`

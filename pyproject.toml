@@ -1,7 +1,7 @@
 [tool.uv.workspace]
 members = [
   "inventory_service_api",
-  "model",
+  "model_python",
   "order_service_api",
   "analyticsservice",
   "automationservice",

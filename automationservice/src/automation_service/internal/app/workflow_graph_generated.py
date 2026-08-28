@@ -17,7 +17,7 @@ from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde
 from ..config import Config
 from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig, TemporalEndpointConfig
 from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig, MapStreamConfig
-from automation_service.models.automation_job import (
+from model.models.automation_job_generated import (
     AutomationJob,
 )
 from ..functions import (

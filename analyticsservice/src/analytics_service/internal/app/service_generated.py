@@ -15,17 +15,23 @@ from pyservicelib_gorundebug.runtime.serviceapp import (
 from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
 from pyservicelib_gorundebug import transformation
 from pyservicelib_gorundebug.datasource.kafka import aiokafkads as kafka_source
+from pyservicelib_gorundebug.datasource import cron as cron_source
 
 from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.endpoint_types import KafkaEndpointConfig
+from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig, KafkaEndpointConfig
 from pyservicelib_gorundebug.runtime.config.stream_types import ProcessStreamConfig
+from model.models.automation_job_generated import (
+    AutomationJob,
+)
 from model.models.order_processed import (
     OrderProcessed,
 )
 from ..functions import (
     CountOrderProcessed,
     make_count_order_processed,
+    AnalyticsScheduleSource,
+    make_analytics_schedule_source,
     OrderProcessedEndpointSource,
     make_order_processed_endpoint_source,
 )
@@ -33,6 +39,7 @@ from ..functions import (
 
 @dataclass(slots=True)
 class ServiceStreams:
+    analytics_schedule: Any = None
     consume_order_processed: Any = None
     count_order_processed: Any = None
 
@@ -40,6 +47,11 @@ class ServiceStreams:
 class ServiceMakers:
     count_order_processed: Callable[[Context, ServiceEnvironment, ProcessStreamConfig], CountOrderProcessed] = (
         lambda ctx, environment, config: make_count_order_processed(
+            ctx, environment, config
+        )
+    )
+    analytics_schedule_source: Callable[[Context, ServiceEnvironment, CronEndpointConfig], AnalyticsScheduleSource] = (
+        lambda ctx, environment, config: make_analytics_schedule_source(
             ctx, environment, config
         )
     )
@@ -53,6 +65,7 @@ class ServiceMakers:
 @dataclass(slots=True)
 class ServiceFunctions:
     count_order_processed: CountOrderProcessed
+    analytics_schedule_source: AnalyticsScheduleSource
     order_processed_endpoint_source: OrderProcessedEndpointSource
 
 
@@ -95,6 +108,9 @@ class GeneratedService(ServiceApp):
             count_order_processed=self._makers.count_order_processed(
                 ctx, self, named.streams.count_order_processed
             ),
+            analytics_schedule_source=self._makers.analytics_schedule_source(
+                ctx, self, named.endpoints.analytics_schedule
+            ),
             order_processed_endpoint_source=self._makers.order_processed_endpoint_source(
                 ctx, self, named.endpoints.order_processed
             ),
@@ -111,6 +127,7 @@ class GeneratedService(ServiceApp):
                 "Analytics Service requires analytics_service.internal.config.Config"
             )
         named = cfg.named
+        self._service_streams.analytics_schedule = transformation.Input[str, object, Exception](named.streams.analytics_schedule, self)
         self._service_streams.consume_order_processed = transformation.Input[OrderProcessed, OrderProcessed, Exception](named.streams.consume_order_processed, self)
         self._service_streams.count_order_processed = transformation.Process[OrderProcessed, OrderProcessed, Exception](named.streams.count_order_processed, self._service_streams.consume_order_processed, self.functions.count_order_processed)
         self._service_streams.consume_order_processed.set_source(self._service_streams.count_order_processed)
@@ -124,6 +141,8 @@ class GeneratedService(ServiceApp):
                 "Analytics Service requires analytics_service.internal.config.Config"
             )
         self._transport_consumers = []
+        analytics_schedule_consumer = cron_source.APSchedulerEndpointConsumer(self._service_streams.analytics_schedule, self.functions.analytics_schedule_source)
+        self._transport_consumers.append(analytics_schedule_consumer)
         consume_order_processed_consumer = kafka_source.make_aiokafka_endpoint_consumer(self._service_streams.consume_order_processed, self.functions.order_processed_endpoint_source)
         self._transport_consumers.append(consume_order_processed_consumer)
 

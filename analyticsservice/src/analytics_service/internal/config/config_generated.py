@@ -81,16 +81,18 @@ from pyservicelib_gorundebug.runtime.config.stream_types import (
 _DEFAULT_CONFIG: dict[str, Any] = {
     "settings": ProjectSettings(moduleVersion="v0.2.14", name="Example", repoPath="github.com/gorundebug/pyexample", ),
     "services": { "analyticsService": ServiceConfig(color="#05ABF7", defaultCallSemantics=CallSemantics(2), defaultGrpcTimeout=0, environment=Environment(""), golangVersion="1.25.4", grpcHost="0.0.0.0", grpcPort=9203, httpHost="0.0.0.0", httpPort=9093, id=1, kubernetesWorkloadType=KubernetesWorkloadType("Deployment"), livenessHandler="health/live", metricsHandler="metrics", modulePath="github.com/gorundebug/pyexample-analyticsservice", name="Analytics Service", programmingLanguage=ProgrammingLanguage(3), readinessHandler="health/ready", shutdownTimeout=30000, startupHandler="health/startup", statusHandler="status", ), },
-    "streams": { "consumeOrderProcessed": StreamConfig(id=1, idEndpoint=3, idService=1, idSource=2, name="Consume Order Processed", pipeline="analytics", type=TransformationType(1), valueType="OrderProcessed", xPos=-1190, yPos=-205, ), "countOrderProcessed": StreamConfig(functionDescription="Count successful and unsuccessful orders independently, then return the event unchanged.\n", functionInitializerGroup="", functionModule="", functionName="CountOrderProcessed", functionPackage="analytics", id=2, idService=1, idSource=1, name="Count Order Processed", pipeline="analytics", type=TransformationType(6), valueType="OrderProcessed", xPos=-1390, yPos=-19, ), },
-    "dataConnectors": { "orderEvents": DataConnectorConfig(brokers="redpanda:9092", dialTimeout=5000, id=3, implementation="aiokafka", name="Order Events", password="", saslMechanism=KafkaSaslMechanism("SCRAM-SHA-512"), securityProtocol=KafkaSecurityProtocol("PLAINTEXT"), type=DataConnectorType(3), username="", version="2.8.0", ), },
-    "endpoints": { "orderProcessed": EndpointConfig(consumerGroup="analytics-service", createTopic=True, enabled=True, functionDescription="Exchange OrderProcessed events keyed by order ID.\nProducers include the final status, processing time, total and confirmed item counts, and a failure reason for unsuccessful orders.\nConsumers decode the event and mark its Kafka message processed only after the pipeline handles it successfully.\n", functionInitializerGroup="", functionName="OrderProcessedEndpoint", functionPackage="endpoint", id=3, idDataConnector=3, name="Order Processed", partitions=1, publicFunction=False, replicationFactor=1, topic="order-processed", ), },
+    "streams": { "analyticsSchedule": StreamConfig(id=1, idEndpoint=2, idService=1, idSource=0, name="Analytics Schedule", pipeline="analytics", type=TransformationType(1), valueType="AutomationJob", xPos=-1600, yPos=-205, ), "consumeOrderProcessed": StreamConfig(id=2, idEndpoint=4, idService=1, idSource=3, name="Consume Order Processed", pipeline="analytics", type=TransformationType(1), valueType="OrderProcessed", xPos=-1190, yPos=-205, ), "countOrderProcessed": StreamConfig(functionDescription="Count successful and unsuccessful orders independently, then return the event unchanged.\n", functionInitializerGroup="", functionModule="", functionName="CountOrderProcessed", functionPackage="analytics", id=3, idService=1, idSource=2, name="Count Order Processed", pipeline="analytics", type=TransformationType(6), valueType="OrderProcessed", xPos=-1390, yPos=-19, ), },
+    "dataConnectors": { "localCron": DataConnectorConfig(id=2, implementation="python/apscheduler", name="Local Cron", type=DataConnectorType(5), ), "orderEvents": DataConnectorConfig(brokers="redpanda:9092", dialTimeout=5000, id=3, implementation="aiokafka", name="Order Events", password="", saslMechanism=KafkaSaslMechanism("SCRAM-SHA-512"), securityProtocol=KafkaSecurityProtocol("PLAINTEXT"), type=DataConnectorType(3), username="", version="2.8.0", ), },
+    "endpoints": { "analyticsSchedule": EndpointConfig(enabled=True, functionDescription="Create an analytics job message identifying the local scheduled firing.\n", functionInitializerGroup="", functionName="AnalyticsSchedule", functionPackage="cron", id=2, idDataConnector=2, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Analytics Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), publicFunction=False, schedule="*/5 * * * *", timezone="UTC", tracingEnabled=False, ), "orderProcessed": EndpointConfig(consumerGroup="analytics-service", createTopic=True, enabled=True, functionDescription="Exchange OrderProcessed events keyed by order ID.\nProducers include the final status, processing time, total and confirmed item counts, and a failure reason for unsuccessful orders.\nConsumers decode the event and mark its Kafka message processed only after the pipeline handles it successfully.\n", functionInitializerGroup="", functionName="OrderProcessedEndpoint", functionPackage="endpoint", id=4, idDataConnector=3, name="Order Processed", partitions=1, publicFunction=False, replicationFactor=1, topic="order-processed", ), },
     "pools": { },
     "links": { },
     "modules": { "inventoryServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-inventory-service-api", name="inventory_service_api", ), "model": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-model", name="model", ), "orderServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-order-service-api", name="order_service_api", ), },
-    "types": { "orderProcessed": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Final order-processing event. Fields: OrderID string, Status string, ProcessedAt time.Time, TotalItems int, ConfirmedItems int, FailureReason string.", module="model", name="OrderProcessed", package="", publicType=False, transferByValue=False, type=DataType.struct, ), },
+    "types": { "automationJob": TypeConfig(description="Automation job payload and result.", module="model", name="AutomationJob", publicType=True, type=DataType.string, useAlias=False, ), "orderProcessed": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Final order-processing event. Fields: OrderID string, Status string, ProcessedAt time.Time, TotalItems int, ConfirmedItems int, FailureReason string.", module="model", name="OrderProcessed", package="", publicType=False, transferByValue=False, type=DataType.struct, ), },
 }
 
 _ENVIRONMENT_VARIABLES: tuple[tuple[str, tuple[str, ...], str], ...] = (
+    ("ANALYTICS_SCHEDULE_ENABLED", ("endpoints", "analyticsSchedule", "enabled", ), "bool"),
+    ("ANALYTICS_SCHEDULE_TRACING_ENABLED", ("endpoints", "analyticsSchedule", "tracingEnabled", ), "bool"),
     ("ANALYTICS_SERVICE_DEFAULT_GRPC_TIMEOUT", ("services", "analyticsService", "defaultGrpcTimeout", ), "int"),
     ("ANALYTICS_SERVICE_ENVIRONMENT", ("services", "analyticsService", "environment", ), "api.Environment"),
     ("ANALYTICS_SERVICE_GRPC_HOST", ("services", "analyticsService", "grpcHost", ), "string"),
@@ -111,31 +113,37 @@ class ServiceIds:
 
 
 class StreamIds:
-    CONSUME_ORDER_PROCESSED: Final[int] = 1
-    COUNT_ORDER_PROCESSED: Final[int] = 2
+    ANALYTICS_SCHEDULE: Final[int] = 1
+    CONSUME_ORDER_PROCESSED: Final[int] = 2
+    COUNT_ORDER_PROCESSED: Final[int] = 3
 
 
 class EndpointIds:
-    ORDER_PROCESSED: Final[int] = 3
+    ANALYTICS_SCHEDULE: Final[int] = 2
+    ORDER_PROCESSED: Final[int] = 4
 
 
 class DataConnectorIds:
+    LOCAL_CRON: Final[int] = 2
     ORDER_EVENTS: Final[int] = 3
 
 
 @dataclass(frozen=True, slots=True)
 class Streams:
+    analytics_schedule: InputStreamConfig
     consume_order_processed: InputStreamConfig
     count_order_processed: ProcessStreamConfig
 
 
 @dataclass(frozen=True, slots=True)
 class Endpoints:
+    analytics_schedule: CronEndpointConfig
     order_processed: KafkaEndpointConfig
 
 
 @dataclass(frozen=True, slots=True)
 class DataConnectors:
+    local_cron: CronDataConnectorConfig
     order_events: KafkaDataConnectorConfig
 
 
@@ -231,6 +239,9 @@ class GeneratedConfig(ServiceAppConfig):
     def named(self) -> NamedConfig:
         return NamedConfig(
             streams=Streams(
+                analytics_schedule=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.ANALYTICS_SCHEDULE)
+                ),
                 consume_order_processed=InputStreamConfig(
                     self.get_stream_config_by_id(StreamIds.CONSUME_ORDER_PROCESSED)
                 ),
@@ -239,11 +250,19 @@ class GeneratedConfig(ServiceAppConfig):
                 ),
             ),
             endpoints=Endpoints(
+                analytics_schedule=_cron_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.ANALYTICS_SCHEDULE)
+                ),
                 order_processed=_kafka_endpoint(
                     self.get_endpoint_config_by_id(EndpointIds.ORDER_PROCESSED)
                 ),
             ),
             data_connectors=DataConnectors(
+                local_cron=_cron_data_connector(
+                    self.get_data_connector_by_id(
+                        DataConnectorIds.LOCAL_CRON
+                    )
+                ),
                 order_events=_kafka_data_connector(
                     self.get_data_connector_by_id(
                         DataConnectorIds.ORDER_EVENTS

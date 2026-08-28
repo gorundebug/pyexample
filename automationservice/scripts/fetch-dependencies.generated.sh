@@ -63,3 +63,5 @@ fetch_module() {
       "${destination}/generate.generated.sh"
   fi
 }
+
+fetch_module "model_python" "https://github.com/gorundebug/pyexample.git" "v0.2.14" "model_python"

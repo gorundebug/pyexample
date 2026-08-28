@@ -22,15 +22,15 @@ The example starts with SKU-001: 100, SKU-002: 50, and SKU-003: 25.
 
 
 ## Stream types
-- Input: `OrderItem` — `model/src/model/models/order_item.py`
-- Output: `OrderItemResult` — `model/src/model/models/order_item_result.py`
+- Input: `OrderItem` — `model_python/src/model/models/order_item.py`
+- Output: `OrderItemResult` — `model_python/src/model/models/order_item_result.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
 - [ ] Open `inventoryservice/src/inventory_service/internal/functions/inventory_item/get_inventory_item_data.py` and preserve its generated contract
-- [ ] Inspect input type `OrderItem` in `model/src/model/models/order_item.py`
-- [ ] Inspect output type `OrderItemResult` in `model/src/model/models/order_item_result.py`
+- [ ] Inspect input type `OrderItem` in `model_python/src/model/models/order_item.py`
+- [ ] Inspect output type `OrderItemResult` in `model_python/src/model/models/order_item_result.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`

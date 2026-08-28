@@ -15,9 +15,9 @@ dependencies = [
   "model",
 ]
 [tool.uv.sources]
-pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.25" }
-inventory_service_api = { path = ".local-dependencies/inventory_service_api" }
-model = { path = ".local-dependencies/model" }
+pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.27" }
+inventory_service_api = { workspace = true }
+model = { workspace = true }
 
 [dependency-groups]
 dev = [

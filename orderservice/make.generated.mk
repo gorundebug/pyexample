@@ -9,8 +9,8 @@ STANDALONE_COMPOSE := $(if $(wildcard docker-compose.yml),docker-compose.yml,doc
 MODULE_CONTEXT_ARGS =
 INVENTORY_SERVICE_API_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.14
 MODULE_CONTEXT_ARGS += --build-context module-inventory_service_api-source="$(INVENTORY_SERVICE_API_SOURCE_CONTEXT)"
-MODEL_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.14
-MODULE_CONTEXT_ARGS += --build-context module-model-source="$(MODEL_SOURCE_CONTEXT)"
+MODEL_PYTHON_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.14
+MODULE_CONTEXT_ARGS += --build-context module-model_python-source="$(MODEL_PYTHON_SOURCE_CONTEXT)"
 ORDER_SERVICE_API_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.14
 MODULE_CONTEXT_ARGS += --build-context module-order_service_api-source="$(ORDER_SERVICE_API_SOURCE_CONTEXT)"
 DEPENDENCY_DOWNLOAD_ENV := $(or $(wildcard $(abspath ./dependency-download-env.generated.sh)),$(wildcard $(abspath ../dependency-download-env.generated.sh)),/bin/sh)
@@ -24,14 +24,14 @@ include dependency-proxy.generated.mk
 ifeq ($(strip $(USE_LOCAL_MODULES)),1)
 export LOCAL_DEPENDENCIES_DIR := $(abspath ..)
 INVENTORY_SERVICE_API_SOURCE_CONTEXT := ../inventory_service_api
-MODEL_SOURCE_CONTEXT := ../model
+MODEL_PYTHON_SOURCE_CONTEXT := ../model_python
 ORDER_SERVICE_API_SOURCE_CONTEXT := ../order_service_api
 endif
 
 ifneq ($(strip $(DEPENDENCY_PROXY_DIR)),)
 ifneq ($(strip $(USE_LOCAL_MODULES)),1)
 INVENTORY_SERVICE_API_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.14
-MODEL_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.14
+MODEL_PYTHON_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.14
 ORDER_SERVICE_API_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.14
 endif
 endif

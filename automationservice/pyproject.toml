@@ -11,9 +11,11 @@ dependencies = [
   "pyservicelib-gorundebug",
   "APScheduler==3.11.3",
   "temporalio==1.31.0",
+  "model",
 ]
 [tool.uv.sources]
-pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.25" }
+pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.27" }
+model = { workspace = true }
 
 [dependency-groups]
 dev = [

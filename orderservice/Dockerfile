@@ -1,6 +1,6 @@
 ARG DEPENDENCY_DOCKER_REGISTRY=docker.io
 FROM module-inventory_service_api-source AS module-inventory_service_api-source
-FROM module-model-source AS module-model-source
+FROM module-model_python-source AS module-model_python-source
 FROM module-order_service_api-source AS module-order_service_api-source
 FROM ${DEPENDENCY_DOCKER_REGISTRY}/library/python:3.12-slim AS development
 
@@ -65,23 +65,23 @@ RUN set -eu; \
     mkdir -p /local-dependencies/inventory_service_api; \
     cp -a "$source_dir/." /local-dependencies/inventory_service_api/; \
     rm -rf /tmp/module-inventory_service_api-source /tmp/module-inventory_service_api-archive
-COPY --from=module-model-source / /tmp/module-model-source
+COPY --from=module-model_python-source / /tmp/module-model_python-source
 RUN set -eu; \
-    source_dir=/tmp/module-model-source; \
+    source_dir=/tmp/module-model_python-source; \
     archive=$(find "$source_dir" -mindepth 1 -maxdepth 1 -type f \( -name context -o -name '*.tar' -o -name '*.tar.gz' -o -name '*.tgz' -o -name '*.tar.xz' \) -print -quit); \
     if [ -n "$archive" ]; then \
-      mkdir -p /tmp/module-model-archive; \
-      tar -xf "$archive" -C /tmp/module-model-archive; \
-      source_dir=/tmp/module-model-archive; \
+      mkdir -p /tmp/module-model_python-archive; \
+      tar -xf "$archive" -C /tmp/module-model_python-archive; \
+      source_dir=/tmp/module-model_python-archive; \
     fi; \
-    manifest=$(find "$source_dir" -type f -path '*/model/pyproject.toml' -print -quit); \
+    manifest=$(find "$source_dir" -type f -path '*/model_python/pyproject.toml' -print -quit); \
     if [ -z "$manifest" ]; then manifest="$source_dir/pyproject.toml"; fi; \
     if [ ! -f "$manifest" ]; then manifest=$(find "$source_dir" -mindepth 2 -maxdepth 2 -type f -name pyproject.toml -print -quit); fi; \
-    if [ -z "$manifest" ] || [ ! -f "$manifest" ]; then echo "module model source context has no pyproject.toml" >&2; exit 1; fi; \
+    if [ -z "$manifest" ] || [ ! -f "$manifest" ]; then echo "module model_python source context has no pyproject.toml" >&2; exit 1; fi; \
     source_dir=${manifest%/pyproject.toml}; \
-    mkdir -p /local-dependencies/model; \
-    cp -a "$source_dir/." /local-dependencies/model/; \
-    rm -rf /tmp/module-model-source /tmp/module-model-archive
+    mkdir -p /local-dependencies/model_python; \
+    cp -a "$source_dir/." /local-dependencies/model_python/; \
+    rm -rf /tmp/module-model_python-source /tmp/module-model_python-archive
 COPY --from=module-order_service_api-source / /tmp/module-order_service_api-source
 RUN set -eu; \
     source_dir=/tmp/module-order_service_api-source; \

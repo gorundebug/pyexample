@@ -21,14 +21,14 @@ Preserve each item's data and assign the parent order ID.
 
 ## Stream types
 - Input: `Order` — `orderservice/src/order_service/models/order.py`
-- Output: `OrderItem` — `model/src/model/models/order_item.py`
+- Output: `OrderItem` — `model_python/src/model/models/order_item.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
 - [ ] Open `orderservice/src/order_service/internal/functions/order/process_order_items.py` and preserve its generated contract
 - [ ] Inspect input type `Order` in `orderservice/src/order_service/models/order.py`
-- [ ] Inspect output type `OrderItem` in `model/src/model/models/order_item.py`
+- [ ] Inspect output type `OrderItem` in `model_python/src/model/models/order_item.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`

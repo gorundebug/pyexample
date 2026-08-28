@@ -4,4 +4,4 @@ set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${ROOT}"
 uv run mypy --config-file mypy.ini --package "inventory_service_api" --package "model" --package "order_service_api" --package "analytics_service" --package "automation_service" --package "inventory_service" --package "order_service"
-uv run ruff check --force-exclude --exclude generated --exclude '*generated.py' "inventory_service_api/src" "model/src" "order_service_api/src" "analyticsservice/src" "automationservice/src" "inventoryservice/src" "orderservice/src"
+uv run ruff check --force-exclude --exclude generated --exclude '*generated.py' "inventory_service_api/src" "model_python/src" "order_service_api/src" "analyticsservice/src" "automationservice/src" "inventoryservice/src" "orderservice/src"

@@ -21,14 +21,14 @@ Record the time when this result is produced.
 
 
 ## Stream types
-- Input: `OrderItemResult` — `model/src/model/models/order_item_result.py`
+- Input: `OrderItemResult` — `model_python/src/model/models/order_item_result.py`
 - Output: `OrderState` — `orderservice/src/order_service/models/order_state.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
 - [ ] Open `orderservice/src/order_service/internal/functions/order/map_order_item_result_to_order_state.py` and preserve its generated contract
-- [ ] Inspect input type `OrderItemResult` in `model/src/model/models/order_item_result.py`
+- [ ] Inspect input type `OrderItemResult` in `model_python/src/model/models/order_item_result.py`
 - [ ] Inspect output type `OrderState` in `orderservice/src/order_service/models/order_state.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
