@@ -100,6 +100,6 @@ WORKDIR /workspace
 COPY --from=runtime-builder /workspace/.venv /workspace/.venv
 COPY --from=runtime-builder /workspace/config /workspace/config
 
-CMD ["python", "-m", "analytics_service.main", \
-     "--config", "/workspace/config/config.yaml", \
+ENTRYPOINT ["python", "-m", "analytics_service.main"]
+CMD ["--config", "/workspace/config/config.yaml", \
      "--overrides", "/workspace/config/docker_overrides.yaml"]
