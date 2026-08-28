@@ -30,25 +30,25 @@ python-tools: ## Install the Python workspace and development tools with uv
 python-init: python-tools ## Initialize the Python workspace
 
 python-build: python-tools ## Build all Python workspace packages
-	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" build USE_LOCAL_MODULES=1 || exit $$?; done
+	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" build USE_LOCAL_MODULES="$(USE_LOCAL_MODULES)" || exit $$?; done
 
 python-test: python-tools ## Run all Python tests
-	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" test USE_LOCAL_MODULES=1 || exit $$?; done
+	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" test USE_LOCAL_MODULES="$(USE_LOCAL_MODULES)" || exit $$?; done
 
 python-lint: python-tools ## Run mypy and Ruff checks
-	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" lint USE_LOCAL_MODULES=1 || exit $$?; done
+	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" lint USE_LOCAL_MODULES="$(USE_LOCAL_MODULES)" || exit $$?; done
 
 python-format: python-tools ## Format and auto-fix Python sources
-	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" fmt USE_LOCAL_MODULES=1 || exit $$?; done
+	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" fmt USE_LOCAL_MODULES="$(USE_LOCAL_MODULES)" || exit $$?; done
 
 python-gen: python-tools ## Generate Python protobuf and OpenAPI code
 	@./scripts/python/generate.generated.sh
 
 python-docker-build: ## Build Python service Docker images
-	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" docker-build USE_LOCAL_MODULES=1 || exit $$?; done
+	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" docker-build USE_LOCAL_MODULES="$(USE_LOCAL_MODULES)" || exit $$?; done
 
 python-docker-dev-build: ## Build source-mounted Python development image
-	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" docker-build-dev USE_LOCAL_MODULES=1 || exit $$?; done
+	@for service in $(PYTHON_SERVICES); do $(MAKE) -C "$$service" docker-build-dev USE_LOCAL_MODULES="$(USE_LOCAL_MODULES)" || exit $$?; done
 
 python-integration-test: ## Run Python integration tests
 	@./scripts/python/integration-test.generated.sh
