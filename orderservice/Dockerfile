@@ -1,7 +1,8 @@
+ARG DEPENDENCY_DOCKER_REGISTRY=docker.io
 FROM module-inventory_service_api-source AS module-inventory_service_api-source
 FROM module-model-source AS module-model-source
 FROM module-order_service_api-source AS module-order_service_api-source
-FROM python:3.12-slim AS development
+FROM ${DEPENDENCY_DOCKER_REGISTRY}/library/python:3.12-slim AS development
 
 ARG DEPENDENCY_GITHUB_RAW_URL=https://github.com
 ENV DEPENDENCY_GITHUB_RAW_URL=${DEPENDENCY_GITHUB_RAW_URL}
@@ -124,7 +125,7 @@ FROM development AS runtime-builder
 
 RUN uv sync --no-dev --no-editable --no-cache
 
-FROM python:3.12-slim AS runtime
+FROM ${DEPENDENCY_DOCKER_REGISTRY}/library/python:3.12-slim AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \

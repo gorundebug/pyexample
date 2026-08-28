@@ -67,6 +67,7 @@ docker-build: ## Build the standalone service image
 	fi; \
 	docker build $$args $(DEPENDENCY_PROXY_DOCKER_ARGS) --target "$(DOCKER_TARGET)" \
 	  $(MODULE_CONTEXT_ARGS) \
+	  --build-arg DEPENDENCY_DOCKER_REGISTRY="$${DEPENDENCY_DOCKER_REGISTRY:-docker.io}" \
 	  --build-arg PIP_INDEX_URL="$${PIP_INDEX_URL:-https://pypi.org/simple}" \
 	  --build-arg PIP_TRUSTED_HOST="$${PIP_TRUSTED_HOST:-}" \
 	  --build-arg UV_INDEX_URL="$${UV_INDEX_URL:-https://pypi.org/simple}" \
