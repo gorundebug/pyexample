@@ -10,18 +10,12 @@ services:
       - /bin/sh
       - -c
       - >-
-        /workspace/analyticsservice/prepare-local-build.generated.sh
-        /workspace/source /workspace/service
+        prepare-local-build /workspace/source /workspace/service
         && cd /workspace/service
         && if [ "$${DEBUG:-0}" = "1" ]; then
-          exec python -m debugpy --listen 0.0.0.0:2345
-          -m analytics_service.main
-          --config ./config/config.yaml
-          --overrides ./config/docker_overrides.yaml;
+          exec python -m debugpy --listen 0.0.0.0:2345 -m analytics_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
         else
-          exec python -m analytics_service.main
-          --config ./config/config.yaml
-          --overrides ./config/docker_overrides.yaml;
+          exec python -m analytics_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
         fi
     environment:
       PYTHONPATH: /workspace/service/src
@@ -40,18 +34,12 @@ services:
       - /bin/sh
       - -c
       - >-
-        /workspace/automationservice/prepare-local-build.generated.sh
-        /workspace/source /workspace/service
+        prepare-local-build /workspace/source /workspace/service
         && cd /workspace/service
         && if [ "$${DEBUG:-0}" = "1" ]; then
-          exec python -m debugpy --listen 0.0.0.0:2345
-          -m automation_service.main
-          --config ./config/config.yaml
-          --overrides ./config/docker_overrides.yaml;
+          exec python -m debugpy --listen 0.0.0.0:2345 -m automation_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
         else
-          exec python -m automation_service.main
-          --config ./config/config.yaml
-          --overrides ./config/docker_overrides.yaml;
+          exec python -m automation_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
         fi
     environment:
       PYTHONPATH: /workspace/service/src
@@ -70,18 +58,12 @@ services:
       - /bin/sh
       - -c
       - >-
-        /workspace/inventoryservice/prepare-local-build.generated.sh
-        /workspace/source /workspace/service
+        prepare-local-build /workspace/source /workspace/service
         && cd /workspace/service
         && if [ "$${DEBUG:-0}" = "1" ]; then
-          exec python -m debugpy --listen 0.0.0.0:2345
-          -m inventory_service.main
-          --config ./config/config.yaml
-          --overrides ./config/docker_overrides.yaml;
+          exec python -m debugpy --listen 0.0.0.0:2345 -m inventory_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
         else
-          exec python -m inventory_service.main
-          --config ./config/config.yaml
-          --overrides ./config/docker_overrides.yaml;
+          exec python -m inventory_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
         fi
     environment:
       PYTHONPATH: /workspace/service/src
@@ -100,18 +82,12 @@ services:
       - /bin/sh
       - -c
       - >-
-        /workspace/orderservice/prepare-local-build.generated.sh
-        /workspace/source /workspace/service
+        prepare-local-build /workspace/source /workspace/service
         && cd /workspace/service
         && if [ "$${DEBUG:-0}" = "1" ]; then
-          exec python -m debugpy --listen 0.0.0.0:2345
-          -m order_service.main
-          --config ./config/config.yaml
-          --overrides ./config/docker_overrides.yaml;
+          exec python -m debugpy --listen 0.0.0.0:2345 -m order_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
         else
-          exec python -m order_service.main
-          --config ./config/config.yaml
-          --overrides ./config/docker_overrides.yaml;
+          exec python -m order_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
         fi
     environment:
       PYTHONPATH: /workspace/service/src
