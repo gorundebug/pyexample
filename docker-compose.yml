@@ -14,7 +14,7 @@ services:
         PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
         UV_INDEX_URL: ${UV_INDEX_URL:-https://pypi.org/simple}
       additional_contexts:
-        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.28}"
+        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.29}"
     command:
       - --config
       - /workspace/config/config.yaml
@@ -47,7 +47,7 @@ services:
         PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
         UV_INDEX_URL: ${UV_INDEX_URL:-https://pypi.org/simple}
       additional_contexts:
-        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.28}"
+        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.29}"
     command:
       - --config
       - /workspace/config/config.yaml
@@ -84,7 +84,7 @@ services:
         PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
         UV_INDEX_URL: ${UV_INDEX_URL:-https://pypi.org/simple}
       additional_contexts:
-        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.28}"
+        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.29}"
     command:
       - --config
       - /workspace/config/config.yaml
@@ -117,7 +117,7 @@ services:
         PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
         UV_INDEX_URL: ${UV_INDEX_URL:-https://pypi.org/simple}
       additional_contexts:
-        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.28}"
+        pyservicelib-source: "${PYSERVICELIB_SOURCE_CONTEXT:-https://github.com/gorundebug/pyservicelib.git#v0.2.29}"
     command:
       - --config
       - /workspace/config/config.yaml

@@ -7,11 +7,11 @@ STANDALONE_COMPOSE := $(if $(wildcard docker-compose.yml),docker-compose.yml,doc
 # Recursive expansion is intentional: USE_LOCAL_MODULES may replace the
 # individual source contexts below after this list has been declared.
 MODULE_CONTEXT_ARGS =
-INVENTORY_SERVICE_API_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.14
+INVENTORY_SERVICE_API_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.29
 MODULE_CONTEXT_ARGS += --build-context module-inventory_service_api-source="$(INVENTORY_SERVICE_API_SOURCE_CONTEXT)"
-MODEL_PYTHON_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.14
+MODEL_PYTHON_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.29
 MODULE_CONTEXT_ARGS += --build-context module-model_python-source="$(MODEL_PYTHON_SOURCE_CONTEXT)"
-ORDER_SERVICE_API_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.14
+ORDER_SERVICE_API_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.29
 MODULE_CONTEXT_ARGS += --build-context module-order_service_api-source="$(ORDER_SERVICE_API_SOURCE_CONTEXT)"
 DEPENDENCY_DOWNLOAD_ENV := $(or $(wildcard $(abspath ./dependency-download-env.generated.sh)),$(wildcard $(abspath ../dependency-download-env.generated.sh)),/bin/sh)
 SHELL := $(DEPENDENCY_DOWNLOAD_ENV)
@@ -34,9 +34,9 @@ endif
 
 ifneq ($(strip $(DEPENDENCY_PROXY_DIR)),)
 ifneq ($(strip $(USE_LOCAL_MODULES)),1)
-INVENTORY_SERVICE_API_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.14
-MODEL_PYTHON_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.14
-ORDER_SERVICE_API_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.14
+INVENTORY_SERVICE_API_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.29
+MODEL_PYTHON_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.29
+ORDER_SERVICE_API_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.29
 endif
 endif
 
