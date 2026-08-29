@@ -22,6 +22,8 @@ services:
     volumes:
       - ./analyticsservice:/workspace/source:ro
       - python-dev-worktree-analyticsservice:/workspace/service
+    ports:
+      - "${ANALYTICS_SERVICE_DEBUG_PORT:-2345}:2345"
     security_opt:
       - seccomp:unconfined
     cap_add:
@@ -46,6 +48,8 @@ services:
     volumes:
       - ./automationservice:/workspace/source:ro
       - python-dev-worktree-automationservice:/workspace/service
+    ports:
+      - "${AUTOMATION_SERVICE_DEBUG_PORT:-2346}:2345"
     security_opt:
       - seccomp:unconfined
     cap_add:
@@ -70,6 +74,8 @@ services:
     volumes:
       - ./inventoryservice:/workspace/source:ro
       - python-dev-worktree-inventoryservice:/workspace/service
+    ports:
+      - "${INVENTORY_SERVICE_DEBUG_PORT:-2347}:2345"
     security_opt:
       - seccomp:unconfined
     cap_add:
@@ -94,6 +100,8 @@ services:
     volumes:
       - ./orderservice:/workspace/source:ro
       - python-dev-worktree-orderservice:/workspace/service
+    ports:
+      - "${ORDER_SERVICE_DEBUG_PORT:-2348}:2345"
     security_opt:
       - seccomp:unconfined
     cap_add:
