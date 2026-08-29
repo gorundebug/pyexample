@@ -219,7 +219,7 @@ requires-dist = [
     { name = "apscheduler", specifier = "==3.11.3" },
     { name = "model", editable = "model_python" },
     { name = "pydantic", specifier = ">=2.9.2" },
-    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.27" },
+    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.31" },
 ]
 
 [package.metadata.requires-dev]
@@ -359,7 +359,7 @@ requires-dist = [
     { name = "apscheduler", specifier = "==3.11.3" },
     { name = "model", editable = "model_python" },
     { name = "pydantic", specifier = ">=2.9.2" },
-    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.27" },
+    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.31" },
     { name = "temporalio", specifier = "==1.31.0" },
 ]
 
@@ -710,7 +710,7 @@ requires-dist = [
     { name = "model", editable = "model_python" },
     { name = "protobuf", specifier = ">=6.31.1" },
     { name = "pydantic", specifier = ">=2.9.2" },
-    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.27" },
+    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.31" },
 ]
 
 [package.metadata.requires-dev]
@@ -1200,7 +1200,7 @@ requires-dist = [
     { name = "order-service-api", editable = "order_service_api" },
     { name = "protobuf", specifier = ">=6.31.1" },
     { name = "pydantic", specifier = ">=2.9.2" },
-    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.27" },
+    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.31" },
 ]
 
 [package.metadata.requires-dev]
@@ -1487,8 +1487,8 @@ wheels = [
 
 [[package]]
 name = "pyservicelib-gorundebug"
-version = "0.2.27"
-source = { git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.27#fef7cdd0e342cffba9adca1cd8b52c1461d4acf6" }
+version = "0.2.31"
+source = { git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.31#9c3c2eed0da238c428e6f36eeb26898465315caa" }
 dependencies = [
     { name = "aiofiles" },
     { name = "aiohttp" },
