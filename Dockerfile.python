@@ -1,5 +1,5 @@
 ARG DEPENDENCY_DOCKER_REGISTRY=docker.io
-FROM ${DEPENDENCY_DOCKER_REGISTRY}/library/python:3.12-slim AS development
+FROM ${DEPENDENCY_DOCKER_REGISTRY}/library/python:3.12-slim-bookworm AS development
 
 ARG TARGETARCH
 ARG DEPENDENCY_GITHUB_RAW_URL=https://github.com
@@ -22,7 +22,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /workspace
 
-RUN python -m pip install --no-cache-dir uv
+RUN python -m pip install --no-cache-dir uv==0.12.7
 
 COPY . .
 RUN for service in analyticsservice automationservice inventoryservice orderservice ; do \
@@ -64,7 +64,7 @@ FROM development AS runtime-builder-orderservice
 
 RUN uv sync --package order_service --no-dev --no-editable --no-cache
 
-FROM ${DEPENDENCY_DOCKER_REGISTRY}/library/python:3.12-slim AS runtime-base
+FROM ${DEPENDENCY_DOCKER_REGISTRY}/library/python:3.12-slim-bookworm AS runtime-base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \

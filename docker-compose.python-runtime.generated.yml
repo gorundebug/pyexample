@@ -1,11 +1,13 @@
 services:
   analyticsservice:
-    image: analyticsservice-python:latest
+    image: analyticsservice-python:local
     build:
       target: runtime-analyticsservice
     command:
       - --config
       - /workspace/config/config.yaml
+      - --values
+      - /workspace/config/overrides.yaml
       - --overrides
       - /workspace/config/docker_overrides.yaml
     volumes: !reset []
@@ -15,12 +17,14 @@ services:
       - "${ANALYTICS_SERVICE_HOST_HTTP_PORT:-9093}:${ANALYTICS_SERVICE_HTTP_PORT:-9093}"
       - "${ANALYTICS_SERVICE_HOST_GRPC_PORT:-9203}:${ANALYTICS_SERVICE_GRPC_PORT:-9203}"
   automationservice:
-    image: automationservice-python:latest
+    image: automationservice-python:local
     build:
       target: runtime-automationservice
     command:
       - --config
       - /workspace/config/config.yaml
+      - --values
+      - /workspace/config/overrides.yaml
       - --overrides
       - /workspace/config/docker_overrides.yaml
     volumes: !reset []
@@ -30,12 +34,14 @@ services:
       - "${AUTOMATION_SERVICE_HOST_HTTP_PORT:-9094}:${AUTOMATION_SERVICE_HTTP_PORT:-9094}"
       - "${AUTOMATION_SERVICE_HOST_GRPC_PORT:-9204}:${AUTOMATION_SERVICE_GRPC_PORT:-9204}"
   inventoryservice:
-    image: inventoryservice-python:latest
+    image: inventoryservice-python:local
     build:
       target: runtime-inventoryservice
     command:
       - --config
       - /workspace/config/config.yaml
+      - --values
+      - /workspace/config/overrides.yaml
       - --overrides
       - /workspace/config/docker_overrides.yaml
     volumes: !reset []
@@ -45,12 +51,14 @@ services:
       - "${INVENTORY_SERVICE_HOST_HTTP_PORT:-9092}:${INVENTORY_SERVICE_HTTP_PORT:-9092}"
       - "${INVENTORY_SERVICE_HOST_GRPC_PORT:-9202}:${INVENTORY_SERVICE_GRPC_PORT:-9202}"
   orderservice:
-    image: orderservice-python:latest
+    image: orderservice-python:local
     build:
       target: runtime-orderservice
     command:
       - --config
       - /workspace/config/config.yaml
+      - --values
+      - /workspace/config/overrides.yaml
       - --overrides
       - /workspace/config/docker_overrides.yaml
     volumes: !reset []

@@ -1,6 +1,6 @@
 services:
   inventoryservice:
-    image: inventoryservice-python:latest
+    image: inventoryservice-python:local
     restart: unless-stopped
     environment:
       - DEBUG=${DEBUG:-0}

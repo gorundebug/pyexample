@@ -1,6 +1,6 @@
 services:
   orderservice:
-    image: orderservice-python-development:latest
+    image: orderservice-python-development:local
     working_dir: /workspace/service
     command:
       - /bin/sh
@@ -9,9 +9,9 @@ services:
         prepare-local-build /workspace/source /workspace/service
         cd /workspace/service
         if [ "$${DEBUG:-0}" = "1" ]; then
-          exec python -m debugpy --listen 0.0.0.0:2345 -m order_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml
+          exec python -m debugpy --listen 0.0.0.0:2345 -m order_service.main --config ./config/config.yaml --values ./config/overrides.yaml --overrides ./config/docker_overrides.yaml
         fi
-        exec python -m order_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml
+        exec python -m order_service.main --config ./config/config.yaml --values ./config/overrides.yaml --overrides ./config/docker_overrides.yaml
     environment:
       PYTHONPATH: /workspace/service/src
     ports:

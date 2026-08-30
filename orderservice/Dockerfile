@@ -1,8 +1,9 @@
 ARG DEPENDENCY_DOCKER_REGISTRY=docker.io
+FROM pyservicelib-source AS pyservicelib-source
 FROM module-inventory_service_api-source AS module-inventory_service_api-source
 FROM module-model_python-source AS module-model_python-source
 FROM module-order_service_api-source AS module-order_service_api-source
-FROM ${DEPENDENCY_DOCKER_REGISTRY}/library/python:3.12-slim AS development
+FROM ${DEPENDENCY_DOCKER_REGISTRY}/library/python:3.12-slim-bookworm AS development
 
 ARG DEPENDENCY_GITHUB_RAW_URL=https://github.com
 ENV DEPENDENCY_GITHUB_RAW_URL=${DEPENDENCY_GITHUB_RAW_URL}
@@ -45,9 +46,25 @@ RUN if [ -n "$DEPENDENCY_APT_DEBIAN_URL$DEPENDENCY_APT_DEBIAN_SECURITY_URL" ]; t
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends git ca-certificates && \
     rm -rf /var/lib/apt/lists/* && \
-    python -m pip install --no-cache-dir uv
+    python -m pip install --no-cache-dir uv==0.12.7
 
 COPY . .
+COPY --from=pyservicelib-source / /tmp/pyservicelib-source
+RUN set -eu; \
+    source_dir=/tmp/pyservicelib-source; \
+    archive=$(find "$source_dir" -mindepth 1 -maxdepth 1 -type f \( -name context -o -name '*.tar' -o -name '*.tar.gz' -o -name '*.tgz' -o -name '*.tar.xz' \) -print -quit); \
+    if [ -n "$archive" ]; then \
+      mkdir -p /tmp/pyservicelib-archive; \
+      tar -xf "$archive" -C /tmp/pyservicelib-archive; \
+      source_dir=/tmp/pyservicelib-archive; \
+    fi; \
+    manifest="$source_dir/pyproject.toml"; \
+    if [ ! -f "$manifest" ]; then manifest=$(find "$source_dir" -mindepth 2 -maxdepth 2 -type f -name pyproject.toml -print -quit); fi; \
+    if [ -z "$manifest" ] || [ ! -f "$manifest" ]; then echo "pyservicelib source context has no pyproject.toml" >&2; exit 1; fi; \
+    source_dir=${manifest%/pyproject.toml}; \
+    mkdir -p /local-dependencies/pyservicelib; \
+    cp -a "$source_dir/." /local-dependencies/pyservicelib/; \
+    rm -rf /tmp/pyservicelib-source /tmp/pyservicelib-archive
 COPY --from=module-inventory_service_api-source / /tmp/module-inventory_service_api-source
 RUN set -eu; \
     source_dir=/tmp/module-inventory_service_api-source; \
@@ -118,6 +135,9 @@ RUN --mount=type=secret,id=github_token,required=false \
     fi; \
     LOCAL_DEPENDENCIES_DIR=/local-dependencies ./scripts/fetch-dependencies.generated.sh; \
     sed -i \
+      's|^pyservicelib-gorundebug = { git = .* }$|pyservicelib-gorundebug = { path = "/local-dependencies/pyservicelib" }|' \
+      pyproject.toml; \
+    sed -i \
       's|^inventory_service_api = { workspace = true }$|inventory_service_api = { path = ".local-dependencies/inventory_service_api" }|' \
       pyproject.toml; \
     sed -i \
@@ -134,7 +154,7 @@ FROM development AS runtime-builder
 
 RUN uv sync --no-dev --no-editable --no-cache
 
-FROM ${DEPENDENCY_DOCKER_REGISTRY}/library/python:3.12-slim AS runtime
+FROM ${DEPENDENCY_DOCKER_REGISTRY}/library/python:3.12-slim-bookworm AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -147,4 +167,5 @@ COPY --from=runtime-builder /workspace/config /workspace/config
 
 ENTRYPOINT ["python", "-m", "order_service.main"]
 CMD ["--config", "/workspace/config/config.yaml", \
+     "--values", "/workspace/config/overrides.yaml", \
      "--overrides", "/workspace/config/docker_overrides.yaml"]

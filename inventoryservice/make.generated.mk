@@ -7,6 +7,8 @@ STANDALONE_COMPOSE := $(if $(wildcard docker-compose.yml),docker-compose.yml,doc
 # Recursive expansion is intentional: USE_LOCAL_MODULES may replace the
 # individual source contexts below after this list has been declared.
 MODULE_CONTEXT_ARGS =
+PYSERVICELIB_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyservicelib.git\#v0.2.31
+MODULE_CONTEXT_ARGS += --build-context pyservicelib-source="$(PYSERVICELIB_SOURCE_CONTEXT)"
 INVENTORY_SERVICE_API_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.31
 MODULE_CONTEXT_ARGS += --build-context module-inventory_service_api-source="$(INVENTORY_SERVICE_API_SOURCE_CONTEXT)"
 MODEL_PYTHON_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.31
@@ -30,6 +32,9 @@ MODEL_PYTHON_SOURCE_CONTEXT := ../model_python
 endif
 
 ifneq ($(strip $(DEPENDENCY_PROXY_DIR)),)
+ifeq ($(origin PYSERVICELIB_SOURCE_CONTEXT),file)
+PYSERVICELIB_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyservicelib.git\#v0.2.31
+endif
 ifneq ($(strip $(USE_LOCAL_MODULES)),1)
 INVENTORY_SERVICE_API_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.31
 MODEL_PYTHON_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.31
@@ -87,12 +92,12 @@ docker-build: ## [Docker] Build the autonomous copied-source runtime image
 	  --build-arg DEPENDENCY_GITHUB_RAW_URL="$${DEPENDENCY_GITHUB_RAW_URL:-https://github.com}" \
 	  --build-arg DEPENDENCY_APT_DEBIAN_URL="$${DEPENDENCY_APT_DEBIAN_URL:-}" \
 	  --build-arg DEPENDENCY_APT_DEBIAN_SECURITY_URL="$${DEPENDENCY_APT_DEBIAN_SECURITY_URL:-}" \
-	  -t "inventoryservice-python:latest" .
+	  -t "inventoryservice-python:local" .
 
 docker-build-dev: ## Build the source-mounted standalone development image
 	@$(MAKE) docker-build DOCKER_TARGET="$(DOCKER_DEV_TARGET)"
-	@docker tag "inventoryservice-python:latest" \
-	  "inventoryservice-python-development:latest"
+	@docker tag "inventoryservice-python:local" \
+	  "inventoryservice-python-development:local"
 
 docker-up: docker-build ## Start this service through Docker Compose
 	@docker compose -f "$(STANDALONE_COMPOSE)" up -d --no-build

@@ -1,0 +1,5 @@
+service,language,http_port,grpc_port,observe_calls
+analyticsservice,python,9093,9203,1
+automationservice,python,9094,9204,0
+inventoryservice,python,9092,9202,0
+orderservice,python,9091,9201,0

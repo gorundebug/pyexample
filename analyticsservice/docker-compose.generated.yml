@@ -1,6 +1,6 @@
 services:
   analyticsservice:
-    image: analyticsservice-python:latest
+    image: analyticsservice-python:local
     restart: unless-stopped
     environment:
       - DEBUG=${DEBUG:-0}

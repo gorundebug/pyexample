@@ -1,6 +1,6 @@
 services:
   automationservice:
-    image: automationservice-python:latest
+    image: automationservice-python:local
     restart: unless-stopped
     environment:
       - DEBUG=${DEBUG:-0}

@@ -1,6 +1,6 @@
 services:
   orderservice:
-    image: orderservice-python:latest
+    image: orderservice-python:local
     restart: unless-stopped
     environment:
       - DEBUG=${DEBUG:-0}

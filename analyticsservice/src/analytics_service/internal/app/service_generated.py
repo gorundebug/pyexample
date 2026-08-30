@@ -160,13 +160,14 @@ class GeneratedService(ServiceApp):
             timedelta(milliseconds=self.service_config.shutdown_timeout)
         )
 
+        # Keep graph resources and outbound clients alive while transports
+        # drain requests that were accepted before shutdown. Every phase uses
+        # the same Context deadline; no phase receives a fresh timeout.
         await run_shutdown_operations(
-            self.log,
-            ctx,
-            [
-                ("user_on_stop", self.on_stop(ctx)),
-                ("service_runtime", self.stop(ctx)),
-            ],
+            self.log, ctx, [("user_on_stop", self.on_stop(ctx))]
+        )
+        await run_shutdown_operations(
+            self.log, ctx, [("service_runtime", self.stop(ctx))]
         )
 
     async def custom_makers_init(self, ctx: Context) -> None:

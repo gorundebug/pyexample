@@ -5,7 +5,7 @@ from typing import Any, cast
 import grpc
 
 from pyservicelib_gorundebug.runtime.context.context import Context
-from pyservicelib_gorundebug.runtime.environment.environment import Lifecycle
+from pyservicelib_gorundebug.runtime.environment.environment import AdmissionLifecycle
 import inventory_service_api.generated.proto.inventoryserviceapi.inventoryserviceapi.generated_pb2_grpc as inventory_service_api_grpc_api
 import inventory_service_api.generated.proto.inventoryserviceapi.processorderitem.processorderitem_pb2 as process_inventory_item_grpc_messages
 
@@ -33,7 +33,7 @@ class _InventoryServiceApiServicer(inventory_service_api_grpc_api.InventoryServi
         )
 
 
-class GrpcServer(Lifecycle):
+class GrpcServer(AdmissionLifecycle):
     def __init__(
         self,
         host: str,
@@ -51,5 +51,10 @@ class GrpcServer(Lifecycle):
         del ctx
         await self._server.start()
 
-    async def stop(self, ctx: Context) -> None:
+    async def stop_admission(self, ctx: Context) -> None:
+        # grpc.aio immediately rejects new RPCs, then gives accepted RPCs the
+        # remaining service shutdown budget to finish.
         await self._server.stop(grace=ctx.time_left)
+
+    async def stop(self, ctx: Context) -> None:
+        await self.stop_admission(ctx)

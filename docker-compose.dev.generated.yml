@@ -3,7 +3,7 @@
 # service source code. Use it through `make docker-up-dev`.
 services:
   analyticsservice:
-    image: analyticsservice-python-development:latest
+    image: analyticsservice-python-development:local
     build: !reset null
     working_dir: /workspace/service
     command:
@@ -13,9 +13,9 @@ services:
         prepare-local-build /workspace/source /workspace/service
         && cd /workspace/service
         && if [ "$${DEBUG:-0}" = "1" ]; then
-          exec python -m debugpy --listen 0.0.0.0:2345 -m analytics_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
+          exec python -m debugpy --listen 0.0.0.0:2345 -m analytics_service.main --config ./config/config.yaml --values ./config/overrides.yaml --overrides ./config/docker_overrides.yaml;
         else
-          exec python -m analytics_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
+          exec python -m analytics_service.main --config ./config/config.yaml --values ./config/overrides.yaml --overrides ./config/docker_overrides.yaml;
         fi
     environment:
       PYTHONPATH: /workspace/service/src
@@ -29,7 +29,7 @@ services:
     cap_add:
       - SYS_PTRACE
   automationservice:
-    image: automationservice-python-development:latest
+    image: automationservice-python-development:local
     build: !reset null
     working_dir: /workspace/service
     command:
@@ -39,9 +39,9 @@ services:
         prepare-local-build /workspace/source /workspace/service
         && cd /workspace/service
         && if [ "$${DEBUG:-0}" = "1" ]; then
-          exec python -m debugpy --listen 0.0.0.0:2345 -m automation_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
+          exec python -m debugpy --listen 0.0.0.0:2345 -m automation_service.main --config ./config/config.yaml --values ./config/overrides.yaml --overrides ./config/docker_overrides.yaml;
         else
-          exec python -m automation_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
+          exec python -m automation_service.main --config ./config/config.yaml --values ./config/overrides.yaml --overrides ./config/docker_overrides.yaml;
         fi
     environment:
       PYTHONPATH: /workspace/service/src
@@ -55,7 +55,7 @@ services:
     cap_add:
       - SYS_PTRACE
   inventoryservice:
-    image: inventoryservice-python-development:latest
+    image: inventoryservice-python-development:local
     build: !reset null
     working_dir: /workspace/service
     command:
@@ -65,9 +65,9 @@ services:
         prepare-local-build /workspace/source /workspace/service
         && cd /workspace/service
         && if [ "$${DEBUG:-0}" = "1" ]; then
-          exec python -m debugpy --listen 0.0.0.0:2345 -m inventory_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
+          exec python -m debugpy --listen 0.0.0.0:2345 -m inventory_service.main --config ./config/config.yaml --values ./config/overrides.yaml --overrides ./config/docker_overrides.yaml;
         else
-          exec python -m inventory_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
+          exec python -m inventory_service.main --config ./config/config.yaml --values ./config/overrides.yaml --overrides ./config/docker_overrides.yaml;
         fi
     environment:
       PYTHONPATH: /workspace/service/src
@@ -81,7 +81,7 @@ services:
     cap_add:
       - SYS_PTRACE
   orderservice:
-    image: orderservice-python-development:latest
+    image: orderservice-python-development:local
     build: !reset null
     working_dir: /workspace/service
     command:
@@ -91,9 +91,9 @@ services:
         prepare-local-build /workspace/source /workspace/service
         && cd /workspace/service
         && if [ "$${DEBUG:-0}" = "1" ]; then
-          exec python -m debugpy --listen 0.0.0.0:2345 -m order_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
+          exec python -m debugpy --listen 0.0.0.0:2345 -m order_service.main --config ./config/config.yaml --values ./config/overrides.yaml --overrides ./config/docker_overrides.yaml;
         else
-          exec python -m order_service.main --config ./config/config.yaml --overrides ./config/docker_overrides.yaml;
+          exec python -m order_service.main --config ./config/config.yaml --values ./config/overrides.yaml --overrides ./config/docker_overrides.yaml;
         fi
     environment:
       PYTHONPATH: /workspace/service/src

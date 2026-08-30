@@ -160,22 +160,22 @@ build_images() {
   progress "building existing minimal runtime images"
   make docker-build
   progress "publishing analyticsservice image"
-  docker tag "analyticsservice-python:latest" \
+  docker tag "analyticsservice-python:local" \
     "${HOST_REGISTRY}/pyexample/analyticsservice:${IMAGE_TAG}"
   docker push \
     "${HOST_REGISTRY}/pyexample/analyticsservice:${IMAGE_TAG}"
   progress "publishing automationservice image"
-  docker tag "automationservice-python:latest" \
+  docker tag "automationservice-python:local" \
     "${HOST_REGISTRY}/pyexample/automationservice:${IMAGE_TAG}"
   docker push \
     "${HOST_REGISTRY}/pyexample/automationservice:${IMAGE_TAG}"
   progress "publishing inventoryservice image"
-  docker tag "inventoryservice-python:latest" \
+  docker tag "inventoryservice-python:local" \
     "${HOST_REGISTRY}/pyexample/inventoryservice:${IMAGE_TAG}"
   docker push \
     "${HOST_REGISTRY}/pyexample/inventoryservice:${IMAGE_TAG}"
   progress "publishing orderservice image"
-  docker tag "orderservice-python:latest" \
+  docker tag "orderservice-python:local" \
     "${HOST_REGISTRY}/pyexample/orderservice:${IMAGE_TAG}"
   docker push \
     "${HOST_REGISTRY}/pyexample/orderservice:${IMAGE_TAG}"
