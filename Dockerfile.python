@@ -61,7 +61,11 @@ RUN set -eu; \
     if [ -z "$source_dir" ] || [ "$source_dir" = "/" ]; then echo "unsafe pyservicelib source directory" >&2; exit 1; fi; \
     mkdir -p /workspace/.pyservicelib; \
     cp -a "$source_dir/." /workspace/.pyservicelib/; \
-    rm -rf /tmp/pyservicelib-source
+    rm -rf /tmp/pyservicelib-source; \
+    find /workspace -mindepth 2 -maxdepth 2 -type f -name pyproject.toml \
+      -exec sed -i \
+        's|^pyservicelib-gorundebug = { git = .* }$|pyservicelib-gorundebug = { path = "/workspace/.pyservicelib" }|' \
+        {} +
 
 RUN --mount=type=cache,id=servicegen-python-uv-${TARGETARCH},target=/root/.cache/uv,sharing=locked \
     uv sync --all-packages --all-extras && \
