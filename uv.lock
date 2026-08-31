@@ -194,7 +194,7 @@ wheels = [
 
 [[package]]
 name = "analytics-service"
-version = "0.2.51"
+version = "0.2.52"
 source = { editable = "analyticsservice" }
 dependencies = [
     { name = "aiokafka" },
@@ -219,7 +219,7 @@ requires-dist = [
     { name = "apscheduler", specifier = "==3.11.3" },
     { name = "model", editable = "model_python" },
     { name = "pydantic", specifier = ">=2.9.2" },
-    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.51" },
+    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.52" },
 ]
 
 [package.metadata.requires-dev]
@@ -335,7 +335,7 @@ wheels = [
 
 [[package]]
 name = "automation-service"
-version = "0.2.51"
+version = "0.2.52"
 source = { editable = "automationservice" }
 dependencies = [
     { name = "apscheduler" },
@@ -359,7 +359,7 @@ requires-dist = [
     { name = "apscheduler", specifier = "==3.11.3" },
     { name = "model", editable = "model_python" },
     { name = "pydantic", specifier = ">=2.9.2" },
-    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.51" },
+    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.52" },
     { name = "temporalio", specifier = "==1.31.0" },
 ]
 
@@ -683,7 +683,7 @@ wheels = [
 
 [[package]]
 name = "inventory-service"
-version = "0.2.51"
+version = "0.2.52"
 source = { editable = "inventoryservice" }
 dependencies = [
     { name = "grpcio" },
@@ -710,7 +710,7 @@ requires-dist = [
     { name = "model", editable = "model_python" },
     { name = "protobuf", specifier = ">=6.31.1" },
     { name = "pydantic", specifier = ">=2.9.2" },
-    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.51" },
+    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.52" },
 ]
 
 [package.metadata.requires-dev]
@@ -1169,7 +1169,7 @@ wheels = [
 
 [[package]]
 name = "order-service"
-version = "0.2.51"
+version = "0.2.52"
 source = { editable = "orderservice" }
 dependencies = [
     { name = "aiokafka" },
@@ -1200,7 +1200,7 @@ requires-dist = [
     { name = "order-service-api", editable = "order_service_api" },
     { name = "protobuf", specifier = ">=6.31.1" },
     { name = "pydantic", specifier = ">=2.9.2" },
-    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.51" },
+    { name = "pyservicelib-gorundebug", git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.52" },
 ]
 
 [package.metadata.requires-dev]
@@ -1487,8 +1487,8 @@ wheels = [
 
 [[package]]
 name = "pyservicelib-gorundebug"
-version = "0.2.51"
-source = { git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.51#929def3d56aa0f196b8c685e49df9aba2edbb86c" }
+version = "0.2.52"
+source = { git = "https://github.com/gorundebug/pyservicelib.git?tag=v0.2.52#e0c3d79ce9302a2014391702334ac397145e53d1" }
 dependencies = [
     { name = "aiofiles" },
     { name = "aiohttp" },
