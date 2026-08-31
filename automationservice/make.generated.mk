@@ -7,9 +7,9 @@ STANDALONE_COMPOSE := $(if $(wildcard docker-compose.yml),docker-compose.yml,doc
 # Recursive expansion is intentional: USE_LOCAL_MODULES may replace the
 # individual source contexts below after this list has been declared.
 MODULE_CONTEXT_ARGS =
-PYSERVICELIB_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyservicelib.git\#v0.2.31
+PYSERVICELIB_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyservicelib.git\#v0.2.32
 MODULE_CONTEXT_ARGS += --build-context pyservicelib-source="$(PYSERVICELIB_SOURCE_CONTEXT)"
-MODEL_PYTHON_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.31
+MODEL_PYTHON_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.32
 MODULE_CONTEXT_ARGS += --build-context module-model_python-source="$(MODEL_PYTHON_SOURCE_CONTEXT)"
 DEPENDENCY_DOWNLOAD_ENV := $(or $(wildcard $(abspath ./dependency-download-env.generated.sh)),$(wildcard $(abspath ../dependency-download-env.generated.sh)),/bin/sh)
 SHELL := $(DEPENDENCY_DOWNLOAD_ENV)
@@ -30,10 +30,10 @@ endif
 
 ifneq ($(strip $(DEPENDENCY_PROXY_DIR)),)
 ifeq ($(origin PYSERVICELIB_SOURCE_CONTEXT),file)
-PYSERVICELIB_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyservicelib.git\#v0.2.31
+PYSERVICELIB_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyservicelib.git\#v0.2.32
 endif
 ifneq ($(strip $(USE_LOCAL_MODULES)),1)
-MODEL_PYTHON_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.31
+MODEL_PYTHON_SOURCE_CONTEXT := $(DEPENDENCY_GIT_MIRROR_DOCKER_BASE)/github.com/gorundebug/pyexample.git\#v0.2.32
 endif
 endif
 
