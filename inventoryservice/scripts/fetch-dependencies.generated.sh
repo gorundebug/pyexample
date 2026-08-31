@@ -64,5 +64,5 @@ fetch_module() {
   fi
 }
 
-fetch_module "inventory_service_api" "https://github.com/gorundebug/pyexample.git" "v0.2.32" "inventory_service_api"
-fetch_module "model_python" "https://github.com/gorundebug/pyexample.git" "v0.2.32" "model_python"
+fetch_module "inventory_service_api" "https://github.com/gorundebug/pyexample.git" "v0.2.33" "inventory_service_api"
+fetch_module "model_python" "https://github.com/gorundebug/pyexample.git" "v0.2.33" "model_python"
