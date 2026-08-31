@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "automation_service"
-version = "0.2.38"
+version = "0.2.39"
 requires-python = ">=3.12"
 dependencies = [
   "pydantic>=2.9.2",
@@ -14,7 +14,7 @@ dependencies = [
   "model",
 ]
 [tool.uv.sources]
-pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.38" }
+pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.39" }
 model = { workspace = true }
 
 [dependency-groups]
