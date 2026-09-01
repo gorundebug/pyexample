@@ -5,7 +5,7 @@ from pyservicelib_gorundebug.runtime.context.context import Context
 from .workflow_graph_generated import ServiceMakers
 
 
-def custom_workflow_makers_init(
+async def custom_workflow_makers_init(
     context: Context,
     makers: ServiceMakers,
 ) -> None:
