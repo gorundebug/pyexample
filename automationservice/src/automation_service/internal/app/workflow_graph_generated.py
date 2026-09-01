@@ -5,7 +5,9 @@ Workflow-isolate-safe construction of the ordinary service graph.
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import asyncio
+import inspect
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -140,182 +142,182 @@ class ServiceStreams:
 
 @dataclass(slots=True)
 class ServiceMakers:
-    activity_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], ActivityJobEndpointSink] = (
+    activity_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], ActivityJobEndpointSink | Awaitable[ActivityJobEndpointSink]] = (
         lambda ctx, environment, config: make_activity_job_endpoint_sink(
             ctx, environment, config
         )
     )
-    activity_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], ActivityJobEndpointSource] = (
+    activity_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], ActivityJobEndpointSource | Awaitable[ActivityJobEndpointSource]] = (
         lambda ctx, environment, config: make_activity_job_endpoint_source(
             ctx, environment, config
         )
     )
-    fanout_activity_a_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityAEndpointSink] = (
+    fanout_activity_a_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityAEndpointSink | Awaitable[FanoutActivityAEndpointSink]] = (
         lambda ctx, environment, config: make_fanout_activity_a_endpoint_sink(
             ctx, environment, config
         )
     )
-    fanout_activity_a_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityAEndpointSource] = (
+    fanout_activity_a_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityAEndpointSource | Awaitable[FanoutActivityAEndpointSource]] = (
         lambda ctx, environment, config: make_fanout_activity_a_endpoint_source(
             ctx, environment, config
         )
     )
-    fanout_activity_b_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityBEndpointSink] = (
+    fanout_activity_b_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityBEndpointSink | Awaitable[FanoutActivityBEndpointSink]] = (
         lambda ctx, environment, config: make_fanout_activity_b_endpoint_sink(
             ctx, environment, config
         )
     )
-    fanout_activity_b_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityBEndpointSource] = (
+    fanout_activity_b_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityBEndpointSource | Awaitable[FanoutActivityBEndpointSource]] = (
         lambda ctx, environment, config: make_fanout_activity_b_endpoint_source(
             ctx, environment, config
         )
     )
-    fanout_activity_c_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityCEndpointSink] = (
+    fanout_activity_c_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityCEndpointSink | Awaitable[FanoutActivityCEndpointSink]] = (
         lambda ctx, environment, config: make_fanout_activity_c_endpoint_sink(
             ctx, environment, config
         )
     )
-    fanout_activity_c_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityCEndpointSource] = (
+    fanout_activity_c_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityCEndpointSource | Awaitable[FanoutActivityCEndpointSource]] = (
         lambda ctx, environment, config: make_fanout_activity_c_endpoint_source(
             ctx, environment, config
         )
     )
-    sequential_activity_a_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityAEndpointSink] = (
+    sequential_activity_a_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityAEndpointSink | Awaitable[SequentialActivityAEndpointSink]] = (
         lambda ctx, environment, config: make_sequential_activity_a_endpoint_sink(
             ctx, environment, config
         )
     )
-    sequential_activity_a_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityAEndpointSource] = (
+    sequential_activity_a_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityAEndpointSource | Awaitable[SequentialActivityAEndpointSource]] = (
         lambda ctx, environment, config: make_sequential_activity_a_endpoint_source(
             ctx, environment, config
         )
     )
-    sequential_activity_b_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityBEndpointSink] = (
+    sequential_activity_b_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityBEndpointSink | Awaitable[SequentialActivityBEndpointSink]] = (
         lambda ctx, environment, config: make_sequential_activity_b_endpoint_sink(
             ctx, environment, config
         )
     )
-    sequential_activity_b_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityBEndpointSource] = (
+    sequential_activity_b_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityBEndpointSource | Awaitable[SequentialActivityBEndpointSource]] = (
         lambda ctx, environment, config: make_sequential_activity_b_endpoint_source(
             ctx, environment, config
         )
     )
-    temporal_activity_schedule_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalActivityScheduleSource] = (
+    temporal_activity_schedule_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalActivityScheduleSource | Awaitable[TemporalActivityScheduleSource]] = (
         lambda ctx, environment, config: make_temporal_activity_schedule_source(
             ctx, environment, config
         )
     )
-    activity_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ActivityPause] = (
+    activity_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ActivityPause | Awaitable[ActivityPause]] = (
         lambda ctx, environment, config: make_activity_pause(
             ctx, environment, config
         )
     )
-    observe_activity_result: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveActivityResult] = (
+    observe_activity_result: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveActivityResult | Awaitable[ObserveActivityResult]] = (
         lambda ctx, environment, config: make_observe_activity_result(
             ctx, environment, config
         )
     )
-    observe_fanout_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveFanoutActivityB] = (
+    observe_fanout_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveFanoutActivityB | Awaitable[ObserveFanoutActivityB]] = (
         lambda ctx, environment, config: make_observe_fanout_activity_b(
             ctx, environment, config
         )
     )
-    observe_fanout_activity_c: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveFanoutActivityC] = (
+    observe_fanout_activity_c: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveFanoutActivityC | Awaitable[ObserveFanoutActivityC]] = (
         lambda ctx, environment, config: make_observe_fanout_activity_c(
             ctx, environment, config
         )
     )
-    observe_workflow_result: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveWorkflowResult] = (
+    observe_workflow_result: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveWorkflowResult | Awaitable[ObserveWorkflowResult]] = (
         lambda ctx, environment, config: make_observe_workflow_result(
             ctx, environment, config
         )
     )
-    process_activity_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessActivityJob] = (
+    process_activity_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessActivityJob | Awaitable[ProcessActivityJob]] = (
         lambda ctx, environment, config: make_process_activity_job(
             ctx, environment, config
         )
     )
-    process_fanout_activity_a: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityA] = (
+    process_fanout_activity_a: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityA | Awaitable[ProcessFanoutActivityA]] = (
         lambda ctx, environment, config: make_process_fanout_activity_a(
             ctx, environment, config
         )
     )
-    process_fanout_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityB] = (
+    process_fanout_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityB | Awaitable[ProcessFanoutActivityB]] = (
         lambda ctx, environment, config: make_process_fanout_activity_b(
             ctx, environment, config
         )
     )
-    process_fanout_activity_c: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityC] = (
+    process_fanout_activity_c: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityC | Awaitable[ProcessFanoutActivityC]] = (
         lambda ctx, environment, config: make_process_fanout_activity_c(
             ctx, environment, config
         )
     )
-    process_scheduled_activity: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessScheduledActivity] = (
+    process_scheduled_activity: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessScheduledActivity | Awaitable[ProcessScheduledActivity]] = (
         lambda ctx, environment, config: make_process_scheduled_activity(
             ctx, environment, config
         )
     )
-    process_scheduled_workflow: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessScheduledWorkflow] = (
+    process_scheduled_workflow: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessScheduledWorkflow | Awaitable[ProcessScheduledWorkflow]] = (
         lambda ctx, environment, config: make_process_scheduled_workflow(
             ctx, environment, config
         )
     )
-    process_sequential_activity_a: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessSequentialActivityA] = (
+    process_sequential_activity_a: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessSequentialActivityA | Awaitable[ProcessSequentialActivityA]] = (
         lambda ctx, environment, config: make_process_sequential_activity_a(
             ctx, environment, config
         )
     )
-    process_sequential_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessSequentialActivityB] = (
+    process_sequential_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessSequentialActivityB | Awaitable[ProcessSequentialActivityB]] = (
         lambda ctx, environment, config: make_process_sequential_activity_b(
             ctx, environment, config
         )
     )
-    process_workflow_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessWorkflowJob] = (
+    process_workflow_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessWorkflowJob | Awaitable[ProcessWorkflowJob]] = (
         lambda ctx, environment, config: make_process_workflow_job(
             ctx, environment, config
         )
     )
-    scheduled_activity_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ScheduledActivityPause] = (
+    scheduled_activity_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ScheduledActivityPause | Awaitable[ScheduledActivityPause]] = (
         lambda ctx, environment, config: make_scheduled_activity_pause(
             ctx, environment, config
         )
     )
-    scheduled_workflow_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ScheduledWorkflowPause] = (
+    scheduled_workflow_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ScheduledWorkflowPause | Awaitable[ScheduledWorkflowPause]] = (
         lambda ctx, environment, config: make_scheduled_workflow_pause(
             ctx, environment, config
         )
     )
-    workflow_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], WorkflowPause] = (
+    workflow_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], WorkflowPause | Awaitable[WorkflowPause]] = (
         lambda ctx, environment, config: make_workflow_pause(
             ctx, environment, config
         )
     )
-    local_schedule_source: Callable[[Context, ServiceEnvironment, CronEndpointConfig], LocalScheduleSource] = (
+    local_schedule_source: Callable[[Context, ServiceEnvironment, CronEndpointConfig], LocalScheduleSource | Awaitable[LocalScheduleSource]] = (
         lambda ctx, environment, config: make_local_schedule_source(
             ctx, environment, config
         )
     )
-    fanout_workflow_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutWorkflowJobEndpointSink] = (
+    fanout_workflow_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutWorkflowJobEndpointSink | Awaitable[FanoutWorkflowJobEndpointSink]] = (
         lambda ctx, environment, config: make_fanout_workflow_job_endpoint_sink(
             ctx, environment, config
         )
     )
-    fanout_workflow_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutWorkflowJobEndpointSource] = (
+    fanout_workflow_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutWorkflowJobEndpointSource | Awaitable[FanoutWorkflowJobEndpointSource]] = (
         lambda ctx, environment, config: make_fanout_workflow_job_endpoint_source(
             ctx, environment, config
         )
     )
-    temporal_workflow_schedule_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalWorkflowScheduleSource] = (
+    temporal_workflow_schedule_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalWorkflowScheduleSource | Awaitable[TemporalWorkflowScheduleSource]] = (
         lambda ctx, environment, config: make_temporal_workflow_schedule_source(
             ctx, environment, config
         )
     )
-    workflow_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], WorkflowJobEndpointSink] = (
+    workflow_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], WorkflowJobEndpointSink | Awaitable[WorkflowJobEndpointSink]] = (
         lambda ctx, environment, config: make_workflow_job_endpoint_sink(
             ctx, environment, config
         )
     )
-    workflow_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], WorkflowJobEndpointSource] = (
+    workflow_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], WorkflowJobEndpointSource | Awaitable[WorkflowJobEndpointSource]] = (
         lambda ctx, environment, config: make_workflow_job_endpoint_source(
             ctx, environment, config
         )
@@ -370,122 +372,291 @@ def default_makers() -> ServiceMakers:
     return ServiceMakers()
 
 
-def init_functions(
+async def init_functions(
     ctx: Context,
     config: Config,
     environment: ServiceEnvironment,
     makers: ServiceMakers,
 ) -> ServiceFunctions:
     named = config.named
+    first_error_0: BaseException | None = None
+
+    async def invoke_0(
+        maker: Callable[[Context, ServiceEnvironment, Any], Any],
+        maker_context: Context,
+        maker_config: Any,
+    ) -> Any:
+        nonlocal first_error_0
+        try:
+            value = maker(maker_context, environment, maker_config)
+            if inspect.isawaitable(value):
+                return await value
+            return value
+        except BaseException as error:
+            if first_error_0 is None:
+                first_error_0 = error
+                maker_context.cancel()
+            raise
+
+    maker_context_0 = ctx.child()
+    group_results_0 = await asyncio.gather(
+        invoke_0(
+            makers.activity_job_endpoint_sink,
+            maker_context_0,
+            named.endpoints.activity_job,
+        ),
+        invoke_0(
+            makers.activity_job_endpoint_source,
+            maker_context_0,
+            named.endpoints.activity_job,
+        ),
+        invoke_0(
+            makers.fanout_activity_a_endpoint_sink,
+            maker_context_0,
+            named.endpoints.fan_out_activity_a,
+        ),
+        invoke_0(
+            makers.fanout_activity_a_endpoint_source,
+            maker_context_0,
+            named.endpoints.fan_out_activity_a,
+        ),
+        invoke_0(
+            makers.fanout_activity_b_endpoint_sink,
+            maker_context_0,
+            named.endpoints.fan_out_activity_b,
+        ),
+        invoke_0(
+            makers.fanout_activity_b_endpoint_source,
+            maker_context_0,
+            named.endpoints.fan_out_activity_b,
+        ),
+        invoke_0(
+            makers.fanout_activity_c_endpoint_sink,
+            maker_context_0,
+            named.endpoints.fan_out_activity_c,
+        ),
+        invoke_0(
+            makers.fanout_activity_c_endpoint_source,
+            maker_context_0,
+            named.endpoints.fan_out_activity_c,
+        ),
+        invoke_0(
+            makers.sequential_activity_a_endpoint_sink,
+            maker_context_0,
+            named.endpoints.sequential_activity_a,
+        ),
+        invoke_0(
+            makers.sequential_activity_a_endpoint_source,
+            maker_context_0,
+            named.endpoints.sequential_activity_a,
+        ),
+        invoke_0(
+            makers.sequential_activity_b_endpoint_sink,
+            maker_context_0,
+            named.endpoints.sequential_activity_b,
+        ),
+        invoke_0(
+            makers.sequential_activity_b_endpoint_source,
+            maker_context_0,
+            named.endpoints.sequential_activity_b,
+        ),
+        invoke_0(
+            makers.temporal_activity_schedule_source,
+            maker_context_0,
+            named.endpoints.temporal_activity_schedule,
+        ),
+        invoke_0(
+            makers.activity_pause,
+            maker_context_0,
+            named.streams.activity_pause,
+        ),
+        invoke_0(
+            makers.observe_activity_result,
+            maker_context_0,
+            named.streams.observe_activity_result,
+        ),
+        invoke_0(
+            makers.observe_fanout_activity_b,
+            maker_context_0,
+            named.streams.observe_fan_out_activity_b,
+        ),
+        invoke_0(
+            makers.observe_fanout_activity_c,
+            maker_context_0,
+            named.streams.observe_fan_out_activity_c,
+        ),
+        invoke_0(
+            makers.observe_workflow_result,
+            maker_context_0,
+            named.streams.observe_workflow_result,
+        ),
+        invoke_0(
+            makers.process_activity_job,
+            maker_context_0,
+            named.streams.process_activity_job,
+        ),
+        invoke_0(
+            makers.process_fanout_activity_a,
+            maker_context_0,
+            named.streams.process_fan_out_activity_a,
+        ),
+        invoke_0(
+            makers.process_fanout_activity_b,
+            maker_context_0,
+            named.streams.process_fan_out_activity_b,
+        ),
+        invoke_0(
+            makers.process_fanout_activity_c,
+            maker_context_0,
+            named.streams.process_fan_out_activity_c,
+        ),
+        invoke_0(
+            makers.process_scheduled_activity,
+            maker_context_0,
+            named.streams.process_scheduled_activity,
+        ),
+        invoke_0(
+            makers.process_scheduled_workflow,
+            maker_context_0,
+            named.streams.process_scheduled_workflow,
+        ),
+        invoke_0(
+            makers.process_sequential_activity_a,
+            maker_context_0,
+            named.streams.process_sequential_activity_a,
+        ),
+        invoke_0(
+            makers.process_sequential_activity_b,
+            maker_context_0,
+            named.streams.process_sequential_activity_b,
+        ),
+        invoke_0(
+            makers.process_workflow_job,
+            maker_context_0,
+            named.streams.process_workflow_job,
+        ),
+        invoke_0(
+            makers.scheduled_activity_pause,
+            maker_context_0,
+            named.streams.scheduled_activity_pause,
+        ),
+        invoke_0(
+            makers.scheduled_workflow_pause,
+            maker_context_0,
+            named.streams.scheduled_workflow_pause,
+        ),
+        invoke_0(
+            makers.workflow_pause,
+            maker_context_0,
+            named.streams.workflow_pause,
+        ),
+        invoke_0(
+            makers.local_schedule_source,
+            maker_context_0,
+            named.endpoints.local_schedule,
+        ),
+        invoke_0(
+            makers.fanout_workflow_job_endpoint_sink,
+            maker_context_0,
+            named.endpoints.fan_out_workflow_job,
+        ),
+        invoke_0(
+            makers.fanout_workflow_job_endpoint_source,
+            maker_context_0,
+            named.endpoints.fan_out_workflow_job,
+        ),
+        invoke_0(
+            makers.temporal_workflow_schedule_source,
+            maker_context_0,
+            named.endpoints.temporal_workflow_schedule,
+        ),
+        invoke_0(
+            makers.workflow_job_endpoint_sink,
+            maker_context_0,
+            named.endpoints.workflow_job,
+        ),
+        invoke_0(
+            makers.workflow_job_endpoint_source,
+            maker_context_0,
+            named.endpoints.workflow_job,
+        ),
+        return_exceptions=True,
+    )
+    if first_error_0 is not None:
+        raise first_error_0
+    activity_job_endpoint_sink = group_results_0[0]
+    activity_job_endpoint_source = group_results_0[1]
+    fanout_activity_a_endpoint_sink = group_results_0[2]
+    fanout_activity_a_endpoint_source = group_results_0[3]
+    fanout_activity_b_endpoint_sink = group_results_0[4]
+    fanout_activity_b_endpoint_source = group_results_0[5]
+    fanout_activity_c_endpoint_sink = group_results_0[6]
+    fanout_activity_c_endpoint_source = group_results_0[7]
+    sequential_activity_a_endpoint_sink = group_results_0[8]
+    sequential_activity_a_endpoint_source = group_results_0[9]
+    sequential_activity_b_endpoint_sink = group_results_0[10]
+    sequential_activity_b_endpoint_source = group_results_0[11]
+    temporal_activity_schedule_source = group_results_0[12]
+    activity_pause = group_results_0[13]
+    observe_activity_result = group_results_0[14]
+    observe_fanout_activity_b = group_results_0[15]
+    observe_fanout_activity_c = group_results_0[16]
+    observe_workflow_result = group_results_0[17]
+    process_activity_job = group_results_0[18]
+    process_fanout_activity_a = group_results_0[19]
+    process_fanout_activity_b = group_results_0[20]
+    process_fanout_activity_c = group_results_0[21]
+    process_scheduled_activity = group_results_0[22]
+    process_scheduled_workflow = group_results_0[23]
+    process_sequential_activity_a = group_results_0[24]
+    process_sequential_activity_b = group_results_0[25]
+    process_workflow_job = group_results_0[26]
+    scheduled_activity_pause = group_results_0[27]
+    scheduled_workflow_pause = group_results_0[28]
+    workflow_pause = group_results_0[29]
+    local_schedule_source = group_results_0[30]
+    fanout_workflow_job_endpoint_sink = group_results_0[31]
+    fanout_workflow_job_endpoint_source = group_results_0[32]
+    temporal_workflow_schedule_source = group_results_0[33]
+    workflow_job_endpoint_sink = group_results_0[34]
+    workflow_job_endpoint_source = group_results_0[35]
     return ServiceFunctions(
-        activity_job_endpoint_sink=makers.activity_job_endpoint_sink(
-            ctx, environment, named.endpoints.activity_job
-        ),
-        activity_job_endpoint_source=makers.activity_job_endpoint_source(
-            ctx, environment, named.endpoints.activity_job
-        ),
-        fanout_activity_a_endpoint_sink=makers.fanout_activity_a_endpoint_sink(
-            ctx, environment, named.endpoints.fan_out_activity_a
-        ),
-        fanout_activity_a_endpoint_source=makers.fanout_activity_a_endpoint_source(
-            ctx, environment, named.endpoints.fan_out_activity_a
-        ),
-        fanout_activity_b_endpoint_sink=makers.fanout_activity_b_endpoint_sink(
-            ctx, environment, named.endpoints.fan_out_activity_b
-        ),
-        fanout_activity_b_endpoint_source=makers.fanout_activity_b_endpoint_source(
-            ctx, environment, named.endpoints.fan_out_activity_b
-        ),
-        fanout_activity_c_endpoint_sink=makers.fanout_activity_c_endpoint_sink(
-            ctx, environment, named.endpoints.fan_out_activity_c
-        ),
-        fanout_activity_c_endpoint_source=makers.fanout_activity_c_endpoint_source(
-            ctx, environment, named.endpoints.fan_out_activity_c
-        ),
-        sequential_activity_a_endpoint_sink=makers.sequential_activity_a_endpoint_sink(
-            ctx, environment, named.endpoints.sequential_activity_a
-        ),
-        sequential_activity_a_endpoint_source=makers.sequential_activity_a_endpoint_source(
-            ctx, environment, named.endpoints.sequential_activity_a
-        ),
-        sequential_activity_b_endpoint_sink=makers.sequential_activity_b_endpoint_sink(
-            ctx, environment, named.endpoints.sequential_activity_b
-        ),
-        sequential_activity_b_endpoint_source=makers.sequential_activity_b_endpoint_source(
-            ctx, environment, named.endpoints.sequential_activity_b
-        ),
-        temporal_activity_schedule_source=makers.temporal_activity_schedule_source(
-            ctx, environment, named.endpoints.temporal_activity_schedule
-        ),
-        activity_pause=makers.activity_pause(
-            ctx, environment, named.streams.activity_pause
-        ),
-        observe_activity_result=makers.observe_activity_result(
-            ctx, environment, named.streams.observe_activity_result
-        ),
-        observe_fanout_activity_b=makers.observe_fanout_activity_b(
-            ctx, environment, named.streams.observe_fan_out_activity_b
-        ),
-        observe_fanout_activity_c=makers.observe_fanout_activity_c(
-            ctx, environment, named.streams.observe_fan_out_activity_c
-        ),
-        observe_workflow_result=makers.observe_workflow_result(
-            ctx, environment, named.streams.observe_workflow_result
-        ),
-        process_activity_job=makers.process_activity_job(
-            ctx, environment, named.streams.process_activity_job
-        ),
-        process_fanout_activity_a=makers.process_fanout_activity_a(
-            ctx, environment, named.streams.process_fan_out_activity_a
-        ),
-        process_fanout_activity_b=makers.process_fanout_activity_b(
-            ctx, environment, named.streams.process_fan_out_activity_b
-        ),
-        process_fanout_activity_c=makers.process_fanout_activity_c(
-            ctx, environment, named.streams.process_fan_out_activity_c
-        ),
-        process_scheduled_activity=makers.process_scheduled_activity(
-            ctx, environment, named.streams.process_scheduled_activity
-        ),
-        process_scheduled_workflow=makers.process_scheduled_workflow(
-            ctx, environment, named.streams.process_scheduled_workflow
-        ),
-        process_sequential_activity_a=makers.process_sequential_activity_a(
-            ctx, environment, named.streams.process_sequential_activity_a
-        ),
-        process_sequential_activity_b=makers.process_sequential_activity_b(
-            ctx, environment, named.streams.process_sequential_activity_b
-        ),
-        process_workflow_job=makers.process_workflow_job(
-            ctx, environment, named.streams.process_workflow_job
-        ),
-        scheduled_activity_pause=makers.scheduled_activity_pause(
-            ctx, environment, named.streams.scheduled_activity_pause
-        ),
-        scheduled_workflow_pause=makers.scheduled_workflow_pause(
-            ctx, environment, named.streams.scheduled_workflow_pause
-        ),
-        workflow_pause=makers.workflow_pause(
-            ctx, environment, named.streams.workflow_pause
-        ),
-        local_schedule_source=makers.local_schedule_source(
-            ctx, environment, named.endpoints.local_schedule
-        ),
-        fanout_workflow_job_endpoint_sink=makers.fanout_workflow_job_endpoint_sink(
-            ctx, environment, named.endpoints.fan_out_workflow_job
-        ),
-        fanout_workflow_job_endpoint_source=makers.fanout_workflow_job_endpoint_source(
-            ctx, environment, named.endpoints.fan_out_workflow_job
-        ),
-        temporal_workflow_schedule_source=makers.temporal_workflow_schedule_source(
-            ctx, environment, named.endpoints.temporal_workflow_schedule
-        ),
-        workflow_job_endpoint_sink=makers.workflow_job_endpoint_sink(
-            ctx, environment, named.endpoints.workflow_job
-        ),
-        workflow_job_endpoint_source=makers.workflow_job_endpoint_source(
-            ctx, environment, named.endpoints.workflow_job
-        ),
+        activity_job_endpoint_sink=activity_job_endpoint_sink,
+        activity_job_endpoint_source=activity_job_endpoint_source,
+        fanout_activity_a_endpoint_sink=fanout_activity_a_endpoint_sink,
+        fanout_activity_a_endpoint_source=fanout_activity_a_endpoint_source,
+        fanout_activity_b_endpoint_sink=fanout_activity_b_endpoint_sink,
+        fanout_activity_b_endpoint_source=fanout_activity_b_endpoint_source,
+        fanout_activity_c_endpoint_sink=fanout_activity_c_endpoint_sink,
+        fanout_activity_c_endpoint_source=fanout_activity_c_endpoint_source,
+        sequential_activity_a_endpoint_sink=sequential_activity_a_endpoint_sink,
+        sequential_activity_a_endpoint_source=sequential_activity_a_endpoint_source,
+        sequential_activity_b_endpoint_sink=sequential_activity_b_endpoint_sink,
+        sequential_activity_b_endpoint_source=sequential_activity_b_endpoint_source,
+        temporal_activity_schedule_source=temporal_activity_schedule_source,
+        activity_pause=activity_pause,
+        observe_activity_result=observe_activity_result,
+        observe_fanout_activity_b=observe_fanout_activity_b,
+        observe_fanout_activity_c=observe_fanout_activity_c,
+        observe_workflow_result=observe_workflow_result,
+        process_activity_job=process_activity_job,
+        process_fanout_activity_a=process_fanout_activity_a,
+        process_fanout_activity_b=process_fanout_activity_b,
+        process_fanout_activity_c=process_fanout_activity_c,
+        process_scheduled_activity=process_scheduled_activity,
+        process_scheduled_workflow=process_scheduled_workflow,
+        process_sequential_activity_a=process_sequential_activity_a,
+        process_sequential_activity_b=process_sequential_activity_b,
+        process_workflow_job=process_workflow_job,
+        scheduled_activity_pause=scheduled_activity_pause,
+        scheduled_workflow_pause=scheduled_workflow_pause,
+        workflow_pause=workflow_pause,
+        local_schedule_source=local_schedule_source,
+        fanout_workflow_job_endpoint_sink=fanout_workflow_job_endpoint_sink,
+        fanout_workflow_job_endpoint_source=fanout_workflow_job_endpoint_source,
+        temporal_workflow_schedule_source=temporal_workflow_schedule_source,
+        workflow_job_endpoint_sink=workflow_job_endpoint_sink,
+        workflow_job_endpoint_source=workflow_job_endpoint_source,
     )
 
 

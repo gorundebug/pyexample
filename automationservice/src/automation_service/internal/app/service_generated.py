@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Callable
+import inspect
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any, Optional, Sequence, cast
+from threading import Lock
+from typing import Any, Optional, cast
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.serviceapp import (
@@ -151,182 +153,182 @@ class ServiceStreams:
 
 @dataclass(slots=True)
 class ServiceMakers:
-    activity_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], ActivityJobEndpointSink] = (
+    activity_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], ActivityJobEndpointSink | Awaitable[ActivityJobEndpointSink]] = (
         lambda ctx, environment, config: make_activity_job_endpoint_sink(
             ctx, environment, config
         )
     )
-    activity_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], ActivityJobEndpointSource] = (
+    activity_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], ActivityJobEndpointSource | Awaitable[ActivityJobEndpointSource]] = (
         lambda ctx, environment, config: make_activity_job_endpoint_source(
             ctx, environment, config
         )
     )
-    fanout_activity_a_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityAEndpointSink] = (
+    fanout_activity_a_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityAEndpointSink | Awaitable[FanoutActivityAEndpointSink]] = (
         lambda ctx, environment, config: make_fanout_activity_a_endpoint_sink(
             ctx, environment, config
         )
     )
-    fanout_activity_a_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityAEndpointSource] = (
+    fanout_activity_a_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityAEndpointSource | Awaitable[FanoutActivityAEndpointSource]] = (
         lambda ctx, environment, config: make_fanout_activity_a_endpoint_source(
             ctx, environment, config
         )
     )
-    fanout_activity_b_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityBEndpointSink] = (
+    fanout_activity_b_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityBEndpointSink | Awaitable[FanoutActivityBEndpointSink]] = (
         lambda ctx, environment, config: make_fanout_activity_b_endpoint_sink(
             ctx, environment, config
         )
     )
-    fanout_activity_b_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityBEndpointSource] = (
+    fanout_activity_b_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityBEndpointSource | Awaitable[FanoutActivityBEndpointSource]] = (
         lambda ctx, environment, config: make_fanout_activity_b_endpoint_source(
             ctx, environment, config
         )
     )
-    fanout_activity_c_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityCEndpointSink] = (
+    fanout_activity_c_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityCEndpointSink | Awaitable[FanoutActivityCEndpointSink]] = (
         lambda ctx, environment, config: make_fanout_activity_c_endpoint_sink(
             ctx, environment, config
         )
     )
-    fanout_activity_c_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityCEndpointSource] = (
+    fanout_activity_c_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutActivityCEndpointSource | Awaitable[FanoutActivityCEndpointSource]] = (
         lambda ctx, environment, config: make_fanout_activity_c_endpoint_source(
             ctx, environment, config
         )
     )
-    sequential_activity_a_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityAEndpointSink] = (
+    sequential_activity_a_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityAEndpointSink | Awaitable[SequentialActivityAEndpointSink]] = (
         lambda ctx, environment, config: make_sequential_activity_a_endpoint_sink(
             ctx, environment, config
         )
     )
-    sequential_activity_a_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityAEndpointSource] = (
+    sequential_activity_a_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityAEndpointSource | Awaitable[SequentialActivityAEndpointSource]] = (
         lambda ctx, environment, config: make_sequential_activity_a_endpoint_source(
             ctx, environment, config
         )
     )
-    sequential_activity_b_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityBEndpointSink] = (
+    sequential_activity_b_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityBEndpointSink | Awaitable[SequentialActivityBEndpointSink]] = (
         lambda ctx, environment, config: make_sequential_activity_b_endpoint_sink(
             ctx, environment, config
         )
     )
-    sequential_activity_b_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityBEndpointSource] = (
+    sequential_activity_b_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], SequentialActivityBEndpointSource | Awaitable[SequentialActivityBEndpointSource]] = (
         lambda ctx, environment, config: make_sequential_activity_b_endpoint_source(
             ctx, environment, config
         )
     )
-    temporal_activity_schedule_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalActivityScheduleSource] = (
+    temporal_activity_schedule_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalActivityScheduleSource | Awaitable[TemporalActivityScheduleSource]] = (
         lambda ctx, environment, config: make_temporal_activity_schedule_source(
             ctx, environment, config
         )
     )
-    activity_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ActivityPause] = (
+    activity_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ActivityPause | Awaitable[ActivityPause]] = (
         lambda ctx, environment, config: make_activity_pause(
             ctx, environment, config
         )
     )
-    observe_activity_result: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveActivityResult] = (
+    observe_activity_result: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveActivityResult | Awaitable[ObserveActivityResult]] = (
         lambda ctx, environment, config: make_observe_activity_result(
             ctx, environment, config
         )
     )
-    observe_fanout_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveFanoutActivityB] = (
+    observe_fanout_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveFanoutActivityB | Awaitable[ObserveFanoutActivityB]] = (
         lambda ctx, environment, config: make_observe_fanout_activity_b(
             ctx, environment, config
         )
     )
-    observe_fanout_activity_c: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveFanoutActivityC] = (
+    observe_fanout_activity_c: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveFanoutActivityC | Awaitable[ObserveFanoutActivityC]] = (
         lambda ctx, environment, config: make_observe_fanout_activity_c(
             ctx, environment, config
         )
     )
-    observe_workflow_result: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveWorkflowResult] = (
+    observe_workflow_result: Callable[[Context, ServiceEnvironment, MapStreamConfig], ObserveWorkflowResult | Awaitable[ObserveWorkflowResult]] = (
         lambda ctx, environment, config: make_observe_workflow_result(
             ctx, environment, config
         )
     )
-    process_activity_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessActivityJob] = (
+    process_activity_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessActivityJob | Awaitable[ProcessActivityJob]] = (
         lambda ctx, environment, config: make_process_activity_job(
             ctx, environment, config
         )
     )
-    process_fanout_activity_a: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityA] = (
+    process_fanout_activity_a: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityA | Awaitable[ProcessFanoutActivityA]] = (
         lambda ctx, environment, config: make_process_fanout_activity_a(
             ctx, environment, config
         )
     )
-    process_fanout_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityB] = (
+    process_fanout_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityB | Awaitable[ProcessFanoutActivityB]] = (
         lambda ctx, environment, config: make_process_fanout_activity_b(
             ctx, environment, config
         )
     )
-    process_fanout_activity_c: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityC] = (
+    process_fanout_activity_c: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessFanoutActivityC | Awaitable[ProcessFanoutActivityC]] = (
         lambda ctx, environment, config: make_process_fanout_activity_c(
             ctx, environment, config
         )
     )
-    process_scheduled_activity: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessScheduledActivity] = (
+    process_scheduled_activity: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessScheduledActivity | Awaitable[ProcessScheduledActivity]] = (
         lambda ctx, environment, config: make_process_scheduled_activity(
             ctx, environment, config
         )
     )
-    process_scheduled_workflow: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessScheduledWorkflow] = (
+    process_scheduled_workflow: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessScheduledWorkflow | Awaitable[ProcessScheduledWorkflow]] = (
         lambda ctx, environment, config: make_process_scheduled_workflow(
             ctx, environment, config
         )
     )
-    process_sequential_activity_a: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessSequentialActivityA] = (
+    process_sequential_activity_a: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessSequentialActivityA | Awaitable[ProcessSequentialActivityA]] = (
         lambda ctx, environment, config: make_process_sequential_activity_a(
             ctx, environment, config
         )
     )
-    process_sequential_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessSequentialActivityB] = (
+    process_sequential_activity_b: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessSequentialActivityB | Awaitable[ProcessSequentialActivityB]] = (
         lambda ctx, environment, config: make_process_sequential_activity_b(
             ctx, environment, config
         )
     )
-    process_workflow_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessWorkflowJob] = (
+    process_workflow_job: Callable[[Context, ServiceEnvironment, MapStreamConfig], ProcessWorkflowJob | Awaitable[ProcessWorkflowJob]] = (
         lambda ctx, environment, config: make_process_workflow_job(
             ctx, environment, config
         )
     )
-    scheduled_activity_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ScheduledActivityPause] = (
+    scheduled_activity_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ScheduledActivityPause | Awaitable[ScheduledActivityPause]] = (
         lambda ctx, environment, config: make_scheduled_activity_pause(
             ctx, environment, config
         )
     )
-    scheduled_workflow_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ScheduledWorkflowPause] = (
+    scheduled_workflow_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], ScheduledWorkflowPause | Awaitable[ScheduledWorkflowPause]] = (
         lambda ctx, environment, config: make_scheduled_workflow_pause(
             ctx, environment, config
         )
     )
-    workflow_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], WorkflowPause] = (
+    workflow_pause: Callable[[Context, ServiceEnvironment, DelayStreamConfig], WorkflowPause | Awaitable[WorkflowPause]] = (
         lambda ctx, environment, config: make_workflow_pause(
             ctx, environment, config
         )
     )
-    local_schedule_source: Callable[[Context, ServiceEnvironment, CronEndpointConfig], LocalScheduleSource] = (
+    local_schedule_source: Callable[[Context, ServiceEnvironment, CronEndpointConfig], LocalScheduleSource | Awaitable[LocalScheduleSource]] = (
         lambda ctx, environment, config: make_local_schedule_source(
             ctx, environment, config
         )
     )
-    fanout_workflow_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutWorkflowJobEndpointSink] = (
+    fanout_workflow_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutWorkflowJobEndpointSink | Awaitable[FanoutWorkflowJobEndpointSink]] = (
         lambda ctx, environment, config: make_fanout_workflow_job_endpoint_sink(
             ctx, environment, config
         )
     )
-    fanout_workflow_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutWorkflowJobEndpointSource] = (
+    fanout_workflow_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], FanoutWorkflowJobEndpointSource | Awaitable[FanoutWorkflowJobEndpointSource]] = (
         lambda ctx, environment, config: make_fanout_workflow_job_endpoint_source(
             ctx, environment, config
         )
     )
-    temporal_workflow_schedule_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalWorkflowScheduleSource] = (
+    temporal_workflow_schedule_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], TemporalWorkflowScheduleSource | Awaitable[TemporalWorkflowScheduleSource]] = (
         lambda ctx, environment, config: make_temporal_workflow_schedule_source(
             ctx, environment, config
         )
     )
-    workflow_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], WorkflowJobEndpointSink] = (
+    workflow_job_endpoint_sink: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], WorkflowJobEndpointSink | Awaitable[WorkflowJobEndpointSink]] = (
         lambda ctx, environment, config: make_workflow_job_endpoint_sink(
             ctx, environment, config
         )
     )
-    workflow_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], WorkflowJobEndpointSource] = (
+    workflow_job_endpoint_source: Callable[[Context, ServiceEnvironment, TemporalEndpointConfig], WorkflowJobEndpointSource | Awaitable[WorkflowJobEndpointSource]] = (
         lambda ctx, environment, config: make_workflow_job_endpoint_source(
             ctx, environment, config
         )
@@ -373,10 +375,35 @@ class ServiceFunctions:
     workflow_job_endpoint_source: WorkflowJobEndpointSource
 
 
-def _raise_first_maker_error(results: Sequence[object]) -> None:
-    for result in results:
-        if isinstance(result, BaseException):
-            raise result
+class _MakerGroup:
+    def __init__(self, parent: Context) -> None:
+        self.context = parent.child()
+        self._lock = Lock()
+        self._first_error: BaseException | None = None
+
+    async def invoke(
+        self,
+        maker: Callable[[Context, ServiceEnvironment, Any], Any],
+        environment: ServiceEnvironment,
+        config: Any,
+    ) -> Any:
+        try:
+            value = await asyncio.to_thread(
+                maker, self.context, environment, config
+            )
+            if inspect.isawaitable(value):
+                return await value
+            return value
+        except BaseException as error:
+            with self._lock:
+                if self._first_error is None:
+                    self._first_error = error
+                    self.context.cancel()
+            raise
+
+    def raise_first_error(self) -> None:
+        if self._first_error is not None:
+            raise self._first_error
 
 
 class GeneratedService(ServiceApp):
@@ -412,226 +439,191 @@ class GeneratedService(ServiceApp):
                 "Automation Service requires automation_service.internal.config.Config"
             )
         named = cfg.named
+        maker_group_0 = _MakerGroup(ctx)
         group_results_0 = await asyncio.gather(
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.activity_job_endpoint_sink,
-                ctx,
                 self,
                 named.endpoints.activity_job,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.activity_job_endpoint_source,
-                ctx,
                 self,
                 named.endpoints.activity_job,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.fanout_activity_a_endpoint_sink,
-                ctx,
                 self,
                 named.endpoints.fan_out_activity_a,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.fanout_activity_a_endpoint_source,
-                ctx,
                 self,
                 named.endpoints.fan_out_activity_a,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.fanout_activity_b_endpoint_sink,
-                ctx,
                 self,
                 named.endpoints.fan_out_activity_b,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.fanout_activity_b_endpoint_source,
-                ctx,
                 self,
                 named.endpoints.fan_out_activity_b,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.fanout_activity_c_endpoint_sink,
-                ctx,
                 self,
                 named.endpoints.fan_out_activity_c,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.fanout_activity_c_endpoint_source,
-                ctx,
                 self,
                 named.endpoints.fan_out_activity_c,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.sequential_activity_a_endpoint_sink,
-                ctx,
                 self,
                 named.endpoints.sequential_activity_a,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.sequential_activity_a_endpoint_source,
-                ctx,
                 self,
                 named.endpoints.sequential_activity_a,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.sequential_activity_b_endpoint_sink,
-                ctx,
                 self,
                 named.endpoints.sequential_activity_b,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.sequential_activity_b_endpoint_source,
-                ctx,
                 self,
                 named.endpoints.sequential_activity_b,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.temporal_activity_schedule_source,
-                ctx,
                 self,
                 named.endpoints.temporal_activity_schedule,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.activity_pause,
-                ctx,
                 self,
                 named.streams.activity_pause,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.observe_activity_result,
-                ctx,
                 self,
                 named.streams.observe_activity_result,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.observe_fanout_activity_b,
-                ctx,
                 self,
                 named.streams.observe_fan_out_activity_b,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.observe_fanout_activity_c,
-                ctx,
                 self,
                 named.streams.observe_fan_out_activity_c,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.observe_workflow_result,
-                ctx,
                 self,
                 named.streams.observe_workflow_result,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_activity_job,
-                ctx,
                 self,
                 named.streams.process_activity_job,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_fanout_activity_a,
-                ctx,
                 self,
                 named.streams.process_fan_out_activity_a,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_fanout_activity_b,
-                ctx,
                 self,
                 named.streams.process_fan_out_activity_b,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_fanout_activity_c,
-                ctx,
                 self,
                 named.streams.process_fan_out_activity_c,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_scheduled_activity,
-                ctx,
                 self,
                 named.streams.process_scheduled_activity,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_scheduled_workflow,
-                ctx,
                 self,
                 named.streams.process_scheduled_workflow,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_sequential_activity_a,
-                ctx,
                 self,
                 named.streams.process_sequential_activity_a,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_sequential_activity_b,
-                ctx,
                 self,
                 named.streams.process_sequential_activity_b,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_workflow_job,
-                ctx,
                 self,
                 named.streams.process_workflow_job,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.scheduled_activity_pause,
-                ctx,
                 self,
                 named.streams.scheduled_activity_pause,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.scheduled_workflow_pause,
-                ctx,
                 self,
                 named.streams.scheduled_workflow_pause,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.workflow_pause,
-                ctx,
                 self,
                 named.streams.workflow_pause,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.local_schedule_source,
-                ctx,
                 self,
                 named.endpoints.local_schedule,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.fanout_workflow_job_endpoint_sink,
-                ctx,
                 self,
                 named.endpoints.fan_out_workflow_job,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.fanout_workflow_job_endpoint_source,
-                ctx,
                 self,
                 named.endpoints.fan_out_workflow_job,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.temporal_workflow_schedule_source,
-                ctx,
                 self,
                 named.endpoints.temporal_workflow_schedule,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.workflow_job_endpoint_sink,
-                ctx,
                 self,
                 named.endpoints.workflow_job,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.workflow_job_endpoint_source,
-                ctx,
                 self,
                 named.endpoints.workflow_job,
             ),
             return_exceptions=True,
         )
-        _raise_first_maker_error(group_results_0)
+        maker_group_0.raise_first_error()
         activity_job_endpoint_sink = cast(ActivityJobEndpointSink, group_results_0[0])
         activity_job_endpoint_source = cast(ActivityJobEndpointSource, group_results_0[1])
         fanout_activity_a_endpoint_sink = cast(FanoutActivityAEndpointSink, group_results_0[2])

@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Callable
+import inspect
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any, Optional, Sequence, cast
+from threading import Lock
+from typing import Any, Optional, cast
 import grpc
 
 from pyservicelib_gorundebug.runtime.context.context import Context
@@ -77,42 +79,42 @@ class ServiceStreams:
 
 @dataclass(slots=True)
 class ServiceMakers:
-    order_processed_endpoint_sink: Callable[[Context, ServiceEnvironment, KafkaEndpointConfig], OrderProcessedEndpointSink] = (
+    order_processed_endpoint_sink: Callable[[Context, ServiceEnvironment, KafkaEndpointConfig], OrderProcessedEndpointSink | Awaitable[OrderProcessedEndpointSink]] = (
         lambda ctx, environment, config: make_order_processed_endpoint_sink(
             ctx, environment, config
         )
     )
-    process_order_item_sink: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], ProcessOrderItemSink] = (
+    process_order_item_sink: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], ProcessOrderItemSink | Awaitable[ProcessOrderItemSink]] = (
         lambda ctx, environment, config: make_process_order_item_sink(
             ctx, environment, config
         )
     )
-    process_order_source: Callable[[Context, ServiceEnvironment, HttpEndpointConfig], ProcessOrderSource] = (
+    process_order_source: Callable[[Context, ServiceEnvironment, HttpEndpointConfig], ProcessOrderSource | Awaitable[ProcessOrderSource]] = (
         lambda ctx, environment, config: make_process_order_source(
             ctx, environment, config
         )
     )
-    map_order_item_result_to_order_state: Callable[[Context, ServiceEnvironment, MapStreamConfig], MapOrderItemResultToOrderState] = (
+    map_order_item_result_to_order_state: Callable[[Context, ServiceEnvironment, MapStreamConfig], MapOrderItemResultToOrderState | Awaitable[MapOrderItemResultToOrderState]] = (
         lambda ctx, environment, config: make_map_order_item_result_to_order_state(
             ctx, environment, config
         )
     )
-    map_to_order_processed: Callable[[Context, ServiceEnvironment, MapStreamConfig], MapToOrderProcessed] = (
+    map_to_order_processed: Callable[[Context, ServiceEnvironment, MapStreamConfig], MapToOrderProcessed | Awaitable[MapToOrderProcessed]] = (
         lambda ctx, environment, config: make_map_to_order_processed(
             ctx, environment, config
         )
     )
-    map_to_order_state: Callable[[Context, ServiceEnvironment, MapStreamConfig], MapToOrderState] = (
+    map_to_order_state: Callable[[Context, ServiceEnvironment, MapStreamConfig], MapToOrderState | Awaitable[MapToOrderState]] = (
         lambda ctx, environment, config: make_map_to_order_state(
             ctx, environment, config
         )
     )
-    process_order_items: Callable[[Context, ServiceEnvironment, FlatMapStreamConfig], ProcessOrderItems] = (
+    process_order_items: Callable[[Context, ServiceEnvironment, FlatMapStreamConfig], ProcessOrderItems | Awaitable[ProcessOrderItems]] = (
         lambda ctx, environment, config: make_process_order_items(
             ctx, environment, config
         )
     )
-    soft_deadline: Callable[[Context, ServiceEnvironment, DelayStreamConfig], SoftDeadline] = (
+    soft_deadline: Callable[[Context, ServiceEnvironment, DelayStreamConfig], SoftDeadline | Awaitable[SoftDeadline]] = (
         lambda ctx, environment, config: make_soft_deadline(
             ctx, environment, config
         )
@@ -131,10 +133,35 @@ class ServiceFunctions:
     soft_deadline: SoftDeadline
 
 
-def _raise_first_maker_error(results: Sequence[object]) -> None:
-    for result in results:
-        if isinstance(result, BaseException):
-            raise result
+class _MakerGroup:
+    def __init__(self, parent: Context) -> None:
+        self.context = parent.child()
+        self._lock = Lock()
+        self._first_error: BaseException | None = None
+
+    async def invoke(
+        self,
+        maker: Callable[[Context, ServiceEnvironment, Any], Any],
+        environment: ServiceEnvironment,
+        config: Any,
+    ) -> Any:
+        try:
+            value = await asyncio.to_thread(
+                maker, self.context, environment, config
+            )
+            if inspect.isawaitable(value):
+                return await value
+            return value
+        except BaseException as error:
+            with self._lock:
+                if self._first_error is None:
+                    self._first_error = error
+                    self.context.cancel()
+            raise
+
+    def raise_first_error(self) -> None:
+        if self._first_error is not None:
+            raise self._first_error
 
 class _GrpcMethodPool:
     """Round-robin dispatcher over independent gRPC channel callables."""
@@ -195,58 +222,51 @@ class GeneratedService(ServiceApp):
                 "Order Service requires order_service.internal.config.Config"
             )
         named = cfg.named
+        maker_group_0 = _MakerGroup(ctx)
         group_results_0 = await asyncio.gather(
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.order_processed_endpoint_sink,
-                ctx,
                 self,
                 named.endpoints.order_processed,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_order_item_sink,
-                ctx,
                 self,
                 named.endpoints.process_order_item,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_order_source,
-                ctx,
                 self,
                 named.endpoints.process_order,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.map_order_item_result_to_order_state,
-                ctx,
                 self,
                 named.streams.map_order_item_result_to_order_state,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.map_to_order_processed,
-                ctx,
                 self,
                 named.streams.map_to_order_processed,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.map_to_order_state,
-                ctx,
                 self,
                 named.streams.map_to_order_state,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_order_items,
-                ctx,
                 self,
                 named.streams.process_order_items,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.soft_deadline,
-                ctx,
                 self,
                 named.streams.soft_deadline,
             ),
             return_exceptions=True,
         )
-        _raise_first_maker_error(group_results_0)
+        maker_group_0.raise_first_error()
         order_processed_endpoint_sink = cast(OrderProcessedEndpointSink, group_results_0[0])
         process_order_item_sink = cast(ProcessOrderItemSink, group_results_0[1])
         process_order_source = cast(ProcessOrderSource, group_results_0[2])

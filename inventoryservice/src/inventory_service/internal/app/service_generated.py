@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Callable
+import inspect
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any, Optional, Sequence, cast
+from threading import Lock
+from typing import Any, Optional, cast
 import grpc
 
 from pyservicelib_gorundebug.runtime.context.context import Context
@@ -46,12 +48,12 @@ class ServiceStreams:
 
 @dataclass(slots=True)
 class ServiceMakers:
-    process_order_item_source: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], ProcessOrderItemSource] = (
+    process_order_item_source: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], ProcessOrderItemSource | Awaitable[ProcessOrderItemSource]] = (
         lambda ctx, environment, config: make_process_order_item_source(
             ctx, environment, config
         )
     )
-    get_inventory_item_data: Callable[[Context, ServiceEnvironment, ProcessStreamConfig], GetInventoryItemData] = (
+    get_inventory_item_data: Callable[[Context, ServiceEnvironment, ProcessStreamConfig], GetInventoryItemData | Awaitable[GetInventoryItemData]] = (
         lambda ctx, environment, config: make_get_inventory_item_data(
             ctx, environment, config
         )
@@ -64,10 +66,35 @@ class ServiceFunctions:
     get_inventory_item_data: GetInventoryItemData
 
 
-def _raise_first_maker_error(results: Sequence[object]) -> None:
-    for result in results:
-        if isinstance(result, BaseException):
-            raise result
+class _MakerGroup:
+    def __init__(self, parent: Context) -> None:
+        self.context = parent.child()
+        self._lock = Lock()
+        self._first_error: BaseException | None = None
+
+    async def invoke(
+        self,
+        maker: Callable[[Context, ServiceEnvironment, Any], Any],
+        environment: ServiceEnvironment,
+        config: Any,
+    ) -> Any:
+        try:
+            value = await asyncio.to_thread(
+                maker, self.context, environment, config
+            )
+            if inspect.isawaitable(value):
+                return await value
+            return value
+        except BaseException as error:
+            with self._lock:
+                if self._first_error is None:
+                    self._first_error = error
+                    self.context.cancel()
+            raise
+
+    def raise_first_error(self) -> None:
+        if self._first_error is not None:
+            raise self._first_error
 
 
 class GeneratedService(ServiceApp):
@@ -108,22 +135,21 @@ class GeneratedService(ServiceApp):
                 "Inventory Service requires inventory_service.internal.config.Config"
             )
         named = cfg.named
+        maker_group_0 = _MakerGroup(ctx)
         group_results_0 = await asyncio.gather(
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.process_order_item_source,
-                ctx,
                 self,
                 named.endpoints.process_order_item,
             ),
-            asyncio.to_thread(
+            maker_group_0.invoke(
                 self._makers.get_inventory_item_data,
-                ctx,
                 self,
                 named.streams.get_inventory_item_data,
             ),
             return_exceptions=True,
         )
-        _raise_first_maker_error(group_results_0)
+        maker_group_0.raise_first_error()
         process_order_item_source = cast(ProcessOrderItemSource, group_results_0[0])
         get_inventory_item_data = cast(GetInventoryItemData, group_results_0[1])
         self._functions = ServiceFunctions(
