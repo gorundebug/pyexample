@@ -440,6 +440,11 @@ def _temporal_data_connector(
             if getattr(config, "max_concurrent_workflows", None) is not None
             else 1
         ),
+        worker_stop_timeout=(
+            getattr(config, "worker_stop_timeout")
+            if getattr(config, "worker_stop_timeout", None) is not None
+            else 0
+        ),
         properties=config.properties,
     )
 

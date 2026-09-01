@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any, Optional
+from typing import Any, Optional, Sequence, cast
 import grpc
 
 from pyservicelib_gorundebug.runtime.context.context import Context
@@ -63,6 +64,12 @@ class ServiceFunctions:
     get_inventory_item_data: GetInventoryItemData
 
 
+def _raise_first_maker_error(results: Sequence[object]) -> None:
+    for result in results:
+        if isinstance(result, BaseException):
+            raise result
+
+
 class GeneratedService(ServiceApp):
     """Generated lifecycle and graph bootstrap for Inventory Service."""
 
@@ -101,13 +108,27 @@ class GeneratedService(ServiceApp):
                 "Inventory Service requires inventory_service.internal.config.Config"
             )
         named = cfg.named
+        group_results_0 = await asyncio.gather(
+            asyncio.to_thread(
+                self._makers.process_order_item_source,
+                ctx,
+                self,
+                named.endpoints.process_order_item,
+            ),
+            asyncio.to_thread(
+                self._makers.get_inventory_item_data,
+                ctx,
+                self,
+                named.streams.get_inventory_item_data,
+            ),
+            return_exceptions=True,
+        )
+        _raise_first_maker_error(group_results_0)
+        process_order_item_source = cast(ProcessOrderItemSource, group_results_0[0])
+        get_inventory_item_data = cast(GetInventoryItemData, group_results_0[1])
         self._functions = ServiceFunctions(
-            process_order_item_source=self._makers.process_order_item_source(
-                ctx, self, named.endpoints.process_order_item
-            ),
-            get_inventory_item_data=self._makers.get_inventory_item_data(
-                ctx, self, named.streams.get_inventory_item_data
-            ),
+            process_order_item_source=process_order_item_source,
+            get_inventory_item_data=get_inventory_item_data,
         )
         await self.custom_functions_init(ctx)
 

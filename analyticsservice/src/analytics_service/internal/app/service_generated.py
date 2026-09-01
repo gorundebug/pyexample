@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any, Optional
+from typing import Any, Optional, Sequence, cast
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.serviceapp import (
@@ -69,6 +70,12 @@ class ServiceFunctions:
     order_processed_endpoint_source: OrderProcessedEndpointSource
 
 
+def _raise_first_maker_error(results: Sequence[object]) -> None:
+    for result in results:
+        if isinstance(result, BaseException):
+            raise result
+
+
 class GeneratedService(ServiceApp):
     """Generated lifecycle and graph bootstrap for Analytics Service."""
 
@@ -104,16 +111,35 @@ class GeneratedService(ServiceApp):
                 "Analytics Service requires analytics_service.internal.config.Config"
             )
         named = cfg.named
+        group_results_0 = await asyncio.gather(
+            asyncio.to_thread(
+                self._makers.count_order_processed,
+                ctx,
+                self,
+                named.streams.count_order_processed,
+            ),
+            asyncio.to_thread(
+                self._makers.analytics_schedule_source,
+                ctx,
+                self,
+                named.endpoints.analytics_schedule,
+            ),
+            asyncio.to_thread(
+                self._makers.order_processed_endpoint_source,
+                ctx,
+                self,
+                named.endpoints.order_processed,
+            ),
+            return_exceptions=True,
+        )
+        _raise_first_maker_error(group_results_0)
+        count_order_processed = cast(CountOrderProcessed, group_results_0[0])
+        analytics_schedule_source = cast(AnalyticsScheduleSource, group_results_0[1])
+        order_processed_endpoint_source = cast(OrderProcessedEndpointSource, group_results_0[2])
         self._functions = ServiceFunctions(
-            count_order_processed=self._makers.count_order_processed(
-                ctx, self, named.streams.count_order_processed
-            ),
-            analytics_schedule_source=self._makers.analytics_schedule_source(
-                ctx, self, named.endpoints.analytics_schedule
-            ),
-            order_processed_endpoint_source=self._makers.order_processed_endpoint_source(
-                ctx, self, named.endpoints.order_processed
-            ),
+            count_order_processed=count_order_processed,
+            analytics_schedule_source=analytics_schedule_source,
+            order_processed_endpoint_source=order_processed_endpoint_source,
         )
         await self.custom_functions_init(ctx)
 

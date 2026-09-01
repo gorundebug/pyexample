@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any, Optional
+from typing import Any, Optional, Sequence, cast
 import grpc
 
 from pyservicelib_gorundebug.runtime.context.context import Context
@@ -129,6 +130,12 @@ class ServiceFunctions:
     process_order_items: ProcessOrderItems
     soft_deadline: SoftDeadline
 
+
+def _raise_first_maker_error(results: Sequence[object]) -> None:
+    for result in results:
+        if isinstance(result, BaseException):
+            raise result
+
 class _GrpcMethodPool:
     """Round-robin dispatcher over independent gRPC channel callables."""
 
@@ -188,31 +195,75 @@ class GeneratedService(ServiceApp):
                 "Order Service requires order_service.internal.config.Config"
             )
         named = cfg.named
+        group_results_0 = await asyncio.gather(
+            asyncio.to_thread(
+                self._makers.order_processed_endpoint_sink,
+                ctx,
+                self,
+                named.endpoints.order_processed,
+            ),
+            asyncio.to_thread(
+                self._makers.process_order_item_sink,
+                ctx,
+                self,
+                named.endpoints.process_order_item,
+            ),
+            asyncio.to_thread(
+                self._makers.process_order_source,
+                ctx,
+                self,
+                named.endpoints.process_order,
+            ),
+            asyncio.to_thread(
+                self._makers.map_order_item_result_to_order_state,
+                ctx,
+                self,
+                named.streams.map_order_item_result_to_order_state,
+            ),
+            asyncio.to_thread(
+                self._makers.map_to_order_processed,
+                ctx,
+                self,
+                named.streams.map_to_order_processed,
+            ),
+            asyncio.to_thread(
+                self._makers.map_to_order_state,
+                ctx,
+                self,
+                named.streams.map_to_order_state,
+            ),
+            asyncio.to_thread(
+                self._makers.process_order_items,
+                ctx,
+                self,
+                named.streams.process_order_items,
+            ),
+            asyncio.to_thread(
+                self._makers.soft_deadline,
+                ctx,
+                self,
+                named.streams.soft_deadline,
+            ),
+            return_exceptions=True,
+        )
+        _raise_first_maker_error(group_results_0)
+        order_processed_endpoint_sink = cast(OrderProcessedEndpointSink, group_results_0[0])
+        process_order_item_sink = cast(ProcessOrderItemSink, group_results_0[1])
+        process_order_source = cast(ProcessOrderSource, group_results_0[2])
+        map_order_item_result_to_order_state = cast(MapOrderItemResultToOrderState, group_results_0[3])
+        map_to_order_processed = cast(MapToOrderProcessed, group_results_0[4])
+        map_to_order_state = cast(MapToOrderState, group_results_0[5])
+        process_order_items = cast(ProcessOrderItems, group_results_0[6])
+        soft_deadline = cast(SoftDeadline, group_results_0[7])
         self._functions = ServiceFunctions(
-            order_processed_endpoint_sink=self._makers.order_processed_endpoint_sink(
-                ctx, self, named.endpoints.order_processed
-            ),
-            process_order_item_sink=self._makers.process_order_item_sink(
-                ctx, self, named.endpoints.process_order_item
-            ),
-            process_order_source=self._makers.process_order_source(
-                ctx, self, named.endpoints.process_order
-            ),
-            map_order_item_result_to_order_state=self._makers.map_order_item_result_to_order_state(
-                ctx, self, named.streams.map_order_item_result_to_order_state
-            ),
-            map_to_order_processed=self._makers.map_to_order_processed(
-                ctx, self, named.streams.map_to_order_processed
-            ),
-            map_to_order_state=self._makers.map_to_order_state(
-                ctx, self, named.streams.map_to_order_state
-            ),
-            process_order_items=self._makers.process_order_items(
-                ctx, self, named.streams.process_order_items
-            ),
-            soft_deadline=self._makers.soft_deadline(
-                ctx, self, named.streams.soft_deadline
-            ),
+            order_processed_endpoint_sink=order_processed_endpoint_sink,
+            process_order_item_sink=process_order_item_sink,
+            process_order_source=process_order_source,
+            map_order_item_result_to_order_state=map_order_item_result_to_order_state,
+            map_to_order_processed=map_to_order_processed,
+            map_to_order_state=map_to_order_state,
+            process_order_items=process_order_items,
+            soft_deadline=soft_deadline,
         )
         await self.custom_functions_init(ctx)
 

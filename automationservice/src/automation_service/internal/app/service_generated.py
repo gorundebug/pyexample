@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any, Optional
+from typing import Any, Optional, Sequence, cast
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.serviceapp import (
@@ -372,6 +373,12 @@ class ServiceFunctions:
     workflow_job_endpoint_source: WorkflowJobEndpointSource
 
 
+def _raise_first_maker_error(results: Sequence[object]) -> None:
+    for result in results:
+        if isinstance(result, BaseException):
+            raise result
+
+
 class GeneratedService(ServiceApp):
     """Generated lifecycle and graph bootstrap for Automation Service."""
 
@@ -405,115 +412,299 @@ class GeneratedService(ServiceApp):
                 "Automation Service requires automation_service.internal.config.Config"
             )
         named = cfg.named
+        group_results_0 = await asyncio.gather(
+            asyncio.to_thread(
+                self._makers.activity_job_endpoint_sink,
+                ctx,
+                self,
+                named.endpoints.activity_job,
+            ),
+            asyncio.to_thread(
+                self._makers.activity_job_endpoint_source,
+                ctx,
+                self,
+                named.endpoints.activity_job,
+            ),
+            asyncio.to_thread(
+                self._makers.fanout_activity_a_endpoint_sink,
+                ctx,
+                self,
+                named.endpoints.fan_out_activity_a,
+            ),
+            asyncio.to_thread(
+                self._makers.fanout_activity_a_endpoint_source,
+                ctx,
+                self,
+                named.endpoints.fan_out_activity_a,
+            ),
+            asyncio.to_thread(
+                self._makers.fanout_activity_b_endpoint_sink,
+                ctx,
+                self,
+                named.endpoints.fan_out_activity_b,
+            ),
+            asyncio.to_thread(
+                self._makers.fanout_activity_b_endpoint_source,
+                ctx,
+                self,
+                named.endpoints.fan_out_activity_b,
+            ),
+            asyncio.to_thread(
+                self._makers.fanout_activity_c_endpoint_sink,
+                ctx,
+                self,
+                named.endpoints.fan_out_activity_c,
+            ),
+            asyncio.to_thread(
+                self._makers.fanout_activity_c_endpoint_source,
+                ctx,
+                self,
+                named.endpoints.fan_out_activity_c,
+            ),
+            asyncio.to_thread(
+                self._makers.sequential_activity_a_endpoint_sink,
+                ctx,
+                self,
+                named.endpoints.sequential_activity_a,
+            ),
+            asyncio.to_thread(
+                self._makers.sequential_activity_a_endpoint_source,
+                ctx,
+                self,
+                named.endpoints.sequential_activity_a,
+            ),
+            asyncio.to_thread(
+                self._makers.sequential_activity_b_endpoint_sink,
+                ctx,
+                self,
+                named.endpoints.sequential_activity_b,
+            ),
+            asyncio.to_thread(
+                self._makers.sequential_activity_b_endpoint_source,
+                ctx,
+                self,
+                named.endpoints.sequential_activity_b,
+            ),
+            asyncio.to_thread(
+                self._makers.temporal_activity_schedule_source,
+                ctx,
+                self,
+                named.endpoints.temporal_activity_schedule,
+            ),
+            asyncio.to_thread(
+                self._makers.activity_pause,
+                ctx,
+                self,
+                named.streams.activity_pause,
+            ),
+            asyncio.to_thread(
+                self._makers.observe_activity_result,
+                ctx,
+                self,
+                named.streams.observe_activity_result,
+            ),
+            asyncio.to_thread(
+                self._makers.observe_fanout_activity_b,
+                ctx,
+                self,
+                named.streams.observe_fan_out_activity_b,
+            ),
+            asyncio.to_thread(
+                self._makers.observe_fanout_activity_c,
+                ctx,
+                self,
+                named.streams.observe_fan_out_activity_c,
+            ),
+            asyncio.to_thread(
+                self._makers.observe_workflow_result,
+                ctx,
+                self,
+                named.streams.observe_workflow_result,
+            ),
+            asyncio.to_thread(
+                self._makers.process_activity_job,
+                ctx,
+                self,
+                named.streams.process_activity_job,
+            ),
+            asyncio.to_thread(
+                self._makers.process_fanout_activity_a,
+                ctx,
+                self,
+                named.streams.process_fan_out_activity_a,
+            ),
+            asyncio.to_thread(
+                self._makers.process_fanout_activity_b,
+                ctx,
+                self,
+                named.streams.process_fan_out_activity_b,
+            ),
+            asyncio.to_thread(
+                self._makers.process_fanout_activity_c,
+                ctx,
+                self,
+                named.streams.process_fan_out_activity_c,
+            ),
+            asyncio.to_thread(
+                self._makers.process_scheduled_activity,
+                ctx,
+                self,
+                named.streams.process_scheduled_activity,
+            ),
+            asyncio.to_thread(
+                self._makers.process_scheduled_workflow,
+                ctx,
+                self,
+                named.streams.process_scheduled_workflow,
+            ),
+            asyncio.to_thread(
+                self._makers.process_sequential_activity_a,
+                ctx,
+                self,
+                named.streams.process_sequential_activity_a,
+            ),
+            asyncio.to_thread(
+                self._makers.process_sequential_activity_b,
+                ctx,
+                self,
+                named.streams.process_sequential_activity_b,
+            ),
+            asyncio.to_thread(
+                self._makers.process_workflow_job,
+                ctx,
+                self,
+                named.streams.process_workflow_job,
+            ),
+            asyncio.to_thread(
+                self._makers.scheduled_activity_pause,
+                ctx,
+                self,
+                named.streams.scheduled_activity_pause,
+            ),
+            asyncio.to_thread(
+                self._makers.scheduled_workflow_pause,
+                ctx,
+                self,
+                named.streams.scheduled_workflow_pause,
+            ),
+            asyncio.to_thread(
+                self._makers.workflow_pause,
+                ctx,
+                self,
+                named.streams.workflow_pause,
+            ),
+            asyncio.to_thread(
+                self._makers.local_schedule_source,
+                ctx,
+                self,
+                named.endpoints.local_schedule,
+            ),
+            asyncio.to_thread(
+                self._makers.fanout_workflow_job_endpoint_sink,
+                ctx,
+                self,
+                named.endpoints.fan_out_workflow_job,
+            ),
+            asyncio.to_thread(
+                self._makers.fanout_workflow_job_endpoint_source,
+                ctx,
+                self,
+                named.endpoints.fan_out_workflow_job,
+            ),
+            asyncio.to_thread(
+                self._makers.temporal_workflow_schedule_source,
+                ctx,
+                self,
+                named.endpoints.temporal_workflow_schedule,
+            ),
+            asyncio.to_thread(
+                self._makers.workflow_job_endpoint_sink,
+                ctx,
+                self,
+                named.endpoints.workflow_job,
+            ),
+            asyncio.to_thread(
+                self._makers.workflow_job_endpoint_source,
+                ctx,
+                self,
+                named.endpoints.workflow_job,
+            ),
+            return_exceptions=True,
+        )
+        _raise_first_maker_error(group_results_0)
+        activity_job_endpoint_sink = cast(ActivityJobEndpointSink, group_results_0[0])
+        activity_job_endpoint_source = cast(ActivityJobEndpointSource, group_results_0[1])
+        fanout_activity_a_endpoint_sink = cast(FanoutActivityAEndpointSink, group_results_0[2])
+        fanout_activity_a_endpoint_source = cast(FanoutActivityAEndpointSource, group_results_0[3])
+        fanout_activity_b_endpoint_sink = cast(FanoutActivityBEndpointSink, group_results_0[4])
+        fanout_activity_b_endpoint_source = cast(FanoutActivityBEndpointSource, group_results_0[5])
+        fanout_activity_c_endpoint_sink = cast(FanoutActivityCEndpointSink, group_results_0[6])
+        fanout_activity_c_endpoint_source = cast(FanoutActivityCEndpointSource, group_results_0[7])
+        sequential_activity_a_endpoint_sink = cast(SequentialActivityAEndpointSink, group_results_0[8])
+        sequential_activity_a_endpoint_source = cast(SequentialActivityAEndpointSource, group_results_0[9])
+        sequential_activity_b_endpoint_sink = cast(SequentialActivityBEndpointSink, group_results_0[10])
+        sequential_activity_b_endpoint_source = cast(SequentialActivityBEndpointSource, group_results_0[11])
+        temporal_activity_schedule_source = cast(TemporalActivityScheduleSource, group_results_0[12])
+        activity_pause = cast(ActivityPause, group_results_0[13])
+        observe_activity_result = cast(ObserveActivityResult, group_results_0[14])
+        observe_fanout_activity_b = cast(ObserveFanoutActivityB, group_results_0[15])
+        observe_fanout_activity_c = cast(ObserveFanoutActivityC, group_results_0[16])
+        observe_workflow_result = cast(ObserveWorkflowResult, group_results_0[17])
+        process_activity_job = cast(ProcessActivityJob, group_results_0[18])
+        process_fanout_activity_a = cast(ProcessFanoutActivityA, group_results_0[19])
+        process_fanout_activity_b = cast(ProcessFanoutActivityB, group_results_0[20])
+        process_fanout_activity_c = cast(ProcessFanoutActivityC, group_results_0[21])
+        process_scheduled_activity = cast(ProcessScheduledActivity, group_results_0[22])
+        process_scheduled_workflow = cast(ProcessScheduledWorkflow, group_results_0[23])
+        process_sequential_activity_a = cast(ProcessSequentialActivityA, group_results_0[24])
+        process_sequential_activity_b = cast(ProcessSequentialActivityB, group_results_0[25])
+        process_workflow_job = cast(ProcessWorkflowJob, group_results_0[26])
+        scheduled_activity_pause = cast(ScheduledActivityPause, group_results_0[27])
+        scheduled_workflow_pause = cast(ScheduledWorkflowPause, group_results_0[28])
+        workflow_pause = cast(WorkflowPause, group_results_0[29])
+        local_schedule_source = cast(LocalScheduleSource, group_results_0[30])
+        fanout_workflow_job_endpoint_sink = cast(FanoutWorkflowJobEndpointSink, group_results_0[31])
+        fanout_workflow_job_endpoint_source = cast(FanoutWorkflowJobEndpointSource, group_results_0[32])
+        temporal_workflow_schedule_source = cast(TemporalWorkflowScheduleSource, group_results_0[33])
+        workflow_job_endpoint_sink = cast(WorkflowJobEndpointSink, group_results_0[34])
+        workflow_job_endpoint_source = cast(WorkflowJobEndpointSource, group_results_0[35])
         self._functions = ServiceFunctions(
-            activity_job_endpoint_sink=self._makers.activity_job_endpoint_sink(
-                ctx, self, named.endpoints.activity_job
-            ),
-            activity_job_endpoint_source=self._makers.activity_job_endpoint_source(
-                ctx, self, named.endpoints.activity_job
-            ),
-            fanout_activity_a_endpoint_sink=self._makers.fanout_activity_a_endpoint_sink(
-                ctx, self, named.endpoints.fan_out_activity_a
-            ),
-            fanout_activity_a_endpoint_source=self._makers.fanout_activity_a_endpoint_source(
-                ctx, self, named.endpoints.fan_out_activity_a
-            ),
-            fanout_activity_b_endpoint_sink=self._makers.fanout_activity_b_endpoint_sink(
-                ctx, self, named.endpoints.fan_out_activity_b
-            ),
-            fanout_activity_b_endpoint_source=self._makers.fanout_activity_b_endpoint_source(
-                ctx, self, named.endpoints.fan_out_activity_b
-            ),
-            fanout_activity_c_endpoint_sink=self._makers.fanout_activity_c_endpoint_sink(
-                ctx, self, named.endpoints.fan_out_activity_c
-            ),
-            fanout_activity_c_endpoint_source=self._makers.fanout_activity_c_endpoint_source(
-                ctx, self, named.endpoints.fan_out_activity_c
-            ),
-            sequential_activity_a_endpoint_sink=self._makers.sequential_activity_a_endpoint_sink(
-                ctx, self, named.endpoints.sequential_activity_a
-            ),
-            sequential_activity_a_endpoint_source=self._makers.sequential_activity_a_endpoint_source(
-                ctx, self, named.endpoints.sequential_activity_a
-            ),
-            sequential_activity_b_endpoint_sink=self._makers.sequential_activity_b_endpoint_sink(
-                ctx, self, named.endpoints.sequential_activity_b
-            ),
-            sequential_activity_b_endpoint_source=self._makers.sequential_activity_b_endpoint_source(
-                ctx, self, named.endpoints.sequential_activity_b
-            ),
-            temporal_activity_schedule_source=self._makers.temporal_activity_schedule_source(
-                ctx, self, named.endpoints.temporal_activity_schedule
-            ),
-            activity_pause=self._makers.activity_pause(
-                ctx, self, named.streams.activity_pause
-            ),
-            observe_activity_result=self._makers.observe_activity_result(
-                ctx, self, named.streams.observe_activity_result
-            ),
-            observe_fanout_activity_b=self._makers.observe_fanout_activity_b(
-                ctx, self, named.streams.observe_fan_out_activity_b
-            ),
-            observe_fanout_activity_c=self._makers.observe_fanout_activity_c(
-                ctx, self, named.streams.observe_fan_out_activity_c
-            ),
-            observe_workflow_result=self._makers.observe_workflow_result(
-                ctx, self, named.streams.observe_workflow_result
-            ),
-            process_activity_job=self._makers.process_activity_job(
-                ctx, self, named.streams.process_activity_job
-            ),
-            process_fanout_activity_a=self._makers.process_fanout_activity_a(
-                ctx, self, named.streams.process_fan_out_activity_a
-            ),
-            process_fanout_activity_b=self._makers.process_fanout_activity_b(
-                ctx, self, named.streams.process_fan_out_activity_b
-            ),
-            process_fanout_activity_c=self._makers.process_fanout_activity_c(
-                ctx, self, named.streams.process_fan_out_activity_c
-            ),
-            process_scheduled_activity=self._makers.process_scheduled_activity(
-                ctx, self, named.streams.process_scheduled_activity
-            ),
-            process_scheduled_workflow=self._makers.process_scheduled_workflow(
-                ctx, self, named.streams.process_scheduled_workflow
-            ),
-            process_sequential_activity_a=self._makers.process_sequential_activity_a(
-                ctx, self, named.streams.process_sequential_activity_a
-            ),
-            process_sequential_activity_b=self._makers.process_sequential_activity_b(
-                ctx, self, named.streams.process_sequential_activity_b
-            ),
-            process_workflow_job=self._makers.process_workflow_job(
-                ctx, self, named.streams.process_workflow_job
-            ),
-            scheduled_activity_pause=self._makers.scheduled_activity_pause(
-                ctx, self, named.streams.scheduled_activity_pause
-            ),
-            scheduled_workflow_pause=self._makers.scheduled_workflow_pause(
-                ctx, self, named.streams.scheduled_workflow_pause
-            ),
-            workflow_pause=self._makers.workflow_pause(
-                ctx, self, named.streams.workflow_pause
-            ),
-            local_schedule_source=self._makers.local_schedule_source(
-                ctx, self, named.endpoints.local_schedule
-            ),
-            fanout_workflow_job_endpoint_sink=self._makers.fanout_workflow_job_endpoint_sink(
-                ctx, self, named.endpoints.fan_out_workflow_job
-            ),
-            fanout_workflow_job_endpoint_source=self._makers.fanout_workflow_job_endpoint_source(
-                ctx, self, named.endpoints.fan_out_workflow_job
-            ),
-            temporal_workflow_schedule_source=self._makers.temporal_workflow_schedule_source(
-                ctx, self, named.endpoints.temporal_workflow_schedule
-            ),
-            workflow_job_endpoint_sink=self._makers.workflow_job_endpoint_sink(
-                ctx, self, named.endpoints.workflow_job
-            ),
-            workflow_job_endpoint_source=self._makers.workflow_job_endpoint_source(
-                ctx, self, named.endpoints.workflow_job
-            ),
+            activity_job_endpoint_sink=activity_job_endpoint_sink,
+            activity_job_endpoint_source=activity_job_endpoint_source,
+            fanout_activity_a_endpoint_sink=fanout_activity_a_endpoint_sink,
+            fanout_activity_a_endpoint_source=fanout_activity_a_endpoint_source,
+            fanout_activity_b_endpoint_sink=fanout_activity_b_endpoint_sink,
+            fanout_activity_b_endpoint_source=fanout_activity_b_endpoint_source,
+            fanout_activity_c_endpoint_sink=fanout_activity_c_endpoint_sink,
+            fanout_activity_c_endpoint_source=fanout_activity_c_endpoint_source,
+            sequential_activity_a_endpoint_sink=sequential_activity_a_endpoint_sink,
+            sequential_activity_a_endpoint_source=sequential_activity_a_endpoint_source,
+            sequential_activity_b_endpoint_sink=sequential_activity_b_endpoint_sink,
+            sequential_activity_b_endpoint_source=sequential_activity_b_endpoint_source,
+            temporal_activity_schedule_source=temporal_activity_schedule_source,
+            activity_pause=activity_pause,
+            observe_activity_result=observe_activity_result,
+            observe_fanout_activity_b=observe_fanout_activity_b,
+            observe_fanout_activity_c=observe_fanout_activity_c,
+            observe_workflow_result=observe_workflow_result,
+            process_activity_job=process_activity_job,
+            process_fanout_activity_a=process_fanout_activity_a,
+            process_fanout_activity_b=process_fanout_activity_b,
+            process_fanout_activity_c=process_fanout_activity_c,
+            process_scheduled_activity=process_scheduled_activity,
+            process_scheduled_workflow=process_scheduled_workflow,
+            process_sequential_activity_a=process_sequential_activity_a,
+            process_sequential_activity_b=process_sequential_activity_b,
+            process_workflow_job=process_workflow_job,
+            scheduled_activity_pause=scheduled_activity_pause,
+            scheduled_workflow_pause=scheduled_workflow_pause,
+            workflow_pause=workflow_pause,
+            local_schedule_source=local_schedule_source,
+            fanout_workflow_job_endpoint_sink=fanout_workflow_job_endpoint_sink,
+            fanout_workflow_job_endpoint_source=fanout_workflow_job_endpoint_source,
+            temporal_workflow_schedule_source=temporal_workflow_schedule_source,
+            workflow_job_endpoint_sink=workflow_job_endpoint_sink,
+            workflow_job_endpoint_source=workflow_job_endpoint_source,
         )
         await self.custom_functions_init(ctx)
 
