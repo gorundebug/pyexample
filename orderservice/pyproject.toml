@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "order_service"
-version = "0.2.69"
+version = "0.2.70"
 requires-python = ">=3.12"
 dependencies = [
   "pydantic>=2.9.2",
@@ -17,7 +17,7 @@ dependencies = [
   "order_service_api",
 ]
 [tool.uv.sources]
-pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.69" }
+pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.70" }
 inventory_service_api = { workspace = true }
 model = { workspace = true }
 order_service_api = { workspace = true }
