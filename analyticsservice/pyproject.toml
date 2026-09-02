@@ -14,7 +14,7 @@ dependencies = [
   "model",
 ]
 [tool.uv.sources]
-pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.72" }
+pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.73" }
 model = { workspace = true }
 
 [dependency-groups]
