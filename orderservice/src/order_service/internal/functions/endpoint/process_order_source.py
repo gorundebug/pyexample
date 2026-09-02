@@ -202,7 +202,7 @@ def _field(
     raise web.HTTPBadRequest(text=f"missing field: {names[0]}")
 
 
-def make_process_order_source(
+async def make_process_order_source(
     ctx: Context, environment: ServiceEnvironment, config: HttpEndpointConfig
 ) -> ProcessOrderSource:
     del ctx, environment

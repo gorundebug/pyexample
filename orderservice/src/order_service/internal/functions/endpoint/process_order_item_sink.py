@@ -100,7 +100,7 @@ class ProcessOrderItemSink:
         )
 
 
-def make_process_order_item_sink(
+async def make_process_order_item_sink(
     ctx: Context, environment: ServiceEnvironment, config: GrpcEndpointConfig
 ) -> ProcessOrderItemSink:
     del ctx, environment, config

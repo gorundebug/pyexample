@@ -31,7 +31,7 @@ class MapOrderItemResultToOrderState:
         )
 
 
-def make_map_order_item_result_to_order_state(
+async def make_map_order_item_result_to_order_state(
     ctx: Context, environment: ServiceEnvironment, config: MapStreamConfig
 ) -> MapOrderItemResultToOrderState:
     del ctx, environment, config

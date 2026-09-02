@@ -63,7 +63,7 @@ RUN set -eu; \
     if [ -z "$manifest" ] || [ ! -f "$manifest" ]; then echo "pyservicelib source context has no pyproject.toml" >&2; exit 1; fi; \
     source_dir=${manifest%/pyproject.toml}; \
     mkdir -p /local-dependencies/pyservicelib; \
-    cp -a "$source_dir/." /local-dependencies/pyservicelib/; \
+    cp -R "$source_dir/." /local-dependencies/pyservicelib/; \
     rm -rf /tmp/pyservicelib-source /tmp/pyservicelib-archive
 COPY --from=module-inventory_service_api-source / /tmp/module-inventory_service_api-source
 RUN set -eu; \
@@ -80,7 +80,7 @@ RUN set -eu; \
     if [ -z "$manifest" ] || [ ! -f "$manifest" ]; then echo "module inventory_service_api source context has no pyproject.toml" >&2; exit 1; fi; \
     source_dir=${manifest%/pyproject.toml}; \
     mkdir -p /local-dependencies/inventory_service_api; \
-    cp -a "$source_dir/." /local-dependencies/inventory_service_api/; \
+    cp -R "$source_dir/." /local-dependencies/inventory_service_api/; \
     rm -rf /tmp/module-inventory_service_api-source /tmp/module-inventory_service_api-archive
 COPY --from=module-model_python-source / /tmp/module-model_python-source
 RUN set -eu; \
@@ -97,7 +97,7 @@ RUN set -eu; \
     if [ -z "$manifest" ] || [ ! -f "$manifest" ]; then echo "module model_python source context has no pyproject.toml" >&2; exit 1; fi; \
     source_dir=${manifest%/pyproject.toml}; \
     mkdir -p /local-dependencies/model_python; \
-    cp -a "$source_dir/." /local-dependencies/model_python/; \
+    cp -R "$source_dir/." /local-dependencies/model_python/; \
     rm -rf /tmp/module-model_python-source /tmp/module-model_python-archive
 COPY --from=module-order_service_api-source / /tmp/module-order_service_api-source
 RUN set -eu; \
@@ -114,7 +114,7 @@ RUN set -eu; \
     if [ -z "$manifest" ] || [ ! -f "$manifest" ]; then echo "module order_service_api source context has no pyproject.toml" >&2; exit 1; fi; \
     source_dir=${manifest%/pyproject.toml}; \
     mkdir -p /local-dependencies/order_service_api; \
-    cp -a "$source_dir/." /local-dependencies/order_service_api/; \
+    cp -R "$source_dir/." /local-dependencies/order_service_api/; \
     rm -rf /tmp/module-order_service_api-source /tmp/module-order_service_api-archive
 
 RUN --mount=type=secret,id=github_token,required=false \

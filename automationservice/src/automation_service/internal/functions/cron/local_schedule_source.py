@@ -18,7 +18,7 @@ class LocalScheduleSource:
         await out.out(f"local:{trigger.schedule_id}:{trigger.trigger_id}")
 
 
-def make_local_schedule_source(
+async def make_local_schedule_source(
     ctx: Context,
     environment: ServiceEnvironment,
     config: CronEndpointConfig,

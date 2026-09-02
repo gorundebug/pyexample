@@ -28,7 +28,7 @@ class MapToOrderState:
         )
 
 
-def make_map_to_order_state(
+async def make_map_to_order_state(
     ctx: Context, environment: ServiceEnvironment, config: MapStreamConfig
 ) -> MapToOrderState:
     del ctx, environment, config

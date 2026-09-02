@@ -16,7 +16,7 @@ class AnalyticsScheduleSource:
         await out.out(f"analytics:{trigger.schedule_id}:{trigger.trigger_id}")
 
 
-def make_analytics_schedule_source(
+async def make_analytics_schedule_source(
     ctx: Context,
     environment: ServiceEnvironment,
     config: CronEndpointConfig,

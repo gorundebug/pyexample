@@ -7,7 +7,7 @@ class SequentialActivityAEndpointSink:
     """Implement SequentialActivityAEndpointSink."""
 
 
-def make_sequential_activity_a_endpoint_sink(
+async def make_sequential_activity_a_endpoint_sink(
     ctx: Context,
     environment: ServiceEnvironment,
     config: TemporalEndpointConfig,

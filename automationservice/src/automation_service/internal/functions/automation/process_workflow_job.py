@@ -23,7 +23,7 @@ class ProcessWorkflowJob:
         await out.out(f"workflow:processed:{value.replace(continued_prefix, '', 1)}")
 
 
-def make_process_workflow_job(
+async def make_process_workflow_job(
     ctx: Context,
     environment: ServiceEnvironment,
     config: MapStreamConfig,

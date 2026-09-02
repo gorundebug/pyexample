@@ -19,7 +19,7 @@ class ProcessSequentialActivityA:
         await out.out("sequential:a:" + value)
 
 
-def make_process_sequential_activity_a(
+async def make_process_sequential_activity_a(
     ctx: Context,
     environment: ServiceEnvironment,
     config: MapStreamConfig,

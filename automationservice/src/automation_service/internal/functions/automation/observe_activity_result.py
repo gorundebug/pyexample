@@ -19,7 +19,7 @@ class ObserveActivityResult:
         await out.out(value)
 
 
-def make_observe_activity_result(
+async def make_observe_activity_result(
     ctx: Context,
     environment: ServiceEnvironment,
     config: MapStreamConfig,

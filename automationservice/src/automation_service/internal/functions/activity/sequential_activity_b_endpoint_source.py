@@ -31,7 +31,7 @@ class SequentialActivityBEndpointSource:
         del ctx, sc, err, handler_state
 
 
-def make_sequential_activity_b_endpoint_source(
+async def make_sequential_activity_b_endpoint_source(
     ctx: Context,
     environment: ServiceEnvironment,
     config: TemporalEndpointConfig,

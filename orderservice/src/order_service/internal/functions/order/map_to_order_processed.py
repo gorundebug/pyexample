@@ -35,7 +35,7 @@ class MapToOrderProcessed:
         )
 
 
-def make_map_to_order_processed(
+async def make_map_to_order_processed(
     ctx: Context,
     environment: ServiceEnvironment,
     config: MapStreamConfig,

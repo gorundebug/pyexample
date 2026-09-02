@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import asyncio
-import inspect
+import aiohttp
+from aiohttp import web
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import timedelta
@@ -22,6 +23,7 @@ from pyservicelib_gorundebug.datasource import cron as cron_source
 
 from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
+from pyservicelib_gorundebug.runtime.config.config import ServiceConfig
 from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig, KafkaEndpointConfig
 from pyservicelib_gorundebug.runtime.config.stream_types import ProcessStreamConfig
 from model.models.automation_job_generated import (
@@ -48,21 +50,23 @@ class ServiceStreams:
 
 @dataclass(slots=True)
 class ServiceMakers:
-    count_order_processed: Callable[[Context, ServiceEnvironment, ProcessStreamConfig], CountOrderProcessed | Awaitable[CountOrderProcessed]] = (
-        lambda ctx, environment, config: make_count_order_processed(
-            ctx, environment, config
-        )
+    # The argument contract is intentionally uniform: context, environment,
+    # and the exact config of the object being constructed.
+    http_application: Callable[[Context, ServiceEnvironment, ServiceConfig], Awaitable[web.Application]] = (
+        lambda _ctx, _environment, _config: _make_http_application()
     )
-    analytics_schedule_source: Callable[[Context, ServiceEnvironment, CronEndpointConfig], AnalyticsScheduleSource | Awaitable[AnalyticsScheduleSource]] = (
-        lambda ctx, environment, config: make_analytics_schedule_source(
-            ctx, environment, config
-        )
+    count_order_processed: Callable[[Context, ServiceEnvironment, ProcessStreamConfig], Awaitable[CountOrderProcessed]] = (
+        make_count_order_processed
     )
-    order_processed_endpoint_source: Callable[[Context, ServiceEnvironment, KafkaEndpointConfig], OrderProcessedEndpointSource | Awaitable[OrderProcessedEndpointSource]] = (
-        lambda ctx, environment, config: make_order_processed_endpoint_source(
-            ctx, environment, config
-        )
+    analytics_schedule_source: Callable[[Context, ServiceEnvironment, CronEndpointConfig], Awaitable[AnalyticsScheduleSource]] = (
+        make_analytics_schedule_source
     )
+    order_processed_endpoint_source: Callable[[Context, ServiceEnvironment, KafkaEndpointConfig], Awaitable[OrderProcessedEndpointSource]] = (
+        make_order_processed_endpoint_source
+    )
+
+async def _make_http_application() -> web.Application:
+    return web.Application()
 
 
 @dataclass(slots=True)
@@ -80,17 +84,17 @@ class _MakerGroup:
 
     async def invoke(
         self,
-        maker: Callable[[Context, ServiceEnvironment, Any], Any],
+        maker: Callable[[Context, ServiceEnvironment, Any], Awaitable[Any]],
         environment: ServiceEnvironment,
         config: Any,
     ) -> Any:
+        return await self.invoke_call(
+            lambda: maker(self.context, environment, config)
+        )
+
+    async def invoke_call(self, maker: Callable[[], Awaitable[Any]]) -> Any:
         try:
-            value = await asyncio.to_thread(
-                maker, self.context, environment, config
-            )
-            if inspect.isawaitable(value):
-                return await value
-            return value
+            return await maker()
         except BaseException as error:
             with self._lock:
                 if self._first_error is None:
@@ -112,6 +116,7 @@ class GeneratedService(ServiceApp):
         self._functions: ServiceFunctions | None = None
         self._service_streams = ServiceStreams()
         self._transport_consumers: list[Any] = []
+        self._makers_initialized = False
 
     @property
     def makers(self) -> ServiceMakers:
@@ -131,7 +136,7 @@ class GeneratedService(ServiceApp):
     async def initialize_functions(self, ctx: Context) -> None:
         """Apply user maker overrides, construct functions, then configure them."""
 
-        await self.custom_makers_init(ctx)
+        await self._initialize_makers(ctx)
         cfg = self.config
         if not isinstance(cfg, Config):
             raise TypeError(
@@ -157,6 +162,7 @@ class GeneratedService(ServiceApp):
             ),
             return_exceptions=True,
         )
+        maker_group_0.context.cancel()
         maker_group_0.raise_first_error()
         count_order_processed = cast(CountOrderProcessed, group_results_0[0])
         analytics_schedule_source = cast(AnalyticsScheduleSource, group_results_0[1])
@@ -167,6 +173,47 @@ class GeneratedService(ServiceApp):
             order_processed_endpoint_source=order_processed_endpoint_source,
         )
         await self.custom_functions_init(ctx)
+
+    async def _initialize_makers(self, ctx: Context) -> None:
+        if self._makers_initialized:
+            return
+        await self.custom_makers_init(ctx)
+        self._makers_initialized = True
+
+    async def initialize_infrastructure(self, ctx: Context) -> None:
+        """Construct independent runtime adapters with Go-compatible grouping."""
+
+        await self._initialize_makers(ctx)
+        cfg = self.config
+        if not isinstance(cfg, Config):
+            raise TypeError(
+                "Analytics Service requires analytics_service.internal.config.Config"
+            )
+        named = cfg.named
+        maker_group = _MakerGroup(ctx)
+        maker_calls: list[tuple[str, Awaitable[Any]]] = [
+            (
+                "http_application",
+                maker_group.invoke_call(
+                    lambda: self._makers.http_application(
+                        maker_group.context, self, self.service_config
+                    )
+                ),
+            ),
+        ]
+        maker_results = await asyncio.gather(
+            *(call for _, call in maker_calls), return_exceptions=True
+        )
+        maker_group.context.cancel()
+        maker_group.raise_first_error()
+        infrastructure: dict[str, list[Any]] = {}
+        for (name, _), result in zip(maker_calls, maker_results):
+            infrastructure.setdefault(name, []).append(result)
+
+        http_application = cast(
+            web.Application, infrastructure["http_application"][0]
+        )
+        self.replace_http_application(http_application)
 
     async def build_stream_graph(self, ctx: Context) -> None:
         """Construct the configured stream graph with Go-compatible semantics."""
@@ -183,7 +230,7 @@ class GeneratedService(ServiceApp):
         self._service_streams.count_order_processed = transformation.Process[OrderProcessed, OrderProcessed, Exception](named.streams.count_order_processed, self._service_streams.consume_order_processed, self.functions.count_order_processed)
         self._service_streams.consume_order_processed.set_source(self._service_streams.count_order_processed)
 
-    def bind_transports(self) -> None:
+    async def bind_transports(self, ctx: Context) -> None:
         """Bind configured endpoints to the already constructed streams."""
 
         cfg = self.config
@@ -199,9 +246,10 @@ class GeneratedService(ServiceApp):
 
     async def build_runtime(self, ctx: Context) -> None:
         await self.build_stream_graph(ctx)
-        self.bind_transports()
+        await self.bind_transports(ctx)
 
     async def start_service(self, ctx: Context) -> None:
+        await self.initialize_infrastructure(ctx)
         await self.build_runtime(ctx)
         await self.on_start(ctx)
         await self.start(ctx)

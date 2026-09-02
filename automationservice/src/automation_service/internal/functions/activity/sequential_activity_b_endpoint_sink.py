@@ -7,7 +7,7 @@ class SequentialActivityBEndpointSink:
     """Implement SequentialActivityBEndpointSink."""
 
 
-def make_sequential_activity_b_endpoint_sink(
+async def make_sequential_activity_b_endpoint_sink(
     ctx: Context,
     environment: ServiceEnvironment,
     config: TemporalEndpointConfig,

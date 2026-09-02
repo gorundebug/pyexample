@@ -7,7 +7,7 @@ class FanoutActivityAEndpointSink:
     """Implement FanoutActivityAEndpointSink."""
 
 
-def make_fanout_activity_a_endpoint_sink(
+async def make_fanout_activity_a_endpoint_sink(
     ctx: Context,
     environment: ServiceEnvironment,
     config: TemporalEndpointConfig,

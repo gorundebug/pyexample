@@ -7,7 +7,7 @@ class ActivityJobEndpointSink:
     """Implement ActivityJobEndpointSink."""
 
 
-def make_activity_job_endpoint_sink(
+async def make_activity_job_endpoint_sink(
     ctx: Context,
     environment: ServiceEnvironment,
     config: TemporalEndpointConfig,

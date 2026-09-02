@@ -18,7 +18,7 @@ class TemporalActivityScheduleSource:
         await out.out(f"scheduled-activity:{trigger.schedule_id}:{trigger.trigger_id}")
 
 
-def make_temporal_activity_schedule_source(
+async def make_temporal_activity_schedule_source(
     ctx: Context,
     environment: ServiceEnvironment,
     config: TemporalEndpointConfig,

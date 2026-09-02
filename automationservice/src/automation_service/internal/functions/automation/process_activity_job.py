@@ -21,7 +21,7 @@ class ProcessActivityJob:
         await out.out(f"activity:processed:{value}")
 
 
-def make_process_activity_job(
+async def make_process_activity_job(
     ctx: Context,
     environment: ServiceEnvironment,
     config: MapStreamConfig,

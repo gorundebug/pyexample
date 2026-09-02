@@ -7,7 +7,7 @@ class FanoutWorkflowJobEndpointSink:
     """Implement FanoutWorkflowJobEndpointSink."""
 
 
-def make_fanout_workflow_job_endpoint_sink(
+async def make_fanout_workflow_job_endpoint_sink(
     ctx: Context,
     environment: ServiceEnvironment,
     config: TemporalEndpointConfig,

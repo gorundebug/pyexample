@@ -19,7 +19,7 @@ class ProcessScheduledWorkflow:
         await out.out(f"workflow:processed:{value}")
 
 
-def make_process_scheduled_workflow(
+async def make_process_scheduled_workflow(
     ctx: Context,
     environment: ServiceEnvironment,
     config: MapStreamConfig,

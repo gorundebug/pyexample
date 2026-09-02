@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import asyncio
-import inspect
+import aiohttp
+from aiohttp import web
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import timedelta
@@ -23,6 +24,7 @@ from .grpc_service_generated import GrpcHandlers, GrpcServer
 
 from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
+from pyservicelib_gorundebug.runtime.config.config import ServiceConfig
 from pyservicelib_gorundebug.runtime.config.endpoint_types import GrpcEndpointConfig
 from pyservicelib_gorundebug.runtime.config.stream_types import ProcessStreamConfig
 from model.models.order_item import (
@@ -48,16 +50,27 @@ class ServiceStreams:
 
 @dataclass(slots=True)
 class ServiceMakers:
-    process_order_item_source: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], ProcessOrderItemSource | Awaitable[ProcessOrderItemSource]] = (
-        lambda ctx, environment, config: make_process_order_item_source(
-            ctx, environment, config
-        )
+    # The argument contract is intentionally uniform: context, environment,
+    # and the exact config of the object being constructed.
+    http_application: Callable[[Context, ServiceEnvironment, ServiceConfig], Awaitable[web.Application]] = (
+        lambda _ctx, _environment, _config: _make_http_application()
     )
-    get_inventory_item_data: Callable[[Context, ServiceEnvironment, ProcessStreamConfig], GetInventoryItemData | Awaitable[GetInventoryItemData]] = (
-        lambda ctx, environment, config: make_get_inventory_item_data(
-            ctx, environment, config
-        )
+    process_order_item_source: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], Awaitable[ProcessOrderItemSource]] = (
+        make_process_order_item_source
     )
+    get_inventory_item_data: Callable[[Context, ServiceEnvironment, ProcessStreamConfig], Awaitable[GetInventoryItemData]] = (
+        make_get_inventory_item_data
+    )
+    grpc_server: Callable[[Context, ServiceEnvironment, ServiceConfig, GrpcHandlers], Awaitable[GrpcServer]] = (
+        lambda _ctx, _environment, config, handlers: _make_grpc_server(config, handlers)
+    )
+
+async def _make_http_application() -> web.Application:
+    return web.Application()
+async def _make_grpc_server(
+    config: ServiceConfig, handlers: GrpcHandlers
+) -> GrpcServer:
+    return GrpcServer(config.grpc_host, config.grpc_port, handlers)
 
 
 @dataclass(slots=True)
@@ -74,17 +87,17 @@ class _MakerGroup:
 
     async def invoke(
         self,
-        maker: Callable[[Context, ServiceEnvironment, Any], Any],
+        maker: Callable[[Context, ServiceEnvironment, Any], Awaitable[Any]],
         environment: ServiceEnvironment,
         config: Any,
     ) -> Any:
+        return await self.invoke_call(
+            lambda: maker(self.context, environment, config)
+        )
+
+    async def invoke_call(self, maker: Callable[[], Awaitable[Any]]) -> Any:
         try:
-            value = await asyncio.to_thread(
-                maker, self.context, environment, config
-            )
-            if inspect.isawaitable(value):
-                return await value
-            return value
+            return await maker()
         except BaseException as error:
             with self._lock:
                 if self._first_error is None:
@@ -106,6 +119,7 @@ class GeneratedService(ServiceApp):
         self._functions: ServiceFunctions | None = None
         self._service_streams = ServiceStreams()
         self._transport_consumers: list[Any] = []
+        self._makers_initialized = False
         self._grpc_channels: list[grpc.aio.Channel] = []
 
     @property
@@ -128,7 +142,7 @@ class GeneratedService(ServiceApp):
     async def initialize_functions(self, ctx: Context) -> None:
         """Apply user maker overrides, construct functions, then configure them."""
 
-        await self.custom_makers_init(ctx)
+        await self._initialize_makers(ctx)
         cfg = self.config
         if not isinstance(cfg, Config):
             raise TypeError(
@@ -149,6 +163,7 @@ class GeneratedService(ServiceApp):
             ),
             return_exceptions=True,
         )
+        maker_group_0.context.cancel()
         maker_group_0.raise_first_error()
         process_order_item_source = cast(ProcessOrderItemSource, group_results_0[0])
         get_inventory_item_data = cast(GetInventoryItemData, group_results_0[1])
@@ -157,6 +172,47 @@ class GeneratedService(ServiceApp):
             get_inventory_item_data=get_inventory_item_data,
         )
         await self.custom_functions_init(ctx)
+
+    async def _initialize_makers(self, ctx: Context) -> None:
+        if self._makers_initialized:
+            return
+        await self.custom_makers_init(ctx)
+        self._makers_initialized = True
+
+    async def initialize_infrastructure(self, ctx: Context) -> None:
+        """Construct independent runtime adapters with Go-compatible grouping."""
+
+        await self._initialize_makers(ctx)
+        cfg = self.config
+        if not isinstance(cfg, Config):
+            raise TypeError(
+                "Inventory Service requires inventory_service.internal.config.Config"
+            )
+        named = cfg.named
+        maker_group = _MakerGroup(ctx)
+        maker_calls: list[tuple[str, Awaitable[Any]]] = [
+            (
+                "http_application",
+                maker_group.invoke_call(
+                    lambda: self._makers.http_application(
+                        maker_group.context, self, self.service_config
+                    )
+                ),
+            ),
+        ]
+        maker_results = await asyncio.gather(
+            *(call for _, call in maker_calls), return_exceptions=True
+        )
+        maker_group.context.cancel()
+        maker_group.raise_first_error()
+        infrastructure: dict[str, list[Any]] = {}
+        for (name, _), result in zip(maker_calls, maker_results):
+            infrastructure.setdefault(name, []).append(result)
+
+        http_application = cast(
+            web.Application, infrastructure["http_application"][0]
+        )
+        self.replace_http_application(http_application)
 
     async def build_stream_graph(self, ctx: Context) -> None:
         """Construct the configured stream graph with Go-compatible semantics."""
@@ -174,7 +230,7 @@ class GeneratedService(ServiceApp):
         self._service_streams.merge_inventory_result = transformation.Merge[OrderItemResult](named.streams.merge_inventory_result, self._service_streams.get_inventory_item_data, self._service_streams.get_inventory_item_error)
         self._service_streams.process_inventory_item.set_source(self._service_streams.merge_inventory_result)
 
-    def bind_transports(self) -> None:
+    async def bind_transports(self, ctx: Context) -> None:
         """Bind configured endpoints to the already constructed streams."""
 
         cfg = self.config
@@ -183,22 +239,23 @@ class GeneratedService(ServiceApp):
                 "Inventory Service requires inventory_service.internal.config.Config"
             )
         self._transport_consumers = []
-        self._grpc_channels = []
         grpc_handlers = GrpcHandlers()
         process_inventory_item_consumer, process_inventory_item_grpc_handler = grpc_source.make_grpc_no_streaming_endpoint_consumer(self._service_streams.process_inventory_item, self.functions.process_order_item_source)
         self._transport_consumers.append(process_inventory_item_consumer)
         grpc_handlers.process_inventory_item = process_inventory_item_grpc_handler
-        self.add_component(GrpcServer(
-            self.service_config.grpc_host,
-            self.service_config.grpc_port,
+        self.add_component(await self._makers.grpc_server(
+            ctx,
+            self,
+            self.service_config,
             grpc_handlers,
         ))
 
     async def build_runtime(self, ctx: Context) -> None:
         await self.build_stream_graph(ctx)
-        self.bind_transports()
+        await self.bind_transports(ctx)
 
     async def start_service(self, ctx: Context) -> None:
+        await self.initialize_infrastructure(ctx)
         await self.build_runtime(ctx)
         await self.on_start(ctx)
         await self.start(ctx)

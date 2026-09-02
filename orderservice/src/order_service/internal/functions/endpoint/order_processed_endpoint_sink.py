@@ -48,7 +48,7 @@ class OrderProcessedEndpointSink:
         del stream, err, handler_state
 
 
-def make_order_processed_endpoint_sink(
+async def make_order_processed_endpoint_sink(
     ctx: Context, environment: ServiceEnvironment, config: KafkaEndpointConfig
 ) -> OrderProcessedEndpointSink:
     del ctx, environment, config

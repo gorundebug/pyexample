@@ -7,7 +7,7 @@ class WorkflowJobEndpointSink:
     """Implement WorkflowJobEndpointSink."""
 
 
-def make_workflow_job_endpoint_sink(
+async def make_workflow_job_endpoint_sink(
     ctx: Context,
     environment: ServiceEnvironment,
     config: TemporalEndpointConfig,

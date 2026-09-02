@@ -81,7 +81,7 @@ class OrderProcessedEndpointSource:
         del sc, err, handler_state
 
 
-def make_order_processed_endpoint_source(
+async def make_order_processed_endpoint_source(
     ctx: Context, environment: ServiceEnvironment, config: KafkaEndpointConfig
 ) -> OrderProcessedEndpointSource:
     del ctx, environment, config

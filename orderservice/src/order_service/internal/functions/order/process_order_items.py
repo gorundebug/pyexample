@@ -25,7 +25,7 @@ class ProcessOrderItems:
             await out.out(replace(item, order_id=value.id))
 
 
-def make_process_order_items(
+async def make_process_order_items(
     ctx: Context, environment: ServiceEnvironment, config: FlatMapStreamConfig
 ) -> ProcessOrderItems:
     del ctx, environment, config

@@ -19,7 +19,7 @@ class ObserveWorkflowResult:
         await out.out(value)
 
 
-def make_observe_workflow_result(
+async def make_observe_workflow_result(
     ctx: Context,
     environment: ServiceEnvironment,
     config: MapStreamConfig,

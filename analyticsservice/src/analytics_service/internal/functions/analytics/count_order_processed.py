@@ -29,7 +29,7 @@ class CountOrderProcessed:
         self.unsuccessful = 0
 
 
-def make_count_order_processed(
+async def make_count_order_processed(
     ctx: Context, environment: ServiceEnvironment, config: ProcessStreamConfig
 ) -> CountOrderProcessed:
     del ctx, environment, config

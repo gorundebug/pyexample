@@ -89,7 +89,7 @@ class ProcessOrderItemSource:
         del sc, err, handler_state
 
 
-def make_process_order_item_source(
+async def make_process_order_item_source(
     ctx: Context, environment: ServiceEnvironment, config: GrpcEndpointConfig
 ) -> ProcessOrderItemSource:
     del ctx, environment, config

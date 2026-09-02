@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import asyncio
-import inspect
+import aiohttp
+from aiohttp import web
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import timedelta
@@ -25,6 +26,9 @@ import inventory_service_api.generated.proto.inventoryserviceapi.inventoryservic
 
 from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
+from pyservicelib_gorundebug.runtime.config.dataconnector_types import GrpcDataConnectorConfig
+from pyservicelib_gorundebug.runtime.config.config import ServiceConfig
+from pyservicelib_gorundebug.runtime.config.dataconnector_types import HttpDataConnectorConfig
 from pyservicelib_gorundebug.runtime.config.endpoint_types import GrpcEndpointConfig, HttpEndpointConfig, KafkaEndpointConfig
 from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig, FlatMapStreamConfig, MapStreamConfig
 from model.models.order_item import (
@@ -79,45 +83,51 @@ class ServiceStreams:
 
 @dataclass(slots=True)
 class ServiceMakers:
-    order_processed_endpoint_sink: Callable[[Context, ServiceEnvironment, KafkaEndpointConfig], OrderProcessedEndpointSink | Awaitable[OrderProcessedEndpointSink]] = (
-        lambda ctx, environment, config: make_order_processed_endpoint_sink(
-            ctx, environment, config
-        )
+    # The argument contract is intentionally uniform: context, environment,
+    # and the exact config of the object being constructed.
+    http_application: Callable[[Context, ServiceEnvironment, ServiceConfig], Awaitable[web.Application]] = (
+        lambda _ctx, _environment, _config: _make_http_application()
     )
-    process_order_item_sink: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], ProcessOrderItemSink | Awaitable[ProcessOrderItemSink]] = (
-        lambda ctx, environment, config: make_process_order_item_sink(
-            ctx, environment, config
-        )
+    order_service_api_http_source: Callable[[Context, ServiceEnvironment, HttpDataConnectorConfig], Awaitable[http_source.AIOHttpDataSource]] = (
+        lambda _ctx, environment, config: _make_http_source(environment, config)
     )
-    process_order_source: Callable[[Context, ServiceEnvironment, HttpEndpointConfig], ProcessOrderSource | Awaitable[ProcessOrderSource]] = (
-        lambda ctx, environment, config: make_process_order_source(
-            ctx, environment, config
-        )
+    order_processed_endpoint_sink: Callable[[Context, ServiceEnvironment, KafkaEndpointConfig], Awaitable[OrderProcessedEndpointSink]] = (
+        make_order_processed_endpoint_sink
     )
-    map_order_item_result_to_order_state: Callable[[Context, ServiceEnvironment, MapStreamConfig], MapOrderItemResultToOrderState | Awaitable[MapOrderItemResultToOrderState]] = (
-        lambda ctx, environment, config: make_map_order_item_result_to_order_state(
-            ctx, environment, config
-        )
+    process_order_item_sink: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], Awaitable[ProcessOrderItemSink]] = (
+        make_process_order_item_sink
     )
-    map_to_order_processed: Callable[[Context, ServiceEnvironment, MapStreamConfig], MapToOrderProcessed | Awaitable[MapToOrderProcessed]] = (
-        lambda ctx, environment, config: make_map_to_order_processed(
-            ctx, environment, config
-        )
+    process_order_source: Callable[[Context, ServiceEnvironment, HttpEndpointConfig], Awaitable[ProcessOrderSource]] = (
+        make_process_order_source
     )
-    map_to_order_state: Callable[[Context, ServiceEnvironment, MapStreamConfig], MapToOrderState | Awaitable[MapToOrderState]] = (
-        lambda ctx, environment, config: make_map_to_order_state(
-            ctx, environment, config
-        )
+    map_order_item_result_to_order_state: Callable[[Context, ServiceEnvironment, MapStreamConfig], Awaitable[MapOrderItemResultToOrderState]] = (
+        make_map_order_item_result_to_order_state
     )
-    process_order_items: Callable[[Context, ServiceEnvironment, FlatMapStreamConfig], ProcessOrderItems | Awaitable[ProcessOrderItems]] = (
-        lambda ctx, environment, config: make_process_order_items(
-            ctx, environment, config
-        )
+    map_to_order_processed: Callable[[Context, ServiceEnvironment, MapStreamConfig], Awaitable[MapToOrderProcessed]] = (
+        make_map_to_order_processed
     )
-    soft_deadline: Callable[[Context, ServiceEnvironment, DelayStreamConfig], SoftDeadline | Awaitable[SoftDeadline]] = (
-        lambda ctx, environment, config: make_soft_deadline(
-            ctx, environment, config
-        )
+    map_to_order_state: Callable[[Context, ServiceEnvironment, MapStreamConfig], Awaitable[MapToOrderState]] = (
+        make_map_to_order_state
+    )
+    process_order_items: Callable[[Context, ServiceEnvironment, FlatMapStreamConfig], Awaitable[ProcessOrderItems]] = (
+        make_process_order_items
+    )
+    soft_deadline: Callable[[Context, ServiceEnvironment, DelayStreamConfig], Awaitable[SoftDeadline]] = (
+        make_soft_deadline
+    )
+    inventory_service_api_grpc_channel: Callable[[Context, ServiceEnvironment, GrpcDataConnectorConfig], Awaitable[grpc.aio.Channel]] = (
+        lambda _ctx, _environment, config: _make_grpc_channel(config)
+    )
+
+async def _make_http_application() -> web.Application:
+    return web.Application()
+async def _make_http_source(
+    environment: ServiceEnvironment, config: HttpDataConnectorConfig
+) -> http_source.AIOHttpDataSource:
+    return http_source.AIOHttpDataSource(config.id, environment)
+async def _make_grpc_channel(config: GrpcDataConnectorConfig) -> grpc.aio.Channel:
+    return grpc.aio.insecure_channel(
+        _required(config.address, "gRPC connector address")
     )
 
 
@@ -141,17 +151,17 @@ class _MakerGroup:
 
     async def invoke(
         self,
-        maker: Callable[[Context, ServiceEnvironment, Any], Any],
+        maker: Callable[[Context, ServiceEnvironment, Any], Awaitable[Any]],
         environment: ServiceEnvironment,
         config: Any,
     ) -> Any:
+        return await self.invoke_call(
+            lambda: maker(self.context, environment, config)
+        )
+
+    async def invoke_call(self, maker: Callable[[], Awaitable[Any]]) -> Any:
         try:
-            value = await asyncio.to_thread(
-                maker, self.context, environment, config
-            )
-            if inspect.isawaitable(value):
-                return await value
-            return value
+            return await maker()
         except BaseException as error:
             with self._lock:
                 if self._first_error is None:
@@ -187,6 +197,7 @@ class GeneratedService(ServiceApp):
         self._functions: ServiceFunctions | None = None
         self._service_streams = ServiceStreams()
         self._transport_consumers: list[Any] = []
+        self._makers_initialized = False
         self._grpc_channels: list[grpc.aio.Channel] = []
 
     @property
@@ -215,7 +226,7 @@ class GeneratedService(ServiceApp):
     async def initialize_functions(self, ctx: Context) -> None:
         """Apply user maker overrides, construct functions, then configure them."""
 
-        await self.custom_makers_init(ctx)
+        await self._initialize_makers(ctx)
         cfg = self.config
         if not isinstance(cfg, Config):
             raise TypeError(
@@ -266,6 +277,7 @@ class GeneratedService(ServiceApp):
             ),
             return_exceptions=True,
         )
+        maker_group_0.context.cancel()
         maker_group_0.raise_first_error()
         order_processed_endpoint_sink = cast(OrderProcessedEndpointSink, group_results_0[0])
         process_order_item_sink = cast(ProcessOrderItemSink, group_results_0[1])
@@ -286,6 +298,77 @@ class GeneratedService(ServiceApp):
             soft_deadline=soft_deadline,
         )
         await self.custom_functions_init(ctx)
+
+    async def _initialize_makers(self, ctx: Context) -> None:
+        if self._makers_initialized:
+            return
+        await self.custom_makers_init(ctx)
+        self._makers_initialized = True
+
+    async def initialize_infrastructure(self, ctx: Context) -> None:
+        """Construct independent runtime adapters with Go-compatible grouping."""
+
+        await self._initialize_makers(ctx)
+        cfg = self.config
+        if not isinstance(cfg, Config):
+            raise TypeError(
+                "Order Service requires order_service.internal.config.Config"
+            )
+        named = cfg.named
+        maker_group = _MakerGroup(ctx)
+        maker_calls: list[tuple[str, Awaitable[Any]]] = [
+            (
+                "http_application",
+                maker_group.invoke_call(
+                    lambda: self._makers.http_application(
+                        maker_group.context, self, self.service_config
+                    )
+                ),
+            ),
+            (
+                "order_service_api_http_source",
+                maker_group.invoke_call(
+                    lambda: self._makers.order_service_api_http_source(
+                        maker_group.context,
+                        self,
+                        named.data_connectors.order_service_api,
+                    )
+                ),
+            ),
+        ]
+        for _ in range(named.data_connectors.inventory_service_api.connections_count):
+            maker_calls.append((
+                "inventory_service_api_grpc_channel",
+                maker_group.invoke_call(
+                    lambda: self._makers.inventory_service_api_grpc_channel(
+                        maker_group.context,
+                        self,
+                        named.data_connectors.inventory_service_api,
+                    )
+                ),
+            ))
+        maker_results = await asyncio.gather(
+            *(call for _, call in maker_calls), return_exceptions=True
+        )
+        maker_group.context.cancel()
+        maker_group.raise_first_error()
+        infrastructure: dict[str, list[Any]] = {}
+        for (name, _), result in zip(maker_calls, maker_results):
+            infrastructure.setdefault(name, []).append(result)
+
+        http_application = cast(
+            web.Application, infrastructure["http_application"][0]
+        )
+        self.replace_http_application(http_application)
+        self.add_datasource(cast(
+            http_source.AIOHttpDataSource,
+            infrastructure["order_service_api_http_source"][0],
+        ))
+        self._inventory_service_api_grpc_channels = cast(
+            list[grpc.aio.Channel],
+            infrastructure["inventory_service_api_grpc_channel"],
+        )
+        self._grpc_channels.extend(self._inventory_service_api_grpc_channels)
 
     async def build_stream_graph(self, ctx: Context) -> None:
         """Construct the configured stream graph with Go-compatible semantics."""
@@ -311,7 +394,7 @@ class GeneratedService(ServiceApp):
         self._service_streams.publish_order_processed = transformation.Sink[OrderProcessed, Exception](named.streams.publish_order_processed, self._service_streams.map_to_order_processed)
         self._service_streams.process_order.set_source(self._service_streams.split_order_result.add_stream())
 
-    def bind_transports(self) -> None:
+    async def bind_transports(self, ctx: Context) -> None:
         """Bind configured endpoints to the already constructed streams."""
 
         cfg = self.config
@@ -321,18 +404,11 @@ class GeneratedService(ServiceApp):
             )
         named = cfg.named
         self._transport_consumers = []
-        self._grpc_channels = []
         process_order_consumer = http_source.make_net_http_endpoint_consumer(self._service_streams.process_order, self.functions.process_order_source)
         self._transport_consumers.append(process_order_consumer)
-        inventory_service_api_connections_count = named.data_connectors.inventory_service_api.connections_count
-        inventory_service_api_grpc_channels = [
-            grpc.aio.insecure_channel(_required(named.data_connectors.inventory_service_api.address, "Inventory Service API connector address"))
-            for _ in range(inventory_service_api_connections_count)
-        ]
-        self._grpc_channels.extend(inventory_service_api_grpc_channels)
         inventory_service_api_grpc_stub = [
             inventory_service_api_grpc_api.InventoryServiceApiStub(channel)  # type: ignore[no-untyped-call]
-            for channel in inventory_service_api_grpc_channels
+            for channel in self._inventory_service_api_grpc_channels
         ]
         process_order_item_consumer = grpc_sink.make_grpc_no_streaming_endpoint_consumer(self._service_streams.process_order_item, self.functions.process_order_item_sink, _GrpcMethodPool([stub.ProcessOrderItem for stub in inventory_service_api_grpc_stub]))
         self._transport_consumers.append(process_order_item_consumer)
@@ -341,9 +417,10 @@ class GeneratedService(ServiceApp):
 
     async def build_runtime(self, ctx: Context) -> None:
         await self.build_stream_graph(ctx)
-        self.bind_transports()
+        await self.bind_transports(ctx)
 
     async def start_service(self, ctx: Context) -> None:
+        await self.initialize_infrastructure(ctx)
         await self.build_runtime(ctx)
         await self.on_start(ctx)
         await self.start(ctx)

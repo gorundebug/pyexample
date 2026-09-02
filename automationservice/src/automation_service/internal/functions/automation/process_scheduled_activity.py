@@ -21,7 +21,7 @@ class ProcessScheduledActivity:
         await out.out(f"activity:processed:{value}")
 
 
-def make_process_scheduled_activity(
+async def make_process_scheduled_activity(
     ctx: Context,
     environment: ServiceEnvironment,
     config: MapStreamConfig,

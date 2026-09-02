@@ -60,7 +60,7 @@ RUN set -eu; \
     source_dir=${manifest%/pyproject.toml}; \
     if [ -z "$source_dir" ] || [ "$source_dir" = "/" ]; then echo "unsafe pyservicelib source directory" >&2; exit 1; fi; \
     mkdir -p /workspace/.pyservicelib; \
-    cp -a "$source_dir/." /workspace/.pyservicelib/; \
+    cp -R "$source_dir/." /workspace/.pyservicelib/; \
     rm -rf /tmp/pyservicelib-source; \
     find /workspace -mindepth 2 -maxdepth 2 -type f -name pyproject.toml \
       -exec sed -i \

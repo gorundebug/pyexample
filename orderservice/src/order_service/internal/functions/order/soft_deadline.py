@@ -35,7 +35,7 @@ class SoftDeadline:
         del stream, value, error, out
 
 
-def make_soft_deadline(
+async def make_soft_deadline(
     ctx: Context, environment: ServiceEnvironment, config: DelayStreamConfig
 ) -> SoftDeadline:
     del ctx, environment, config

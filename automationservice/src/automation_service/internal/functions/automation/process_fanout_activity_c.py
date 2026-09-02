@@ -19,7 +19,7 @@ class ProcessFanoutActivityC:
         await out.out("fanout:c:" + value)
 
 
-def make_process_fanout_activity_c(
+async def make_process_fanout_activity_c(
     ctx: Context,
     environment: ServiceEnvironment,
     config: MapStreamConfig,

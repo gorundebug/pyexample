@@ -48,7 +48,7 @@ class GetInventoryItemData:
         await (out if reserved else err_out).out(result)
 
 
-def make_get_inventory_item_data(
+async def make_get_inventory_item_data(
     ctx: Context, environment: ServiceEnvironment, config: ProcessStreamConfig
 ) -> GetInventoryItemData:
     del ctx, environment, config

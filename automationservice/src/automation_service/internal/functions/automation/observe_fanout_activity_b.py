@@ -19,7 +19,7 @@ class ObserveFanoutActivityB:
         await out.out(value)
 
 
-def make_observe_fanout_activity_b(
+async def make_observe_fanout_activity_b(
     ctx: Context,
     environment: ServiceEnvironment,
     config: MapStreamConfig,

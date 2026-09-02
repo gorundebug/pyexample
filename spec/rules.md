@@ -40,6 +40,9 @@ user-owned extension points.
 - Business functions are user-owned classes whose async methods satisfy the
   protocols used by generated stream construction. Keep method names,
   parameter order and type annotations.
+- Function and infrastructure makers are `async def` coroutines and resolve to
+  the constructed object. A synchronous maker is not part of the generated
+  contract; never hide blocking work behind `asyncio.to_thread`.
 - Propagate `Stream`, `StreamContext` or `SinkStreamContext`; do not create a
   replacement context in the middle of a chain.
 - Await collector/sender/result operations. Do not block the event loop with

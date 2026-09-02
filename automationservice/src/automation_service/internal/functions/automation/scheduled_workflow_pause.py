@@ -25,7 +25,7 @@ class ScheduledWorkflowPause:
         del stream, value, error, out
 
 
-def make_scheduled_workflow_pause(
+async def make_scheduled_workflow_pause(
     ctx: Context,
     environment: ServiceEnvironment,
     config: DelayStreamConfig,

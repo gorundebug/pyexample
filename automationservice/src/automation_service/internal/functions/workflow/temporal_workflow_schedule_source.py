@@ -18,7 +18,7 @@ class TemporalWorkflowScheduleSource:
         await out.out(f"scheduled-workflow:{trigger.schedule_id}:{trigger.trigger_id}")
 
 
-def make_temporal_workflow_schedule_source(
+async def make_temporal_workflow_schedule_source(
     ctx: Context,
     environment: ServiceEnvironment,
     config: TemporalEndpointConfig,
