@@ -5,6 +5,7 @@ from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.endpoint_types import TemporalEndpointConfig
 from pyservicelib_gorundebug.runtime.schedule import ScheduleTrigger
 from pyservicelib_gorundebug.runtime.common import Collect
+from pyservicelib_gorundebug.runtime import durable_call_heartbeat
 
 
 class TemporalActivityScheduleSource:
@@ -15,6 +16,7 @@ class TemporalActivityScheduleSource:
         trigger: ScheduleTrigger,
         out: Collect[str],
     ) -> None:
+        durable_call_heartbeat(f"scheduled:{trigger.trigger_id}")
         await out.out(f"scheduled-activity:{trigger.schedule_id}:{trigger.trigger_id}")
 
 
