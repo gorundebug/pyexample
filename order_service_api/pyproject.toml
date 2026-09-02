@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "order_service_api"
-version = "0.1.0"
+version = "0.2.71"
 requires-python = ">=3.12"
 dependencies = [
   "pydantic>=2.9.2",
@@ -17,7 +17,9 @@ codegen = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/order_service_api"]
-
+# Generated transport bindings are build artifacts: they are intentionally
+# excluded from Git, but must be included in the distributable wheel after
+# generate.generated.sh has materialized them from the source contracts.
 [tool.hatch.build]
 artifacts = [
   "src/order_service_api/generated/**/*.py",

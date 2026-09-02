@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "inventory_service_api"
-version = "0.1.0"
+version = "0.2.71"
 requires-python = ">=3.12"
 dependencies = [
   "grpcio>=1.81.0",
@@ -18,7 +18,9 @@ codegen = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/inventory_service_api"]
-
+# Generated transport bindings are build artifacts: they are intentionally
+# excluded from Git, but must be included in the distributable wheel after
+# generate.generated.sh has materialized them from the source contracts.
 [tool.hatch.build]
 artifacts = [
   "src/inventory_service_api/generated/**/*.py",
