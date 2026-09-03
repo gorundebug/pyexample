@@ -55,11 +55,11 @@ class Dependency(ServiceDependency):
 
 class Service(GeneratedService):
     async def custom_makers_init(self, ctx: Context) -> None:
-        """Replace generated makers here before any function is constructed."""
+        """Add only explicit user maker overrides."""
         del ctx
 
     async def custom_functions_init(self, ctx: Context) -> None:
-        """Configure constructed functions here before the graph is wired."""
+        """Add only explicit post-construction customization."""
         del ctx
 
     async def on_start(self, ctx: Context) -> None:
