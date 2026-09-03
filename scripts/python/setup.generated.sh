@@ -3,6 +3,8 @@ set -euo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${ROOT}"
+# shellcheck source=scripts/git-retry.generated.sh
+. "${ROOT}/scripts/git-retry.generated.sh"
 
 for service in analyticsservice automationservice inventoryservice orderservice ; do
   LOCAL_DEPENDENCIES_DIR="${ROOT}" \
@@ -14,7 +16,7 @@ if [[ ! -d .pyservicelib/.git ]]; then
     echo ".pyservicelib exists but is not a Git checkout" >&2
     exit 1
   fi
-  git clone --branch "v0.2.79" \
+  git_retry git clone --branch "v0.2.80" \
     --depth 1 \
     "https://github.com/gorundebug/pyservicelib.git" \
     .pyservicelib
