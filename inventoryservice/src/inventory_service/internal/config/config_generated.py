@@ -355,16 +355,6 @@ def _temporal_data_connector(
         tls_ca_file=getattr(config, "tls_ca_file", "") or "",
         tls_cert_file=getattr(config, "tls_cert_file", "") or "",
         tls_key_file=getattr(config, "tls_key_file", "") or "",
-        max_concurrent_activities=(
-            getattr(config, "max_concurrent_activities")
-            if getattr(config, "max_concurrent_activities", None) is not None
-            else 1
-        ),
-        max_concurrent_workflows=(
-            getattr(config, "max_concurrent_workflows")
-            if getattr(config, "max_concurrent_workflows", None) is not None
-            else 1
-        ),
         worker_stop_timeout=(
             getattr(config, "worker_stop_timeout")
             if getattr(config, "worker_stop_timeout", None) is not None
@@ -467,6 +457,16 @@ def _temporal_endpoint(config: EndpointConfig) -> TemporalEndpointConfig:
         tracing_enabled=config.tracing_enabled or False,
         enabled=config.enabled or False,
         task_queue=config.task_queue or "",
+        max_concurrent_activities=(
+            config.max_concurrent_activities
+            if config.max_concurrent_activities is not None
+            else 0
+        ),
+        max_concurrent_workflow_tasks=(
+            config.max_concurrent_workflow_tasks
+            if config.max_concurrent_workflow_tasks is not None
+            else 0
+        ),
         schedule=config.schedule or "",
         schedule_id=config.schedule_id or "",
         timezone=config.timezone or "UTC",
