@@ -17,7 +17,7 @@ dependencies = [
   "order_service_api",
 ]
 [tool.uv.sources]
-pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.75" }
+pyservicelib-gorundebug = { git = "https://github.com/gorundebug/pyservicelib.git", tag = "v0.2.76" }
 inventory_service_api = { workspace = true }
 model = { workspace = true }
 order_service_api = { workspace = true }
