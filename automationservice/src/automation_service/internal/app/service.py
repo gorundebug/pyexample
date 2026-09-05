@@ -1,14 +1,13 @@
 """User-owned service extensions. The generator never overwrites this file."""
 
-import os
-
 from pyservicelib_gorundebug.api.models.environment import Environment
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment.environment import (
     ServiceDependency,
     ServiceEnvironment,
 )
-from pyservicelib_gorundebug.runtime.environment.log.log import LogsEngine
+from pyservicelib_gorundebug.runtime.environment.flags import flag_enabled
+from pyservicelib_gorundebug.runtime.environment.log.log import LogsEngine, NoopLogsEngine
 from pyservicelib_gorundebug.runtime.environment.metrics.metrics import MetricsEngine, NoopMetricsEngine
 from pyservicelib_gorundebug.runtime.environment.tracing.tracing import TracingEngine
 from pyservicelib_gorundebug.runtime.telemetry.telemetry import (
@@ -27,6 +26,8 @@ class Dependency(ServiceDependency):
         self,
         env: ServiceEnvironment,
     ) -> LogsEngine | None:
+        if flag_enabled("SERVICELIB_NOOP_LOGS"):
+            return NoopLogsEngine()
         if _uses_otlp(env):
             return create_otlp_logs_engine(env.service_config.name)
         return None
@@ -35,7 +36,7 @@ class Dependency(ServiceDependency):
         self,
         env: ServiceEnvironment,
     ) -> MetricsEngine | None:
-        if os.getenv("SERVICELIB_NOOP_METRICS"):
+        if flag_enabled("SERVICELIB_NOOP_METRICS"):
             return NoopMetricsEngine()
         if _uses_otlp(env):
             return create_otlp_metrics_engine(env.service_config.name)
@@ -45,6 +46,8 @@ class Dependency(ServiceDependency):
         self,
         env: ServiceEnvironment,
     ) -> TracingEngine | None:
+        if flag_enabled("SERVICELIB_NOOP_TRACING"):
+            return None
         if _uses_otlp(env):
             return create_otlp_tracing_engine(env.service_config.name)
         return create_pretty_tracing_engine(
