@@ -19,13 +19,25 @@ from pyservicelib_gorundebug.runtime.serviceapp import (
 from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
 from pyservicelib_gorundebug import transformation
 from pyservicelib_gorundebug.datasource.kafka import aiokafkads as kafka_source
+from pyservicelib_gorundebug.datasource.localsource import custom as custom_source
+from pyservicelib_gorundebug.datasink.localsink import custom as custom_sink
 from pyservicelib_gorundebug.datasource import cron as cron_source
+from pyservicelib_gorundebug.runtime.datastruct.key_value import KeyValue
 
 from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.config import ServiceConfig
-from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig, KafkaEndpointConfig
-from pyservicelib_gorundebug.runtime.config.stream_types import ProcessStreamConfig
+from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig, CustomEndpointConfig, KafkaEndpointConfig
+from pyservicelib_gorundebug.runtime.config.stream_types import CaseStreamConfig, JoinStreamConfig, KeyByStreamConfig, MultiJoinStreamConfig, ProcessStreamConfig
+from analytics_service.models.analytics_event import (
+    AnalyticsEvent,
+)
+from analytics_service.models.analytics_key_generated import (
+    AnalyticsKey,
+)
+from analytics_service.models.analytics_result import (
+    AnalyticsResult,
+)
 from model.models.automation_job_generated import (
     AutomationJob,
 )
@@ -37,8 +49,36 @@ from ..functions import (
     make_count_order_processed,
     AnalyticsScheduleSource,
     make_analytics_schedule_source,
+    AnalyticsOrdersSource,
+    make_analytics_orders_source,
+    AnalyticsPaymentsSource,
+    make_analytics_payments_source,
+    AnalyticsShipmentsSource,
+    make_analytics_shipments_source,
+    HighValueAnalyticsSink,
+    make_high_value_analytics_sink,
+    JoinedAnalyticsSink,
+    make_joined_analytics_sink,
     OrderProcessedEndpointSource,
     make_order_processed_endpoint_source,
+    StandardAnalyticsSink,
+    make_standard_analytics_sink,
+    JoinOrderPaymentAnalytics,
+    make_join_order_payment_analytics,
+    KeyOrdersForJoin,
+    make_key_orders_for_join,
+    KeyPaymentsForJoin,
+    make_key_payments_for_join,
+    KeyOrdersForMultiJoin,
+    make_key_orders_for_multi_join,
+    KeyPaymentsForMultiJoin,
+    make_key_payments_for_multi_join,
+    KeyShipmentsForMultiJoin,
+    make_key_shipments_for_multi_join,
+    MultiJoinAnalyticsEvents,
+    make_multi_join_analytics_events,
+    RouteAnalyticsResult,
+    make_route_analytics_result,
 )
 
 
@@ -47,6 +87,24 @@ class ServiceStreams:
     analytics_schedule: Any = None
     consume_order_processed: Any = None
     count_order_processed: Any = None
+    analytics_orders: Any = None
+    analytics_payments: Any = None
+    analytics_shipments: Any = None
+    split_analytics_orders: Any = None
+    split_analytics_payments: Any = None
+    key_orders_for_join: Any = None
+    key_payments_for_join: Any = None
+    join_order_payment_analytics: Any = None
+    write_joined_analytics: Any = None
+    key_orders_for_multi_join: Any = None
+    key_payments_for_multi_join: Any = None
+    key_shipments_for_multi_join: Any = None
+    multi_join_analytics_events: Any = None
+    route_analytics_result: Any = None
+    high_value_analytics: Any = None
+    standard_analytics: Any = None
+    write_high_value_analytics: Any = None
+    write_standard_analytics: Any = None
 
 @dataclass(slots=True)
 class ServiceMakers:
@@ -61,8 +119,50 @@ class ServiceMakers:
     analytics_schedule_source: Callable[[Context, ServiceEnvironment, CronEndpointConfig], Awaitable[AnalyticsScheduleSource]] = (
         make_analytics_schedule_source
     )
+    analytics_orders_source: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[AnalyticsOrdersSource]] = (
+        make_analytics_orders_source
+    )
+    analytics_payments_source: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[AnalyticsPaymentsSource]] = (
+        make_analytics_payments_source
+    )
+    analytics_shipments_source: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[AnalyticsShipmentsSource]] = (
+        make_analytics_shipments_source
+    )
+    high_value_analytics_sink: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[HighValueAnalyticsSink]] = (
+        make_high_value_analytics_sink
+    )
+    joined_analytics_sink: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[JoinedAnalyticsSink]] = (
+        make_joined_analytics_sink
+    )
     order_processed_endpoint_source: Callable[[Context, ServiceEnvironment, KafkaEndpointConfig], Awaitable[OrderProcessedEndpointSource]] = (
         make_order_processed_endpoint_source
+    )
+    standard_analytics_sink: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[StandardAnalyticsSink]] = (
+        make_standard_analytics_sink
+    )
+    join_order_payment_analytics: Callable[[Context, ServiceEnvironment, JoinStreamConfig], Awaitable[JoinOrderPaymentAnalytics]] = (
+        make_join_order_payment_analytics
+    )
+    key_orders_for_join: Callable[[Context, ServiceEnvironment, KeyByStreamConfig], Awaitable[KeyOrdersForJoin]] = (
+        make_key_orders_for_join
+    )
+    key_payments_for_join: Callable[[Context, ServiceEnvironment, KeyByStreamConfig], Awaitable[KeyPaymentsForJoin]] = (
+        make_key_payments_for_join
+    )
+    key_orders_for_multi_join: Callable[[Context, ServiceEnvironment, KeyByStreamConfig], Awaitable[KeyOrdersForMultiJoin]] = (
+        make_key_orders_for_multi_join
+    )
+    key_payments_for_multi_join: Callable[[Context, ServiceEnvironment, KeyByStreamConfig], Awaitable[KeyPaymentsForMultiJoin]] = (
+        make_key_payments_for_multi_join
+    )
+    key_shipments_for_multi_join: Callable[[Context, ServiceEnvironment, KeyByStreamConfig], Awaitable[KeyShipmentsForMultiJoin]] = (
+        make_key_shipments_for_multi_join
+    )
+    multi_join_analytics_events: Callable[[Context, ServiceEnvironment, MultiJoinStreamConfig], Awaitable[MultiJoinAnalyticsEvents]] = (
+        make_multi_join_analytics_events
+    )
+    route_analytics_result: Callable[[Context, ServiceEnvironment, CaseStreamConfig], Awaitable[RouteAnalyticsResult]] = (
+        make_route_analytics_result
     )
 
 async def _make_http_application() -> web.Application:
@@ -73,7 +173,21 @@ async def _make_http_application() -> web.Application:
 class ServiceFunctions:
     count_order_processed: CountOrderProcessed
     analytics_schedule_source: AnalyticsScheduleSource
+    analytics_orders_source: AnalyticsOrdersSource
+    analytics_payments_source: AnalyticsPaymentsSource
+    analytics_shipments_source: AnalyticsShipmentsSource
+    high_value_analytics_sink: HighValueAnalyticsSink
+    joined_analytics_sink: JoinedAnalyticsSink
     order_processed_endpoint_source: OrderProcessedEndpointSource
+    standard_analytics_sink: StandardAnalyticsSink
+    join_order_payment_analytics: JoinOrderPaymentAnalytics
+    key_orders_for_join: KeyOrdersForJoin
+    key_payments_for_join: KeyPaymentsForJoin
+    key_orders_for_multi_join: KeyOrdersForMultiJoin
+    key_payments_for_multi_join: KeyPaymentsForMultiJoin
+    key_shipments_for_multi_join: KeyShipmentsForMultiJoin
+    multi_join_analytics_events: MultiJoinAnalyticsEvents
+    route_analytics_result: RouteAnalyticsResult
 
 
 class _MakerGroup:
@@ -129,6 +243,10 @@ class GeneratedService(ServiceApp):
         return self._functions
 
     def get_serde(self, type_name: str) -> Optional[Serializer]:
+        if type_name == "AnalyticsEvent":
+            return DataclassJsonSerde("AnalyticsEvent", AnalyticsEvent)
+        if type_name == "AnalyticsResult":
+            return DataclassJsonSerde("AnalyticsResult", AnalyticsResult)
         if type_name == "OrderProcessed":
             return DataclassJsonSerde("OrderProcessed", OrderProcessed)
         return None
@@ -156,9 +274,79 @@ class GeneratedService(ServiceApp):
                 named.endpoints.analytics_schedule,
             ),
             maker_group_0.invoke(
+                self._makers.analytics_orders_source,
+                self,
+                named.endpoints.analytics_orders,
+            ),
+            maker_group_0.invoke(
+                self._makers.analytics_payments_source,
+                self,
+                named.endpoints.analytics_payments,
+            ),
+            maker_group_0.invoke(
+                self._makers.analytics_shipments_source,
+                self,
+                named.endpoints.analytics_shipments,
+            ),
+            maker_group_0.invoke(
+                self._makers.high_value_analytics_sink,
+                self,
+                named.endpoints.high_value_analytics,
+            ),
+            maker_group_0.invoke(
+                self._makers.joined_analytics_sink,
+                self,
+                named.endpoints.joined_analytics,
+            ),
+            maker_group_0.invoke(
                 self._makers.order_processed_endpoint_source,
                 self,
                 named.endpoints.order_processed,
+            ),
+            maker_group_0.invoke(
+                self._makers.standard_analytics_sink,
+                self,
+                named.endpoints.standard_analytics,
+            ),
+            maker_group_0.invoke(
+                self._makers.join_order_payment_analytics,
+                self,
+                named.streams.join_order_payment_analytics,
+            ),
+            maker_group_0.invoke(
+                self._makers.key_orders_for_join,
+                self,
+                named.streams.key_orders_for_join,
+            ),
+            maker_group_0.invoke(
+                self._makers.key_payments_for_join,
+                self,
+                named.streams.key_payments_for_join,
+            ),
+            maker_group_0.invoke(
+                self._makers.key_orders_for_multi_join,
+                self,
+                named.streams.key_orders_for_multi_join,
+            ),
+            maker_group_0.invoke(
+                self._makers.key_payments_for_multi_join,
+                self,
+                named.streams.key_payments_for_multi_join,
+            ),
+            maker_group_0.invoke(
+                self._makers.key_shipments_for_multi_join,
+                self,
+                named.streams.key_shipments_for_multi_join,
+            ),
+            maker_group_0.invoke(
+                self._makers.multi_join_analytics_events,
+                self,
+                named.streams.multi_join_analytics_events,
+            ),
+            maker_group_0.invoke(
+                self._makers.route_analytics_result,
+                self,
+                named.streams.route_analytics_result,
             ),
             return_exceptions=True,
         )
@@ -166,11 +354,39 @@ class GeneratedService(ServiceApp):
         maker_group_0.raise_first_error()
         count_order_processed = cast(CountOrderProcessed, group_results_0[0])
         analytics_schedule_source = cast(AnalyticsScheduleSource, group_results_0[1])
-        order_processed_endpoint_source = cast(OrderProcessedEndpointSource, group_results_0[2])
+        analytics_orders_source = cast(AnalyticsOrdersSource, group_results_0[2])
+        analytics_payments_source = cast(AnalyticsPaymentsSource, group_results_0[3])
+        analytics_shipments_source = cast(AnalyticsShipmentsSource, group_results_0[4])
+        high_value_analytics_sink = cast(HighValueAnalyticsSink, group_results_0[5])
+        joined_analytics_sink = cast(JoinedAnalyticsSink, group_results_0[6])
+        order_processed_endpoint_source = cast(OrderProcessedEndpointSource, group_results_0[7])
+        standard_analytics_sink = cast(StandardAnalyticsSink, group_results_0[8])
+        join_order_payment_analytics = cast(JoinOrderPaymentAnalytics, group_results_0[9])
+        key_orders_for_join = cast(KeyOrdersForJoin, group_results_0[10])
+        key_payments_for_join = cast(KeyPaymentsForJoin, group_results_0[11])
+        key_orders_for_multi_join = cast(KeyOrdersForMultiJoin, group_results_0[12])
+        key_payments_for_multi_join = cast(KeyPaymentsForMultiJoin, group_results_0[13])
+        key_shipments_for_multi_join = cast(KeyShipmentsForMultiJoin, group_results_0[14])
+        multi_join_analytics_events = cast(MultiJoinAnalyticsEvents, group_results_0[15])
+        route_analytics_result = cast(RouteAnalyticsResult, group_results_0[16])
         self._functions = ServiceFunctions(
             count_order_processed=count_order_processed,
             analytics_schedule_source=analytics_schedule_source,
+            analytics_orders_source=analytics_orders_source,
+            analytics_payments_source=analytics_payments_source,
+            analytics_shipments_source=analytics_shipments_source,
+            high_value_analytics_sink=high_value_analytics_sink,
+            joined_analytics_sink=joined_analytics_sink,
             order_processed_endpoint_source=order_processed_endpoint_source,
+            standard_analytics_sink=standard_analytics_sink,
+            join_order_payment_analytics=join_order_payment_analytics,
+            key_orders_for_join=key_orders_for_join,
+            key_payments_for_join=key_payments_for_join,
+            key_orders_for_multi_join=key_orders_for_multi_join,
+            key_payments_for_multi_join=key_payments_for_multi_join,
+            key_shipments_for_multi_join=key_shipments_for_multi_join,
+            multi_join_analytics_events=multi_join_analytics_events,
+            route_analytics_result=route_analytics_result,
         )
         await self.custom_functions_init(ctx)
 
@@ -228,6 +444,27 @@ class GeneratedService(ServiceApp):
         self._service_streams.analytics_schedule = transformation.Input[str, object, Exception](named.streams.analytics_schedule, self)
         self._service_streams.consume_order_processed = transformation.Input[OrderProcessed, OrderProcessed, Exception](named.streams.consume_order_processed, self)
         self._service_streams.count_order_processed = transformation.Process[OrderProcessed, OrderProcessed, Exception](named.streams.count_order_processed, self._service_streams.consume_order_processed, self.functions.count_order_processed)
+        self._service_streams.analytics_orders = transformation.Input[AnalyticsEvent, object, Exception](named.streams.analytics_orders, self)
+        self._service_streams.analytics_payments = transformation.Input[AnalyticsEvent, object, Exception](named.streams.analytics_payments, self)
+        self._service_streams.analytics_shipments = transformation.Input[AnalyticsEvent, object, Exception](named.streams.analytics_shipments, self)
+        self._service_streams.split_analytics_orders = transformation.Split[AnalyticsEvent](named.streams.split_analytics_orders, self._service_streams.analytics_orders)
+        self._service_streams.split_analytics_payments = transformation.Split[AnalyticsEvent](named.streams.split_analytics_payments, self._service_streams.analytics_payments)
+        self._service_streams.key_orders_for_join = transformation.KeyBy[AnalyticsEvent, str, AnalyticsEvent](named.streams.key_orders_for_join, self._service_streams.split_analytics_orders.add_stream(), self.functions.key_orders_for_join)
+        self._service_streams.key_payments_for_join = transformation.KeyBy[AnalyticsEvent, str, AnalyticsEvent](named.streams.key_payments_for_join, self._service_streams.split_analytics_payments.add_stream(), self.functions.key_payments_for_join)
+        self._service_streams.join_order_payment_analytics = transformation.Join[str, AnalyticsEvent, AnalyticsEvent, AnalyticsResult](named.streams.join_order_payment_analytics, self._service_streams.key_orders_for_join, self._service_streams.key_payments_for_join, self.functions.join_order_payment_analytics)
+        self._service_streams.write_joined_analytics = transformation.Sink[AnalyticsResult, Exception](named.streams.write_joined_analytics, self._service_streams.join_order_payment_analytics)
+        self._service_streams.key_orders_for_multi_join = transformation.KeyBy[AnalyticsEvent, str, AnalyticsEvent](named.streams.key_orders_for_multi_join, self._service_streams.split_analytics_orders.add_stream(), self.functions.key_orders_for_multi_join)
+        self._service_streams.key_payments_for_multi_join = transformation.KeyBy[AnalyticsEvent, str, AnalyticsEvent](named.streams.key_payments_for_multi_join, self._service_streams.split_analytics_payments.add_stream(), self.functions.key_payments_for_multi_join)
+        self._service_streams.key_shipments_for_multi_join = transformation.KeyBy[AnalyticsEvent, str, AnalyticsEvent](named.streams.key_shipments_for_multi_join, self._service_streams.analytics_shipments, self.functions.key_shipments_for_multi_join)
+        self._service_streams.multi_join_analytics_events = transformation.MultiJoin[str, AnalyticsEvent, AnalyticsResult](named.streams.multi_join_analytics_events, self._service_streams.key_orders_for_multi_join, self.functions.multi_join_analytics_events)
+        transformation.MultiJoinLink(self._service_streams.multi_join_analytics_events, self._service_streams.key_payments_for_multi_join)
+        transformation.MultiJoinLink(self._service_streams.multi_join_analytics_events, self._service_streams.key_shipments_for_multi_join)
+        self._service_streams.route_analytics_result = transformation.Case[AnalyticsResult](named.streams.route_analytics_result, self._service_streams.multi_join_analytics_events, self.functions.route_analytics_result)
+        self._service_streams.high_value_analytics = transformation.When[AnalyticsResult, AnalyticsResult](named.streams.high_value_analytics, self._service_streams.route_analytics_result)
+        self._service_streams.standard_analytics = transformation.When[AnalyticsResult, AnalyticsResult](named.streams.standard_analytics, self._service_streams.route_analytics_result)
+        self._service_streams.write_high_value_analytics = transformation.Sink[AnalyticsResult, Exception](named.streams.write_high_value_analytics, self._service_streams.high_value_analytics)
+        self._service_streams.write_standard_analytics = transformation.Sink[AnalyticsResult, Exception](named.streams.write_standard_analytics, self._service_streams.standard_analytics)
+        self._service_streams.route_analytics_result.build()
         self._service_streams.consume_order_processed.set_source(self._service_streams.count_order_processed)
 
     async def bind_transports(self, ctx: Context) -> None:
@@ -243,6 +480,18 @@ class GeneratedService(ServiceApp):
         self._transport_consumers.append(analytics_schedule_consumer)
         consume_order_processed_consumer = kafka_source.make_aiokafka_endpoint_consumer(self._service_streams.consume_order_processed, self.functions.order_processed_endpoint_source)
         self._transport_consumers.append(consume_order_processed_consumer)
+        analytics_orders_consumer = custom_source.TypedCustomEndpointConsumer(self._service_streams.analytics_orders, self.functions.analytics_orders_source, self.functions.analytics_orders_source)
+        self._transport_consumers.append(analytics_orders_consumer)
+        analytics_payments_consumer = custom_source.TypedCustomEndpointConsumer(self._service_streams.analytics_payments, self.functions.analytics_payments_source, self.functions.analytics_payments_source)
+        self._transport_consumers.append(analytics_payments_consumer)
+        analytics_shipments_consumer = custom_source.TypedCustomEndpointConsumer(self._service_streams.analytics_shipments, self.functions.analytics_shipments_source, self.functions.analytics_shipments_source)
+        self._transport_consumers.append(analytics_shipments_consumer)
+        write_joined_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_joined_analytics, self.functions.joined_analytics_sink)
+        self._transport_consumers.append(write_joined_analytics_consumer)
+        write_high_value_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_high_value_analytics, self.functions.high_value_analytics_sink)
+        self._transport_consumers.append(write_high_value_analytics_consumer)
+        write_standard_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_standard_analytics, self.functions.standard_analytics_sink)
+        self._transport_consumers.append(write_standard_analytics_consumer)
 
     async def build_runtime(self, ctx: Context) -> None:
         await self.build_stream_graph(ctx)

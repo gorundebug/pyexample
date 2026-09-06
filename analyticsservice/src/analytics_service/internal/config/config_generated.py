@@ -73,21 +73,28 @@ from pyservicelib_gorundebug.api.models.temporal_execution_type import (
 )
 
 from pyservicelib_gorundebug.runtime.config.stream_types import (
+    CaseStreamConfig,
     InputStreamConfig,
+    JoinStreamConfig,
+    KeyByStreamConfig,
+    MultiJoinStreamConfig,
     ProcessStreamConfig,
+    SinkStreamConfig,
+    SplitStreamConfig,
+    WhenStreamConfig,
 )
 
 
 _DEFAULT_CONFIG: dict[str, Any] = {
     "settings": ProjectSettings(moduleVersion="v0.2.93", name="Example", repoPath="github.com/gorundebug/pyexample", ),
     "services": { "analyticsService": ServiceConfig(color="#05ABF7", defaultCallSemantics=CallSemantics(2), defaultGrpcTimeout=0, environment=Environment(""), golangVersion="1.25.4", grpcHost="0.0.0.0", grpcPort=9203, httpHost="0.0.0.0", httpPort=9093, id=1, kubernetesWorkloadType=KubernetesWorkloadType("Deployment"), livenessHandler="health/live", metricsHandler="metrics", modulePath="github.com/gorundebug/pyexample-analyticsservice", name="Analytics Service", programmingLanguage=ProgrammingLanguage(3), readinessHandler="health/ready", shutdownTimeout=30000, startupHandler="health/startup", statusHandler="status", ), },
-    "streams": { "analyticsSchedule": StreamConfig(id=1, idEndpoint=2, idService=1, idSource=0, name="Analytics Schedule", pipeline="analytics", type=TransformationType(1), valueType="AutomationJob", xPos=-1600, yPos=-205, ), "consumeOrderProcessed": StreamConfig(id=2, idEndpoint=4, idService=1, idSource=3, name="Consume Order Processed", pipeline="analytics", type=TransformationType(1), valueType="OrderProcessed", xPos=-1190, yPos=-205, ), "countOrderProcessed": StreamConfig(functionDescription="Count successful and unsuccessful orders independently, then return the event unchanged.\n", functionInitializerGroup="", functionModule="", functionName="CountOrderProcessed", functionPackage="analytics", id=3, idService=1, idSource=2, name="Count Order Processed", pipeline="analytics", type=TransformationType(6), valueType="OrderProcessed", xPos=-1390, yPos=-19, ), },
-    "dataConnectors": { "localCron": DataConnectorConfig(id=2, implementation="python/apscheduler", name="Local Cron", type=DataConnectorType(5), ), "orderEvents": DataConnectorConfig(brokers="redpanda:9092", dialTimeout=5000, id=3, implementation="aiokafka", name="Order Events", password="", saslMechanism=KafkaSaslMechanism("SCRAM-SHA-512"), securityProtocol=KafkaSecurityProtocol("PLAINTEXT"), type=DataConnectorType(3), username="", version="2.8.0", ), },
-    "endpoints": { "analyticsSchedule": EndpointConfig(enabled=True, functionDescription="Create an analytics job message identifying the local scheduled firing.\n", functionInitializerGroup="", functionName="AnalyticsSchedule", functionPackage="cron", id=2, idDataConnector=2, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Analytics Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), publicFunction=False, schedule="*/5 * * * *", timezone="UTC", tracingEnabled=False, ), "orderProcessed": EndpointConfig(consumerGroup="analytics-service", createTopic=True, enabled=True, functionDescription="Exchange OrderProcessed events keyed by order ID.\nProducers include the final status, processing time, total and confirmed item counts, and a failure reason for unsuccessful orders.\nConsumers decode the event and mark its Kafka message processed only after the pipeline handles it successfully.\n", functionInitializerGroup="", functionName="OrderProcessedEndpoint", functionPackage="endpoint", id=4, idDataConnector=3, name="Order Processed", partitions=1, publicFunction=False, replicationFactor=1, topic="order-processed", ), },
+    "streams": { "analyticsOrders": StreamConfig(id=4, idEndpoint=1, idService=1, idSource=0, name="Analytics Orders", pipeline="analyticsSources", type=TransformationType(1), valueType="AnalyticsEvent", xPos=-1600, yPos=220, ), "analyticsPayments": StreamConfig(id=5, idEndpoint=2, idService=1, idSource=0, name="Analytics Payments", pipeline="analyticsSources", type=TransformationType(1), valueType="AnalyticsEvent", xPos=-1600, yPos=430, ), "analyticsSchedule": StreamConfig(id=1, idEndpoint=8, idService=1, idSource=0, name="Analytics Schedule", pipeline="analytics", type=TransformationType(1), valueType="AutomationJob", xPos=-1600, yPos=-205, ), "analyticsShipments": StreamConfig(id=6, idEndpoint=3, idService=1, idSource=0, name="Analytics Shipments", pipeline="analyticsSources", type=TransformationType(1), valueType="AnalyticsEvent", xPos=-1600, yPos=780, ), "consumeOrderProcessed": StreamConfig(id=2, idEndpoint=10, idService=1, idSource=3, name="Consume Order Processed", pipeline="analytics", type=TransformationType(1), valueType="OrderProcessed", xPos=-1190, yPos=-205, ), "countOrderProcessed": StreamConfig(functionDescription="Count successful and unsuccessful orders independently, then return the event unchanged.\n", functionInitializerGroup="", functionModule="", functionName="CountOrderProcessed", functionPackage="analytics", id=3, idService=1, idSource=2, name="Count Order Processed", pipeline="analytics", type=TransformationType(6), valueType="OrderProcessed", xPos=-1390, yPos=-19, ), "highValueAnalytics": StreamConfig(id=13, idService=1, idSource=18, name="High Value Analytics", pipeline="multiJoinAnalytics", type=TransformationType(17), valueType="AnalyticsResult", xPos=-400, yPos=650, ), "joinOrderPaymentAnalytics": StreamConfig(functionDescription="Join matching order and payment analytics events and emit their combined total.", functionInitializerGroup="", functionModule="", functionName="JoinOrderPaymentAnalytics", functionPackage="joinanalytics", id=9, idService=1, idSource=10, idSources=[11], joinStorage=JoinStorageType(1), joinType=JoinType(1), name="Join Order Payment Analytics", pipeline="joinAnalytics", renewTTL=True, ttl=60000, type=TransformationType(4), valueType="AnalyticsResult", xPos=-900, yPos=260, ), "keyOrdersForJoin": StreamConfig(functionDescription="Key the order analytics event by correlation key.", functionInitializerGroup="", functionModule="", functionName="KeyOrdersForJoin", functionPackage="joinanalytics", id=10, idService=1, idSource=7, keyType="AnalyticsKey", name="Key Orders For Join", pipeline="joinAnalytics", type=TransformationType(9), valueType="AnalyticsEvent", xPos=-1160, yPos=170, ), "keyOrdersForMultiJoin": StreamConfig(functionDescription="Key the order analytics event for the multi-way join.", functionInitializerGroup="", functionModule="", functionName="KeyOrdersForMultiJoin", functionPackage="multijoinanalytics", id=14, idService=1, idSource=7, keyType="AnalyticsKey", name="Key Orders For Multi Join", pipeline="multiJoinAnalytics", type=TransformationType(9), valueType="AnalyticsEvent", xPos=-1160, yPos=570, ), "keyPaymentsForJoin": StreamConfig(functionDescription="Key the payment analytics event by correlation key.", functionInitializerGroup="", functionModule="", functionName="KeyPaymentsForJoin", functionPackage="joinanalytics", id=11, idService=1, idSource=8, keyType="AnalyticsKey", name="Key Payments For Join", pipeline="joinAnalytics", type=TransformationType(9), valueType="AnalyticsEvent", xPos=-1160, yPos=350, ), "keyPaymentsForMultiJoin": StreamConfig(functionDescription="Key the payment analytics event for the multi-way join.", functionInitializerGroup="", functionModule="", functionName="KeyPaymentsForMultiJoin", functionPackage="multijoinanalytics", id=15, idService=1, idSource=8, keyType="AnalyticsKey", name="Key Payments For Multi Join", pipeline="multiJoinAnalytics", type=TransformationType(9), valueType="AnalyticsEvent", xPos=-1160, yPos=740, ), "keyShipmentsForMultiJoin": StreamConfig(functionDescription="Key the shipment analytics event for the multi-way join.", functionInitializerGroup="", functionModule="", functionName="KeyShipmentsForMultiJoin", functionPackage="multijoinanalytics", id=16, idService=1, idSource=6, keyType="AnalyticsKey", name="Key Shipments For Multi Join", pipeline="multiJoinAnalytics", type=TransformationType(9), valueType="AnalyticsEvent", xPos=-1160, yPos=910, ), "multiJoinAnalyticsEvents": StreamConfig(functionDescription="Combine matching order, payment, and shipment analytics events.", functionInitializerGroup="", functionModule="", functionName="MultiJoinAnalyticsEvents", functionPackage="multijoinanalytics", id=17, idService=1, idSource=14, idSources=[15, 16], joinStorage=JoinStorageType(1), name="Multi Join Analytics Events", pipeline="multiJoinAnalytics", renewTTL=True, ttl=60000, type=TransformationType(5), valueType="AnalyticsResult", xPos=-900, yPos=740, ), "routeAnalyticsResult": StreamConfig(functionDescription="Route high-value analytics results to the first branch and all others to the second branch.", functionInitializerGroup="", functionModule="", functionName="RouteAnalyticsResult", functionPackage="multijoinanalytics", id=18, idService=1, idSource=17, name="Route Analytics Result", pipeline="multiJoinAnalytics", type=TransformationType(12), xPos=-650, yPos=740, ), "splitAnalyticsOrders": StreamConfig(id=7, idService=1, idSource=4, name="Split Analytics Orders", pipeline="analyticsSources", type=TransformationType(11), xPos=-1390, yPos=220, ), "splitAnalyticsPayments": StreamConfig(id=8, idService=1, idSource=5, name="Split Analytics Payments", pipeline="analyticsSources", type=TransformationType(11), xPos=-1390, yPos=430, ), "standardAnalytics": StreamConfig(id=19, idService=1, idSource=18, name="Standard Analytics", pipeline="multiJoinAnalytics", type=TransformationType(17), valueType="AnalyticsResult", xPos=-400, yPos=830, ), "writeHighValueAnalytics": StreamConfig(id=20, idEndpoint=4, idService=1, idSource=13, name="Write High Value Analytics", pipeline="multiJoinAnalytics", type=TransformationType(13), valueType="AnalyticsResult", xPos=-130, yPos=650, ), "writeJoinedAnalytics": StreamConfig(id=12, idEndpoint=5, idService=1, idSource=9, name="Write Joined Analytics", pipeline="joinAnalytics", type=TransformationType(13), valueType="AnalyticsResult", xPos=-640, yPos=260, ), "writeStandardAnalytics": StreamConfig(id=21, idEndpoint=6, idService=1, idSource=19, name="Write Standard Analytics", pipeline="multiJoinAnalytics", type=TransformationType(13), valueType="AnalyticsResult", xPos=-130, yPos=830, ), },
+    "dataConnectors": { "analyticsFunctions": DataConnectorConfig(id=1, implementation="function", name="Analytics Functions", type=DataConnectorType(4), ), "localCron": DataConnectorConfig(id=3, implementation="python/apscheduler", name="Local Cron", type=DataConnectorType(5), ), "orderEvents": DataConnectorConfig(brokers="redpanda:9092", dialTimeout=5000, id=4, implementation="aiokafka", name="Order Events", password="", saslMechanism=KafkaSaslMechanism("SCRAM-SHA-512"), securityProtocol=KafkaSecurityProtocol("PLAINTEXT"), type=DataConnectorType(3), username="", version="2.8.0", ), },
+    "endpoints": { "analyticsOrders": EndpointConfig(functionDescription="Produce a deterministic order analytics event for the canonical join examples.", functionInitializerGroup="", functionName="AnalyticsOrders", functionPackage="endpoint", id=1, idDataConnector=1, name="Analytics Orders", publicFunction=False, ), "analyticsPayments": EndpointConfig(functionDescription="Produce a deterministic payment analytics event for the canonical join examples.", functionInitializerGroup="", functionName="AnalyticsPayments", functionPackage="endpoint", id=2, idDataConnector=1, name="Analytics Payments", publicFunction=False, ), "analyticsSchedule": EndpointConfig(enabled=True, functionDescription="Create an analytics job message identifying the local scheduled firing.\n", functionInitializerGroup="", functionName="AnalyticsSchedule", functionPackage="cron", id=8, idDataConnector=3, missedRunPolicy=ScheduleMissedRunPolicy("FireOnce"), name="Analytics Schedule", overlapPolicy=ScheduleOverlapPolicy("Skip"), publicFunction=False, schedule="*/5 * * * *", timezone="UTC", tracingEnabled=False, ), "analyticsShipments": EndpointConfig(functionDescription="Produce a deterministic shipment analytics event for the canonical multi-way join example.", functionInitializerGroup="", functionName="AnalyticsShipments", functionPackage="endpoint", id=3, idDataConnector=1, name="Analytics Shipments", publicFunction=False, ), "highValueAnalytics": EndpointConfig(functionDescription="Validate and record analytics results routed to the high-value Case branch.", functionInitializerGroup="", functionName="HighValueAnalytics", functionPackage="endpoint", id=4, idDataConnector=1, name="High Value Analytics", publicFunction=False, ), "joinedAnalytics": EndpointConfig(functionDescription="Validate and record the result of the two-way analytics join.", functionInitializerGroup="", functionName="JoinedAnalytics", functionPackage="endpoint", id=5, idDataConnector=1, name="Joined Analytics", publicFunction=False, ), "orderProcessed": EndpointConfig(consumerGroup="analytics-service", createTopic=True, enabled=True, functionDescription="Exchange OrderProcessed events keyed by order ID.\nProducers include the final status, processing time, total and confirmed item counts, and a failure reason for unsuccessful orders.\nConsumers decode the event and mark its Kafka message processed only after the pipeline handles it successfully.\n", functionInitializerGroup="", functionName="OrderProcessedEndpoint", functionPackage="endpoint", id=10, idDataConnector=4, name="Order Processed", partitions=1, publicFunction=False, replicationFactor=1, topic="order-processed", ), "standardAnalytics": EndpointConfig(functionDescription="Validate and record analytics results routed to the standard Case branch.", functionInitializerGroup="", functionName="StandardAnalytics", functionPackage="endpoint", id=6, idDataConnector=1, name="Standard Analytics", publicFunction=False, ), },
     "pools": { },
     "links": { },
     "modules": { "inventoryServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-inventory-service-api", name="inventory_service_api", ), "model": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-model", name="model", ), "orderServiceApi": ModuleConfig(golangVersion="1.25.4", modulePath="github.com/gorundebug/pyexample-order-service-api", name="order_service_api", ), },
-    "types": { "automationJob": TypeConfig(description="Automation job payload and result.", module="model", name="AutomationJob", publicType=True, type=DataType.string, useAlias=False, ), "orderProcessed": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Final order-processing event. Fields: OrderID string, Status string, ProcessedAt time.Time, TotalItems int, ConfirmedItems int, FailureReason string.", module="model", name="OrderProcessed", package="", publicType=False, transferByValue=False, type=DataType.struct, ), },
+    "types": { "analyticsEvent": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Input for the canonical analytics joins. Fields: Key AnalyticsKey, Value int, Kind string.", name="AnalyticsEvent", package="", publicType=False, transferByValue=False, type=DataType.struct, ), "analyticsKey": TypeConfig(description="Correlation key used by the canonical analytics joins.", name="AnalyticsKey", package="", publicType=False, type=DataType.string, useAlias=False, ), "analyticsResult": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Output of the canonical analytics joins. Fields: Key AnalyticsKey, Total int, Kind string.", name="AnalyticsResult", package="", publicType=False, transferByValue=False, type=DataType.struct, ), "automationJob": TypeConfig(description="Automation job payload and result.", module="model", name="AutomationJob", publicType=True, type=DataType.string, useAlias=False, ), "orderProcessed": TypeConfig(definitionFormat=TypeDefinitionFormat(1), description="Final order-processing event. Fields: OrderID string, Status string, ProcessedAt time.Time, TotalItems int, ConfirmedItems int, FailureReason string.", module="model", name="OrderProcessed", package="", publicType=False, transferByValue=False, type=DataType.struct, ), },
 }
 
 _ENVIRONMENT_VARIABLES: tuple[tuple[str, tuple[str, ...], str], ...] = (
@@ -117,36 +124,86 @@ class ServiceIds:
 
 
 class StreamIds:
+    ANALYTICS_ORDERS: Final[int] = 4
+    ANALYTICS_PAYMENTS: Final[int] = 5
     ANALYTICS_SCHEDULE: Final[int] = 1
+    ANALYTICS_SHIPMENTS: Final[int] = 6
     CONSUME_ORDER_PROCESSED: Final[int] = 2
     COUNT_ORDER_PROCESSED: Final[int] = 3
+    HIGH_VALUE_ANALYTICS: Final[int] = 13
+    JOIN_ORDER_PAYMENT_ANALYTICS: Final[int] = 9
+    KEY_ORDERS_FOR_JOIN: Final[int] = 10
+    KEY_ORDERS_FOR_MULTI_JOIN: Final[int] = 14
+    KEY_PAYMENTS_FOR_JOIN: Final[int] = 11
+    KEY_PAYMENTS_FOR_MULTI_JOIN: Final[int] = 15
+    KEY_SHIPMENTS_FOR_MULTI_JOIN: Final[int] = 16
+    MULTI_JOIN_ANALYTICS_EVENTS: Final[int] = 17
+    ROUTE_ANALYTICS_RESULT: Final[int] = 18
+    SPLIT_ANALYTICS_ORDERS: Final[int] = 7
+    SPLIT_ANALYTICS_PAYMENTS: Final[int] = 8
+    STANDARD_ANALYTICS: Final[int] = 19
+    WRITE_HIGH_VALUE_ANALYTICS: Final[int] = 20
+    WRITE_JOINED_ANALYTICS: Final[int] = 12
+    WRITE_STANDARD_ANALYTICS: Final[int] = 21
 
 
 class EndpointIds:
-    ANALYTICS_SCHEDULE: Final[int] = 2
-    ORDER_PROCESSED: Final[int] = 4
+    ANALYTICS_ORDERS: Final[int] = 1
+    ANALYTICS_PAYMENTS: Final[int] = 2
+    ANALYTICS_SCHEDULE: Final[int] = 8
+    ANALYTICS_SHIPMENTS: Final[int] = 3
+    HIGH_VALUE_ANALYTICS: Final[int] = 4
+    JOINED_ANALYTICS: Final[int] = 5
+    ORDER_PROCESSED: Final[int] = 10
+    STANDARD_ANALYTICS: Final[int] = 6
 
 
 class DataConnectorIds:
-    LOCAL_CRON: Final[int] = 2
-    ORDER_EVENTS: Final[int] = 3
+    ANALYTICS_FUNCTIONS: Final[int] = 1
+    LOCAL_CRON: Final[int] = 3
+    ORDER_EVENTS: Final[int] = 4
 
 
 @dataclass(frozen=True, slots=True)
 class Streams:
+    analytics_orders: InputStreamConfig
+    analytics_payments: InputStreamConfig
     analytics_schedule: InputStreamConfig
+    analytics_shipments: InputStreamConfig
     consume_order_processed: InputStreamConfig
     count_order_processed: ProcessStreamConfig
+    high_value_analytics: WhenStreamConfig
+    join_order_payment_analytics: JoinStreamConfig
+    key_orders_for_join: KeyByStreamConfig
+    key_orders_for_multi_join: KeyByStreamConfig
+    key_payments_for_join: KeyByStreamConfig
+    key_payments_for_multi_join: KeyByStreamConfig
+    key_shipments_for_multi_join: KeyByStreamConfig
+    multi_join_analytics_events: MultiJoinStreamConfig
+    route_analytics_result: CaseStreamConfig
+    split_analytics_orders: SplitStreamConfig
+    split_analytics_payments: SplitStreamConfig
+    standard_analytics: WhenStreamConfig
+    write_high_value_analytics: SinkStreamConfig
+    write_joined_analytics: SinkStreamConfig
+    write_standard_analytics: SinkStreamConfig
 
 
 @dataclass(frozen=True, slots=True)
 class Endpoints:
+    analytics_orders: CustomEndpointConfig
+    analytics_payments: CustomEndpointConfig
     analytics_schedule: CronEndpointConfig
+    analytics_shipments: CustomEndpointConfig
+    high_value_analytics: CustomEndpointConfig
+    joined_analytics: CustomEndpointConfig
     order_processed: KafkaEndpointConfig
+    standard_analytics: CustomEndpointConfig
 
 
 @dataclass(frozen=True, slots=True)
 class DataConnectors:
+    analytics_functions: CustomDataConnectorConfig
     local_cron: CronDataConnectorConfig
     order_events: KafkaDataConnectorConfig
 
@@ -243,8 +300,17 @@ class GeneratedConfig(ServiceAppConfig):
     def named(self) -> NamedConfig:
         return NamedConfig(
             streams=Streams(
+                analytics_orders=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.ANALYTICS_ORDERS)
+                ),
+                analytics_payments=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.ANALYTICS_PAYMENTS)
+                ),
                 analytics_schedule=InputStreamConfig(
                     self.get_stream_config_by_id(StreamIds.ANALYTICS_SCHEDULE)
+                ),
+                analytics_shipments=InputStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.ANALYTICS_SHIPMENTS)
                 ),
                 consume_order_processed=InputStreamConfig(
                     self.get_stream_config_by_id(StreamIds.CONSUME_ORDER_PROCESSED)
@@ -252,16 +318,84 @@ class GeneratedConfig(ServiceAppConfig):
                 count_order_processed=ProcessStreamConfig(
                     self.get_stream_config_by_id(StreamIds.COUNT_ORDER_PROCESSED)
                 ),
+                high_value_analytics=WhenStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.HIGH_VALUE_ANALYTICS)
+                ),
+                join_order_payment_analytics=JoinStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.JOIN_ORDER_PAYMENT_ANALYTICS)
+                ),
+                key_orders_for_join=KeyByStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.KEY_ORDERS_FOR_JOIN)
+                ),
+                key_orders_for_multi_join=KeyByStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.KEY_ORDERS_FOR_MULTI_JOIN)
+                ),
+                key_payments_for_join=KeyByStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.KEY_PAYMENTS_FOR_JOIN)
+                ),
+                key_payments_for_multi_join=KeyByStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.KEY_PAYMENTS_FOR_MULTI_JOIN)
+                ),
+                key_shipments_for_multi_join=KeyByStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.KEY_SHIPMENTS_FOR_MULTI_JOIN)
+                ),
+                multi_join_analytics_events=MultiJoinStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.MULTI_JOIN_ANALYTICS_EVENTS)
+                ),
+                route_analytics_result=CaseStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.ROUTE_ANALYTICS_RESULT)
+                ),
+                split_analytics_orders=SplitStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.SPLIT_ANALYTICS_ORDERS)
+                ),
+                split_analytics_payments=SplitStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.SPLIT_ANALYTICS_PAYMENTS)
+                ),
+                standard_analytics=WhenStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.STANDARD_ANALYTICS)
+                ),
+                write_high_value_analytics=SinkStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.WRITE_HIGH_VALUE_ANALYTICS)
+                ),
+                write_joined_analytics=SinkStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.WRITE_JOINED_ANALYTICS)
+                ),
+                write_standard_analytics=SinkStreamConfig(
+                    self.get_stream_config_by_id(StreamIds.WRITE_STANDARD_ANALYTICS)
+                ),
             ),
             endpoints=Endpoints(
+                analytics_orders=_custom_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.ANALYTICS_ORDERS)
+                ),
+                analytics_payments=_custom_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.ANALYTICS_PAYMENTS)
+                ),
                 analytics_schedule=_cron_endpoint(
                     self.get_endpoint_config_by_id(EndpointIds.ANALYTICS_SCHEDULE)
+                ),
+                analytics_shipments=_custom_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.ANALYTICS_SHIPMENTS)
+                ),
+                high_value_analytics=_custom_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.HIGH_VALUE_ANALYTICS)
+                ),
+                joined_analytics=_custom_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.JOINED_ANALYTICS)
                 ),
                 order_processed=_kafka_endpoint(
                     self.get_endpoint_config_by_id(EndpointIds.ORDER_PROCESSED)
                 ),
+                standard_analytics=_custom_endpoint(
+                    self.get_endpoint_config_by_id(EndpointIds.STANDARD_ANALYTICS)
+                ),
             ),
             data_connectors=DataConnectors(
+                analytics_functions=_custom_data_connector(
+                    self.get_data_connector_by_id(
+                        DataConnectorIds.ANALYTICS_FUNCTIONS
+                    )
+                ),
                 local_cron=_cron_data_connector(
                     self.get_data_connector_by_id(
                         DataConnectorIds.LOCAL_CRON
