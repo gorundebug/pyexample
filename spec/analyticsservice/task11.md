@@ -1,36 +1,36 @@
-# Task 11/17: `KeyOrdersForJoin`
+# Task 11/22: `HighValueAnalyticsSink`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `keyBy` |
-| File | `analyticsservice/src/analytics_service/internal/functions/joinanalytics/key_orders_for_join.py` |
-| Test | `analyticsservice/tests/functions/test_joinanalytics/key_orders_for_join.py` |
+| Kind | `custom-sink` |
+| File | `analyticsservice/src/analytics_service/internal/functions/endpoint/high_value_analytics_sink.py` |
+| Test | `analyticsservice/tests/functions/test_endpoint/high_value_analytics_sink.py` |
 | Service | `Analytics Service` |
 
 
 ## Behaviour
 
-Key the order analytics event by correlation key.
+Validate and record analytics results routed to the high-value Case branch.
 
 
 
 
 ## Stream types
-- Input: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
-- Output: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
+- Input: `AnalyticsResult` — `analyticsservice/src/analytics_service/models/analytics_result.py`
+- Output: `AnalyticsResult` — `analyticsservice/src/analytics_service/models/analytics_result.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `analyticsservice/src/analytics_service/internal/functions/joinanalytics/key_orders_for_join.py` and preserve its generated contract
-- [ ] Inspect input type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
-- [ ] Inspect output type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
+- [ ] Open `analyticsservice/src/analytics_service/internal/functions/endpoint/high_value_analytics_sink.py` and preserve its generated contract
+- [ ] Inspect input type `AnalyticsResult` in `analyticsservice/src/analytics_service/models/analytics_result.py`
+- [ ] Inspect output type `AnalyticsResult` in `analyticsservice/src/analytics_service/models/analytics_result.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_joinanalytics/key_orders_for_join.py`
+- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_endpoint/high_value_analytics_sink.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task11.md — KeyOrdersForJoin — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task11.md — HighValueAnalyticsSink — Python — done`

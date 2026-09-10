@@ -1,19 +1,19 @@
-# Task 9/22: `CycleAnalyticsInputSource`
+# Task 20/22: `KeyShipmentsForMultiJoin`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `custom-source` |
-| File | `analyticsservice/src/analytics_service/internal/functions/endpoint/cycle_analytics_input_source.py` |
-| Test | `analyticsservice/tests/functions/test_endpoint/cycle_analytics_input_source.py` |
+| Kind | `keyBy` |
+| File | `analyticsservice/src/analytics_service/internal/functions/multijoinanalytics/key_shipments_for_multi_join.py` |
+| Test | `analyticsservice/tests/functions/test_multijoinanalytics/key_shipments_for_multi_join.py` |
 | Service | `Analytics Service` |
 
 
 ## Behaviour
 
-Produce one deterministic analytics event that exercises the finite feedback cycle.
+Key the shipment analytics event for the multi-way join.
 
 
 
@@ -25,12 +25,12 @@ Produce one deterministic analytics event that exercises the finite feedback cyc
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `analyticsservice/src/analytics_service/internal/functions/endpoint/cycle_analytics_input_source.py` and preserve its generated contract
+- [ ] Open `analyticsservice/src/analytics_service/internal/functions/multijoinanalytics/key_shipments_for_multi_join.py` and preserve its generated contract
 - [ ] Inspect input type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
 - [ ] Inspect output type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_endpoint/cycle_analytics_input_source.py`
+- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_multijoinanalytics/key_shipments_for_multi_join.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task9.md — CycleAnalyticsInputSource — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task20.md — KeyShipmentsForMultiJoin — Python — done`

@@ -1,34 +1,36 @@
-# Task 16/17: `MultiJoinAnalyticsEvents`
+# Task 16/22: `KeyOrdersForJoin`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `multiJoin` |
-| File | `analyticsservice/src/analytics_service/internal/functions/multijoinanalytics/multi_join_analytics_events.py` |
-| Test | `analyticsservice/tests/functions/test_multijoinanalytics/multi_join_analytics_events.py` |
+| Kind | `keyBy` |
+| File | `analyticsservice/src/analytics_service/internal/functions/joinanalytics/key_orders_for_join.py` |
+| Test | `analyticsservice/tests/functions/test_joinanalytics/key_orders_for_join.py` |
 | Service | `Analytics Service` |
 
 
 ## Behaviour
 
-Combine matching order, payment, and shipment analytics events.
+Key the order analytics event by correlation key.
 
 
 
 
 ## Stream types
-- Output: `AnalyticsResult` — `analyticsservice/src/analytics_service/models/analytics_result.py`
+- Input: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
+- Output: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `analyticsservice/src/analytics_service/internal/functions/multijoinanalytics/multi_join_analytics_events.py` and preserve its generated contract
-- [ ] Inspect output type `AnalyticsResult` in `analyticsservice/src/analytics_service/models/analytics_result.py`
+- [ ] Open `analyticsservice/src/analytics_service/internal/functions/joinanalytics/key_orders_for_join.py` and preserve its generated contract
+- [ ] Inspect input type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
+- [ ] Inspect output type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_multijoinanalytics/multi_join_analytics_events.py`
+- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_joinanalytics/key_orders_for_join.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task16.md — MultiJoinAnalyticsEvents — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task16.md — KeyOrdersForJoin — Python — done`

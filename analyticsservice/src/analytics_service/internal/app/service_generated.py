@@ -28,7 +28,7 @@ from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.config import ServiceConfig
 from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig, CustomEndpointConfig, KafkaEndpointConfig
-from pyservicelib_gorundebug.runtime.config.stream_types import CaseStreamConfig, JoinStreamConfig, KeyByStreamConfig, MultiJoinStreamConfig, ProcessStreamConfig
+from pyservicelib_gorundebug.runtime.config.stream_types import CaseStreamConfig, FilterStreamConfig, JoinStreamConfig, KeyByStreamConfig, MapStreamConfig, MultiJoinStreamConfig, ProcessStreamConfig
 from analytics_service.models.analytics_event import (
     AnalyticsEvent,
 )
@@ -49,12 +49,22 @@ from ..functions import (
     make_count_order_processed,
     AnalyticsScheduleSource,
     make_analytics_schedule_source,
+    AdvanceCycleAnalytics,
+    make_advance_cycle_analytics,
+    CompleteCycleAnalytics,
+    make_complete_cycle_analytics,
+    ContinueCycleAnalytics,
+    make_continue_cycle_analytics,
     AnalyticsOrdersSource,
     make_analytics_orders_source,
     AnalyticsPaymentsSource,
     make_analytics_payments_source,
     AnalyticsShipmentsSource,
     make_analytics_shipments_source,
+    CycleAnalyticsInputSource,
+    make_cycle_analytics_input_source,
+    CycleAnalyticsResultSink,
+    make_cycle_analytics_result_sink,
     HighValueAnalyticsSink,
     make_high_value_analytics_sink,
     JoinedAnalyticsSink,
@@ -92,6 +102,14 @@ class ServiceStreams:
     analytics_shipments: Any = None
     split_analytics_orders: Any = None
     split_analytics_payments: Any = None
+    cycle_analytics_input: Any = None
+    cycle_analytics_link: Any = None
+    merge_cycle_analytics: Any = None
+    advance_cycle_analytics: Any = None
+    split_cycle_analytics: Any = None
+    complete_cycle_analytics: Any = None
+    continue_cycle_analytics: Any = None
+    write_cycle_analytics: Any = None
     key_orders_for_join: Any = None
     key_payments_for_join: Any = None
     join_order_payment_analytics: Any = None
@@ -119,6 +137,15 @@ class ServiceMakers:
     analytics_schedule_source: Callable[[Context, ServiceEnvironment, CronEndpointConfig], Awaitable[AnalyticsScheduleSource]] = (
         make_analytics_schedule_source
     )
+    advance_cycle_analytics: Callable[[Context, ServiceEnvironment, MapStreamConfig], Awaitable[AdvanceCycleAnalytics]] = (
+        make_advance_cycle_analytics
+    )
+    complete_cycle_analytics: Callable[[Context, ServiceEnvironment, FilterStreamConfig], Awaitable[CompleteCycleAnalytics]] = (
+        make_complete_cycle_analytics
+    )
+    continue_cycle_analytics: Callable[[Context, ServiceEnvironment, FilterStreamConfig], Awaitable[ContinueCycleAnalytics]] = (
+        make_continue_cycle_analytics
+    )
     analytics_orders_source: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[AnalyticsOrdersSource]] = (
         make_analytics_orders_source
     )
@@ -127,6 +154,12 @@ class ServiceMakers:
     )
     analytics_shipments_source: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[AnalyticsShipmentsSource]] = (
         make_analytics_shipments_source
+    )
+    cycle_analytics_input_source: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[CycleAnalyticsInputSource]] = (
+        make_cycle_analytics_input_source
+    )
+    cycle_analytics_result_sink: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[CycleAnalyticsResultSink]] = (
+        make_cycle_analytics_result_sink
     )
     high_value_analytics_sink: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[HighValueAnalyticsSink]] = (
         make_high_value_analytics_sink
@@ -173,9 +206,14 @@ async def _make_http_application() -> web.Application:
 class ServiceFunctions:
     count_order_processed: CountOrderProcessed
     analytics_schedule_source: AnalyticsScheduleSource
+    advance_cycle_analytics: AdvanceCycleAnalytics
+    complete_cycle_analytics: CompleteCycleAnalytics
+    continue_cycle_analytics: ContinueCycleAnalytics
     analytics_orders_source: AnalyticsOrdersSource
     analytics_payments_source: AnalyticsPaymentsSource
     analytics_shipments_source: AnalyticsShipmentsSource
+    cycle_analytics_input_source: CycleAnalyticsInputSource
+    cycle_analytics_result_sink: CycleAnalyticsResultSink
     high_value_analytics_sink: HighValueAnalyticsSink
     joined_analytics_sink: JoinedAnalyticsSink
     order_processed_endpoint_source: OrderProcessedEndpointSource
@@ -274,6 +312,21 @@ class GeneratedService(ServiceApp):
                 named.endpoints.analytics_schedule,
             ),
             maker_group_0.invoke(
+                self._makers.advance_cycle_analytics,
+                self,
+                named.streams.advance_cycle_analytics,
+            ),
+            maker_group_0.invoke(
+                self._makers.complete_cycle_analytics,
+                self,
+                named.streams.complete_cycle_analytics,
+            ),
+            maker_group_0.invoke(
+                self._makers.continue_cycle_analytics,
+                self,
+                named.streams.continue_cycle_analytics,
+            ),
+            maker_group_0.invoke(
                 self._makers.analytics_orders_source,
                 self,
                 named.endpoints.analytics_orders,
@@ -287,6 +340,16 @@ class GeneratedService(ServiceApp):
                 self._makers.analytics_shipments_source,
                 self,
                 named.endpoints.analytics_shipments,
+            ),
+            maker_group_0.invoke(
+                self._makers.cycle_analytics_input_source,
+                self,
+                named.endpoints.cycle_analytics_input,
+            ),
+            maker_group_0.invoke(
+                self._makers.cycle_analytics_result_sink,
+                self,
+                named.endpoints.cycle_analytics_result,
             ),
             maker_group_0.invoke(
                 self._makers.high_value_analytics_sink,
@@ -354,27 +417,37 @@ class GeneratedService(ServiceApp):
         maker_group_0.raise_first_error()
         count_order_processed = cast(CountOrderProcessed, group_results_0[0])
         analytics_schedule_source = cast(AnalyticsScheduleSource, group_results_0[1])
-        analytics_orders_source = cast(AnalyticsOrdersSource, group_results_0[2])
-        analytics_payments_source = cast(AnalyticsPaymentsSource, group_results_0[3])
-        analytics_shipments_source = cast(AnalyticsShipmentsSource, group_results_0[4])
-        high_value_analytics_sink = cast(HighValueAnalyticsSink, group_results_0[5])
-        joined_analytics_sink = cast(JoinedAnalyticsSink, group_results_0[6])
-        order_processed_endpoint_source = cast(OrderProcessedEndpointSource, group_results_0[7])
-        standard_analytics_sink = cast(StandardAnalyticsSink, group_results_0[8])
-        join_order_payment_analytics = cast(JoinOrderPaymentAnalytics, group_results_0[9])
-        key_orders_for_join = cast(KeyOrdersForJoin, group_results_0[10])
-        key_payments_for_join = cast(KeyPaymentsForJoin, group_results_0[11])
-        key_orders_for_multi_join = cast(KeyOrdersForMultiJoin, group_results_0[12])
-        key_payments_for_multi_join = cast(KeyPaymentsForMultiJoin, group_results_0[13])
-        key_shipments_for_multi_join = cast(KeyShipmentsForMultiJoin, group_results_0[14])
-        multi_join_analytics_events = cast(MultiJoinAnalyticsEvents, group_results_0[15])
-        route_analytics_result = cast(RouteAnalyticsResult, group_results_0[16])
+        advance_cycle_analytics = cast(AdvanceCycleAnalytics, group_results_0[2])
+        complete_cycle_analytics = cast(CompleteCycleAnalytics, group_results_0[3])
+        continue_cycle_analytics = cast(ContinueCycleAnalytics, group_results_0[4])
+        analytics_orders_source = cast(AnalyticsOrdersSource, group_results_0[5])
+        analytics_payments_source = cast(AnalyticsPaymentsSource, group_results_0[6])
+        analytics_shipments_source = cast(AnalyticsShipmentsSource, group_results_0[7])
+        cycle_analytics_input_source = cast(CycleAnalyticsInputSource, group_results_0[8])
+        cycle_analytics_result_sink = cast(CycleAnalyticsResultSink, group_results_0[9])
+        high_value_analytics_sink = cast(HighValueAnalyticsSink, group_results_0[10])
+        joined_analytics_sink = cast(JoinedAnalyticsSink, group_results_0[11])
+        order_processed_endpoint_source = cast(OrderProcessedEndpointSource, group_results_0[12])
+        standard_analytics_sink = cast(StandardAnalyticsSink, group_results_0[13])
+        join_order_payment_analytics = cast(JoinOrderPaymentAnalytics, group_results_0[14])
+        key_orders_for_join = cast(KeyOrdersForJoin, group_results_0[15])
+        key_payments_for_join = cast(KeyPaymentsForJoin, group_results_0[16])
+        key_orders_for_multi_join = cast(KeyOrdersForMultiJoin, group_results_0[17])
+        key_payments_for_multi_join = cast(KeyPaymentsForMultiJoin, group_results_0[18])
+        key_shipments_for_multi_join = cast(KeyShipmentsForMultiJoin, group_results_0[19])
+        multi_join_analytics_events = cast(MultiJoinAnalyticsEvents, group_results_0[20])
+        route_analytics_result = cast(RouteAnalyticsResult, group_results_0[21])
         self._functions = ServiceFunctions(
             count_order_processed=count_order_processed,
             analytics_schedule_source=analytics_schedule_source,
+            advance_cycle_analytics=advance_cycle_analytics,
+            complete_cycle_analytics=complete_cycle_analytics,
+            continue_cycle_analytics=continue_cycle_analytics,
             analytics_orders_source=analytics_orders_source,
             analytics_payments_source=analytics_payments_source,
             analytics_shipments_source=analytics_shipments_source,
+            cycle_analytics_input_source=cycle_analytics_input_source,
+            cycle_analytics_result_sink=cycle_analytics_result_sink,
             high_value_analytics_sink=high_value_analytics_sink,
             joined_analytics_sink=joined_analytics_sink,
             order_processed_endpoint_source=order_processed_endpoint_source,
@@ -441,6 +514,7 @@ class GeneratedService(ServiceApp):
                 "Analytics Service requires analytics_service.internal.config.Config"
             )
         named = cfg.named
+        self._service_streams.cycle_analytics_link = transformation.Link[AnalyticsEvent](named.streams.cycle_analytics_link, self)
         self._service_streams.analytics_schedule = transformation.Input[str, object, Exception](named.streams.analytics_schedule, self)
         self._service_streams.consume_order_processed = transformation.Input[OrderProcessed, OrderProcessed, Exception](named.streams.consume_order_processed, self)
         self._service_streams.count_order_processed = transformation.Process[OrderProcessed, OrderProcessed, Exception](named.streams.count_order_processed, self._service_streams.consume_order_processed, self.functions.count_order_processed)
@@ -449,6 +523,13 @@ class GeneratedService(ServiceApp):
         self._service_streams.analytics_shipments = transformation.Input[AnalyticsEvent, object, Exception](named.streams.analytics_shipments, self)
         self._service_streams.split_analytics_orders = transformation.Split[AnalyticsEvent](named.streams.split_analytics_orders, self._service_streams.analytics_orders)
         self._service_streams.split_analytics_payments = transformation.Split[AnalyticsEvent](named.streams.split_analytics_payments, self._service_streams.analytics_payments)
+        self._service_streams.cycle_analytics_input = transformation.Input[AnalyticsEvent, object, Exception](named.streams.cycle_analytics_input, self)
+        self._service_streams.merge_cycle_analytics = transformation.Merge[AnalyticsEvent](named.streams.merge_cycle_analytics, self._service_streams.cycle_analytics_input, self._service_streams.cycle_analytics_link)
+        self._service_streams.advance_cycle_analytics = transformation.Map[AnalyticsEvent, AnalyticsEvent](named.streams.advance_cycle_analytics, self._service_streams.merge_cycle_analytics, self.functions.advance_cycle_analytics)
+        self._service_streams.split_cycle_analytics = transformation.Split[AnalyticsEvent](named.streams.split_cycle_analytics, self._service_streams.advance_cycle_analytics)
+        self._service_streams.complete_cycle_analytics = transformation.Filter[AnalyticsEvent](named.streams.complete_cycle_analytics, self._service_streams.split_cycle_analytics.add_stream(), self.functions.complete_cycle_analytics)
+        self._service_streams.continue_cycle_analytics = transformation.Filter[AnalyticsEvent](named.streams.continue_cycle_analytics, self._service_streams.split_cycle_analytics.add_stream(), self.functions.continue_cycle_analytics)
+        self._service_streams.write_cycle_analytics = transformation.Sink[AnalyticsEvent, Exception](named.streams.write_cycle_analytics, self._service_streams.complete_cycle_analytics)
         self._service_streams.key_orders_for_join = transformation.KeyBy[AnalyticsEvent, str, AnalyticsEvent](named.streams.key_orders_for_join, self._service_streams.split_analytics_orders.add_stream(), self.functions.key_orders_for_join)
         self._service_streams.key_payments_for_join = transformation.KeyBy[AnalyticsEvent, str, AnalyticsEvent](named.streams.key_payments_for_join, self._service_streams.split_analytics_payments.add_stream(), self.functions.key_payments_for_join)
         self._service_streams.join_order_payment_analytics = transformation.Join[str, AnalyticsEvent, AnalyticsEvent, AnalyticsResult](named.streams.join_order_payment_analytics, self._service_streams.key_orders_for_join, self._service_streams.key_payments_for_join, self.functions.join_order_payment_analytics)
@@ -466,6 +547,7 @@ class GeneratedService(ServiceApp):
         self._service_streams.write_standard_analytics = transformation.Sink[AnalyticsResult, Exception](named.streams.write_standard_analytics, self._service_streams.standard_analytics)
         self._service_streams.route_analytics_result.build()
         self._service_streams.consume_order_processed.set_source(self._service_streams.count_order_processed)
+        self._service_streams.cycle_analytics_link.set_source(self._service_streams.continue_cycle_analytics)
 
     async def bind_transports(self, ctx: Context) -> None:
         """Bind configured endpoints to the already constructed streams."""
@@ -486,6 +568,10 @@ class GeneratedService(ServiceApp):
         self._transport_consumers.append(analytics_payments_consumer)
         analytics_shipments_consumer = custom_source.TypedCustomEndpointConsumer(self._service_streams.analytics_shipments, self.functions.analytics_shipments_source, self.functions.analytics_shipments_source)
         self._transport_consumers.append(analytics_shipments_consumer)
+        cycle_analytics_input_consumer = custom_source.TypedCustomEndpointConsumer(self._service_streams.cycle_analytics_input, self.functions.cycle_analytics_input_source, self.functions.cycle_analytics_input_source)
+        self._transport_consumers.append(cycle_analytics_input_consumer)
+        write_cycle_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_cycle_analytics, self.functions.cycle_analytics_result_sink)
+        self._transport_consumers.append(write_cycle_analytics_consumer)
         write_joined_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_joined_analytics, self.functions.joined_analytics_sink)
         self._transport_consumers.append(write_joined_analytics_consumer)
         write_high_value_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_high_value_analytics, self.functions.high_value_analytics_sink)

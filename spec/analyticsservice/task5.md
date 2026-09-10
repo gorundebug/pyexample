@@ -1,36 +1,34 @@
-# Task 5/17: `AnalyticsShipmentsSource`
+# Task 5/22: `ContinueCycleAnalytics`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `custom-source` |
-| File | `analyticsservice/src/analytics_service/internal/functions/endpoint/analytics_shipments_source.py` |
-| Test | `analyticsservice/tests/functions/test_endpoint/analytics_shipments_source.py` |
+| Kind | `filter` |
+| File | `analyticsservice/src/analytics_service/internal/functions/cycleanalytics/continue_cycle_analytics.py` |
+| Test | `analyticsservice/tests/functions/test_cycleanalytics/continue_cycle_analytics.py` |
 | Service | `Analytics Service` |
 
 
 ## Behaviour
 
-Produce a deterministic shipment analytics event for the canonical multi-way join example.
+Keep intermediate analytics events whose cycle counter is below three.
 
 
 
 
 ## Stream types
 - Input: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
-- Output: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `analyticsservice/src/analytics_service/internal/functions/endpoint/analytics_shipments_source.py` and preserve its generated contract
+- [ ] Open `analyticsservice/src/analytics_service/internal/functions/cycleanalytics/continue_cycle_analytics.py` and preserve its generated contract
 - [ ] Inspect input type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
-- [ ] Inspect output type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_endpoint/analytics_shipments_source.py`
+- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_cycleanalytics/continue_cycle_analytics.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task5.md — AnalyticsShipmentsSource — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task5.md — ContinueCycleAnalytics — Python — done`

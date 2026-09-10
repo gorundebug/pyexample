@@ -1,34 +1,36 @@
-# Task 17/17: `RouteAnalyticsResult`
+# Task 17/22: `KeyPaymentsForJoin`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `case` |
-| File | `analyticsservice/src/analytics_service/internal/functions/multijoinanalytics/route_analytics_result.py` |
-| Test | `analyticsservice/tests/functions/test_multijoinanalytics/route_analytics_result.py` |
+| Kind | `keyBy` |
+| File | `analyticsservice/src/analytics_service/internal/functions/joinanalytics/key_payments_for_join.py` |
+| Test | `analyticsservice/tests/functions/test_joinanalytics/key_payments_for_join.py` |
 | Service | `Analytics Service` |
 
 
 ## Behaviour
 
-Route high-value analytics results to the first branch and all others to the second branch.
+Key the payment analytics event by correlation key.
 
 
 
 
 ## Stream types
-- Input: `AnalyticsResult` — `analyticsservice/src/analytics_service/models/analytics_result.py`
+- Input: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
+- Output: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `analyticsservice/src/analytics_service/internal/functions/multijoinanalytics/route_analytics_result.py` and preserve its generated contract
-- [ ] Inspect input type `AnalyticsResult` in `analyticsservice/src/analytics_service/models/analytics_result.py`
+- [ ] Open `analyticsservice/src/analytics_service/internal/functions/joinanalytics/key_payments_for_join.py` and preserve its generated contract
+- [ ] Inspect input type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
+- [ ] Inspect output type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_multijoinanalytics/route_analytics_result.py`
+- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_joinanalytics/key_payments_for_join.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task17.md — RouteAnalyticsResult — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task17.md — KeyPaymentsForJoin — Python — done`

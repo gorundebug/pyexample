@@ -1,38 +1,36 @@
-# Task 8/17: `OrderProcessedEndpointSource`
+# Task 8/22: `AnalyticsShipmentsSource`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `kafka-source` |
-| File | `analyticsservice/src/analytics_service/internal/functions/endpoint/order_processed_endpoint_source.py` |
-| Test | `analyticsservice/tests/functions/test_endpoint/order_processed_endpoint_source.py` |
+| Kind | `custom-source` |
+| File | `analyticsservice/src/analytics_service/internal/functions/endpoint/analytics_shipments_source.py` |
+| Test | `analyticsservice/tests/functions/test_endpoint/analytics_shipments_source.py` |
 | Service | `Analytics Service` |
 
 
 ## Behaviour
 
-Exchange OrderProcessed events keyed by order ID.
-Producers include the final status, processing time, total and confirmed item counts, and a failure reason for unsuccessful orders.
-Consumers decode the event and mark its Kafka message processed only after the pipeline handles it successfully.
+Produce a deterministic shipment analytics event for the canonical multi-way join example.
 
 
 
 
 ## Stream types
-- Input: `OrderProcessed` — `model_python/src/model/models/order_processed.py`
-- Output: `OrderProcessed` — `model_python/src/model/models/order_processed.py`
+- Input: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
+- Output: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `analyticsservice/src/analytics_service/internal/functions/endpoint/order_processed_endpoint_source.py` and preserve its generated contract
-- [ ] Inspect input type `OrderProcessed` in `model_python/src/model/models/order_processed.py`
-- [ ] Inspect output type `OrderProcessed` in `model_python/src/model/models/order_processed.py`
+- [ ] Open `analyticsservice/src/analytics_service/internal/functions/endpoint/analytics_shipments_source.py` and preserve its generated contract
+- [ ] Inspect input type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
+- [ ] Inspect output type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_endpoint/order_processed_endpoint_source.py`
+- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_endpoint/analytics_shipments_source.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task8.md — OrderProcessedEndpointSource — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task8.md — AnalyticsShipmentsSource — Python — done`

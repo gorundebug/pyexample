@@ -1,36 +1,34 @@
-# Task 4/17: `AnalyticsPaymentsSource`
+# Task 4/22: `CompleteCycleAnalytics`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `custom-source` |
-| File | `analyticsservice/src/analytics_service/internal/functions/endpoint/analytics_payments_source.py` |
-| Test | `analyticsservice/tests/functions/test_endpoint/analytics_payments_source.py` |
+| Kind | `filter` |
+| File | `analyticsservice/src/analytics_service/internal/functions/cycleanalytics/complete_cycle_analytics.py` |
+| Test | `analyticsservice/tests/functions/test_cycleanalytics/complete_cycle_analytics.py` |
 | Service | `Analytics Service` |
 
 
 ## Behaviour
 
-Produce a deterministic payment analytics event for the canonical join examples.
+Keep the terminal analytics event once its cycle counter reaches three.
 
 
 
 
 ## Stream types
 - Input: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
-- Output: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `analyticsservice/src/analytics_service/internal/functions/endpoint/analytics_payments_source.py` and preserve its generated contract
+- [ ] Open `analyticsservice/src/analytics_service/internal/functions/cycleanalytics/complete_cycle_analytics.py` and preserve its generated contract
 - [ ] Inspect input type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
-- [ ] Inspect output type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_endpoint/analytics_payments_source.py`
+- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_cycleanalytics/complete_cycle_analytics.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task4.md — AnalyticsPaymentsSource — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task4.md — CompleteCycleAnalytics — Python — done`

@@ -1,34 +1,36 @@
-# Task 10/17: `JoinOrderPaymentAnalytics`
+# Task 10/22: `CycleAnalyticsResultSink`
 
 > Rules: [`spec/rules.md`](../rules.md)
 
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
-| Kind | `join` |
-| File | `analyticsservice/src/analytics_service/internal/functions/joinanalytics/join_order_payment_analytics.py` |
-| Test | `analyticsservice/tests/functions/test_joinanalytics/join_order_payment_analytics.py` |
+| Kind | `custom-sink` |
+| File | `analyticsservice/src/analytics_service/internal/functions/endpoint/cycle_analytics_result_sink.py` |
+| Test | `analyticsservice/tests/functions/test_endpoint/cycle_analytics_result_sink.py` |
 | Service | `Analytics Service` |
 
 
 ## Behaviour
 
-Join matching order and payment analytics events and emit their combined total.
+Validate the terminal event emitted after three passes through the feedback cycle.
 
 
 
 
 ## Stream types
-- Output: `AnalyticsResult` — `analyticsservice/src/analytics_service/models/analytics_result.py`
+- Input: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
+- Output: `AnalyticsEvent` — `analyticsservice/src/analytics_service/models/analytics_event.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
-- [ ] Open `analyticsservice/src/analytics_service/internal/functions/joinanalytics/join_order_payment_analytics.py` and preserve its generated contract
-- [ ] Inspect output type `AnalyticsResult` in `analyticsservice/src/analytics_service/models/analytics_result.py`
+- [ ] Open `analyticsservice/src/analytics_service/internal/functions/endpoint/cycle_analytics_result_sink.py` and preserve its generated contract
+- [ ] Inspect input type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
+- [ ] Inspect output type `AnalyticsEvent` in `analyticsservice/src/analytics_service/models/analytics_event.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_joinanalytics/join_order_payment_analytics.py`
+- [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_endpoint/cycle_analytics_result_sink.py`
 - [ ] Re-read this checklist
-- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task10.md — JoinOrderPaymentAnalytics — Python — done`
+- [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task10.md — CycleAnalyticsResultSink — Python — done`
