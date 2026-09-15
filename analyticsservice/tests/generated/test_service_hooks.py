@@ -3,13 +3,12 @@
 import pytest
 
 from pyservicelib_gorundebug.runtime.context.context import Context
+from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
+from pyservicelib_gorundebug.runtime.config.stream_types import ProcessStreamConfig
 
 from analytics_service.internal.app.service_generated import GeneratedService
 from analytics_service.internal.config import Config
-
-
-class _Function:
-    pass
+from analytics_service.internal.functions import CountOrderProcessed
 
 
 class _RecordingService(GeneratedService):
@@ -20,11 +19,19 @@ class _RecordingService(GeneratedService):
     async def custom_makers_init(self, ctx: Context) -> None:
         del ctx
         self.events.append("custom_makers_init")
-        self.makers.count_order_processed = lambda ctx, env, cfg: _Function()
+        original_maker = self.makers.count_order_processed
+
+        async def make_function(
+            ctx: Context, env: ServiceEnvironment, cfg: ProcessStreamConfig
+        ) -> CountOrderProcessed:
+            self.events.append("function_maker")
+            return await original_maker(ctx, env, cfg)
+
+        self.makers.count_order_processed = make_function
 
     async def custom_functions_init(self, ctx: Context) -> None:
         del ctx
-        assert isinstance(self.functions.count_order_processed, _Function)
+        assert isinstance(self.functions.count_order_processed, CountOrderProcessed)
         self.events.append("custom_functions_init")
 
 
@@ -35,5 +42,9 @@ async def test_generated_function_hook_order() -> None:
     assert config is not None
     service.set_config(config)
     await service.initialize_functions(Context())
-    assert service.events == ["custom_makers_init", "custom_functions_init"]
-    assert isinstance(service.functions.count_order_processed, _Function)
+    assert service.events == [
+        "custom_makers_init",
+        "function_maker",
+        "custom_functions_init",
+    ]
+    assert isinstance(service.functions.count_order_processed, CountOrderProcessed)

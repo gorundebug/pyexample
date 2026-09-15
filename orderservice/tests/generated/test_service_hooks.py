@@ -3,13 +3,12 @@
 import pytest
 
 from pyservicelib_gorundebug.runtime.context.context import Context
+from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
+from pyservicelib_gorundebug.runtime.config.endpoint_types import KafkaEndpointConfig
 
 from order_service.internal.app.service_generated import GeneratedService
 from order_service.internal.config import Config
-
-
-class _Function:
-    pass
+from order_service.internal.functions import OrderProcessedEndpointSink
 
 
 class _RecordingService(GeneratedService):
@@ -20,11 +19,19 @@ class _RecordingService(GeneratedService):
     async def custom_makers_init(self, ctx: Context) -> None:
         del ctx
         self.events.append("custom_makers_init")
-        self.makers.order_processed_endpoint_sink = lambda ctx, env, cfg: _Function()
+        original_maker = self.makers.order_processed_endpoint_sink
+
+        async def make_function(
+            ctx: Context, env: ServiceEnvironment, cfg: KafkaEndpointConfig
+        ) -> OrderProcessedEndpointSink:
+            self.events.append("function_maker")
+            return await original_maker(ctx, env, cfg)
+
+        self.makers.order_processed_endpoint_sink = make_function
 
     async def custom_functions_init(self, ctx: Context) -> None:
         del ctx
-        assert isinstance(self.functions.order_processed_endpoint_sink, _Function)
+        assert isinstance(self.functions.order_processed_endpoint_sink, OrderProcessedEndpointSink)
         self.events.append("custom_functions_init")
 
 
@@ -35,5 +42,9 @@ async def test_generated_function_hook_order() -> None:
     assert config is not None
     service.set_config(config)
     await service.initialize_functions(Context())
-    assert service.events == ["custom_makers_init", "custom_functions_init"]
-    assert isinstance(service.functions.order_processed_endpoint_sink, _Function)
+    assert service.events == [
+        "custom_makers_init",
+        "function_maker",
+        "custom_functions_init",
+    ]
+    assert isinstance(service.functions.order_processed_endpoint_sink, OrderProcessedEndpointSink)
