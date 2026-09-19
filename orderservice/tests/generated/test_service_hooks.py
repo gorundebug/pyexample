@@ -6,18 +6,18 @@ from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.endpoint_types import KafkaEndpointConfig
 
-from order_service.internal.app.service_generated import GeneratedService
+from order_service.internal.app.service import Service
 from order_service.internal.config import Config
 from order_service.internal.functions import OrderProcessedEndpointSink
 
 
-class _RecordingService(GeneratedService):
+class _RecordingService(Service):
     def __init__(self) -> None:
         super().__init__()
         self.events: list[str] = []
 
     async def custom_makers_init(self, ctx: Context) -> None:
-        del ctx
+        await super().custom_makers_init(ctx)
         self.events.append("custom_makers_init")
         original_maker = self.makers.order_processed_endpoint_sink
 
@@ -30,7 +30,7 @@ class _RecordingService(GeneratedService):
         self.makers.order_processed_endpoint_sink = make_function
 
     async def custom_functions_init(self, ctx: Context) -> None:
-        del ctx
+        await super().custom_functions_init(ctx)
         assert isinstance(self.functions.order_processed_endpoint_sink, OrderProcessedEndpointSink)
         self.events.append("custom_functions_init")
 

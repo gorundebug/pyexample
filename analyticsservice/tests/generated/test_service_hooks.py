@@ -6,18 +6,18 @@ from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.stream_types import ProcessStreamConfig
 
-from analytics_service.internal.app.service_generated import GeneratedService
+from analytics_service.internal.app.service import Service
 from analytics_service.internal.config import Config
 from analytics_service.internal.functions import CountOrderProcessed
 
 
-class _RecordingService(GeneratedService):
+class _RecordingService(Service):
     def __init__(self) -> None:
         super().__init__()
         self.events: list[str] = []
 
     async def custom_makers_init(self, ctx: Context) -> None:
-        del ctx
+        await super().custom_makers_init(ctx)
         self.events.append("custom_makers_init")
         original_maker = self.makers.count_order_processed
 
@@ -30,7 +30,7 @@ class _RecordingService(GeneratedService):
         self.makers.count_order_processed = make_function
 
     async def custom_functions_init(self, ctx: Context) -> None:
-        del ctx
+        await super().custom_functions_init(ctx)
         assert isinstance(self.functions.count_order_processed, CountOrderProcessed)
         self.events.append("custom_functions_init")
 

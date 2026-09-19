@@ -25,7 +25,7 @@ class GetInventoryItemData:
         stream: Stream,
         value: OrderItem,
         out: Collect[OrderItemResult],
-        err_out: Collect[OrderItemResult],
+        err_out: Collect[Exception],
     ) -> None:
         del stream
         # This block contains no await, so it is uninterrupted on the
@@ -45,7 +45,17 @@ class GetInventoryItemData:
             status="CONFIRMED" if reserved else "OUT_OF_STOCK",
             unit_price=value.unit_price,
         )
-        await (out if reserved else err_out).out(result)
+        if reserved:
+            await out.out(result)
+        else:
+            await err_out.out(InventoryFailureError(value, available))
+
+
+class InventoryFailureError(Exception):
+    def __init__(self, item: OrderItem, available_qty: int) -> None:
+        super().__init__("inventory is out of stock")
+        self.item = item
+        self.available_qty = available_qty
 
 
 async def make_get_inventory_item_data(

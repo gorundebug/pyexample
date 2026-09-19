@@ -19,6 +19,13 @@ from pyservicelib_gorundebug.runtime.serviceapp import (
 )
 from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
 from pyservicelib_gorundebug import transformation
+from .pipeline_inventory_item_generated import (
+    InventoryItemPipelineFunctions,
+    InventoryItemPipelineMakers,
+    InventoryItemPipelineStreams,
+    init_inventory_item_streams,
+    post_init_inventory_item_streams,
+)
 from pyservicelib_gorundebug.datasource.grpc import grpcds as grpc_source
 from .grpc_service_generated import GrpcHandlers, GrpcServer
 
@@ -26,7 +33,10 @@ from ..config import Config
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.config import ServiceConfig
 from pyservicelib_gorundebug.runtime.config.endpoint_types import GrpcEndpointConfig
-from pyservicelib_gorundebug.runtime.config.stream_types import ProcessStreamConfig
+from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig, ProcessStreamConfig
+from inventory_service.models.inventory_failure_generated import (
+    InventoryFailure,
+)
 from model.models.order_item import (
     OrderItem,
 )
@@ -38,28 +48,25 @@ from ..functions import (
     make_process_order_item_source,
     GetInventoryItemData,
     make_get_inventory_item_data,
+    GetInventoryItemError,
+    make_get_inventory_item_error,
 )
 
 
-@dataclass(slots=True)
-class ServiceStreams:
-    process_inventory_item: Any = None
-    get_inventory_item_data: Any = None
-    get_inventory_item_error: Any = None
-    merge_inventory_result: Any = None
+@dataclass
+class ServiceStreams(
+    InventoryItemPipelineStreams,
+):
+    pass
 
-@dataclass(slots=True)
-class ServiceMakers:
+@dataclass
+class ServiceMakers(
+    InventoryItemPipelineMakers,
+):
     # The argument contract is intentionally uniform: context, environment,
     # and the exact config of the object being constructed.
     http_application: Callable[[Context, ServiceEnvironment, ServiceConfig], Awaitable[web.Application]] = (
         lambda _ctx, _environment, _config: _make_http_application()
-    )
-    process_order_item_source: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], Awaitable[ProcessOrderItemSource]] = (
-        make_process_order_item_source
-    )
-    get_inventory_item_data: Callable[[Context, ServiceEnvironment, ProcessStreamConfig], Awaitable[GetInventoryItemData]] = (
-        make_get_inventory_item_data
     )
     grpc_server: Callable[[Context, ServiceEnvironment, ServiceConfig, GrpcHandlers], Awaitable[GrpcServer]] = (
         lambda _ctx, _environment, config, handlers: _make_grpc_server(config, handlers)
@@ -73,10 +80,11 @@ async def _make_grpc_server(
     return GrpcServer(config.grpc_host, config.grpc_port, handlers)
 
 
-@dataclass(slots=True)
-class ServiceFunctions:
-    process_order_item_source: ProcessOrderItemSource
-    get_inventory_item_data: GetInventoryItemData
+@dataclass
+class ServiceFunctions(
+    InventoryItemPipelineFunctions,
+):
+    pass
 
 
 class _MakerGroup:
@@ -160,15 +168,22 @@ class GeneratedService(ServiceApp):
                 self,
                 named.streams.get_inventory_item_data,
             ),
+            maker_group_0.invoke(
+                self._makers.get_inventory_item_error,
+                self,
+                named.streams.map_inventory_item_error,
+            ),
             return_exceptions=True,
         )
         maker_group_0.context.cancel()
         maker_group_0.raise_first_error()
         process_order_item_source = cast(ProcessOrderItemSource, group_results_0[0])
         get_inventory_item_data = cast(GetInventoryItemData, group_results_0[1])
+        get_inventory_item_error = cast(GetInventoryItemError, group_results_0[2])
         self._functions = ServiceFunctions(
             process_order_item_source=process_order_item_source,
             get_inventory_item_data=get_inventory_item_data,
+            get_inventory_item_error=get_inventory_item_error,
         )
         await self.custom_functions_init(ctx)
 
@@ -223,11 +238,8 @@ class GeneratedService(ServiceApp):
                 "Inventory Service requires inventory_service.internal.config.Config"
             )
         named = cfg.named
-        self._service_streams.process_inventory_item = transformation.Input[OrderItem, OrderItemResult, Exception](named.streams.process_inventory_item, self)
-        self._service_streams.get_inventory_item_data = transformation.Process[OrderItem, OrderItemResult, OrderItemResult](named.streams.get_inventory_item_data, self._service_streams.process_inventory_item, self.functions.get_inventory_item_data)
-        self._service_streams.get_inventory_item_error = self._service_streams.get_inventory_item_data.error_stream
-        self._service_streams.merge_inventory_result = transformation.Merge[OrderItemResult](named.streams.merge_inventory_result, self._service_streams.get_inventory_item_data, self._service_streams.get_inventory_item_error)
-        self._service_streams.process_inventory_item.set_source(self._service_streams.merge_inventory_result)
+        init_inventory_item_streams(self, named)
+        post_init_inventory_item_streams(self)
 
     async def bind_transports(self, ctx: Context) -> None:
         """Bind configured endpoints to the already constructed streams."""

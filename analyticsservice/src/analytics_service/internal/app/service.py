@@ -2,6 +2,7 @@
 
 from pyservicelib_gorundebug.api.models.environment import Environment
 from pyservicelib_gorundebug.runtime.context.context import Context
+from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
 from pyservicelib_gorundebug.runtime.environment.environment import (
     ServiceDependency,
     ServiceEnvironment,
@@ -19,6 +20,9 @@ from pyservicelib_gorundebug.runtime.telemetry.telemetry import (
 )
 
 from .service_generated import GeneratedService
+from ..functions.substreamanalytics.invoke_analytics_substream import (
+    InvokeAnalyticsSubstream,
+)
 
 
 class Dependency(ServiceDependency):
@@ -60,6 +64,17 @@ class Service(GeneratedService):
     async def custom_makers_init(self, ctx: Context) -> None:
         """Add only explicit user maker overrides."""
         del ctx
+
+        async def make_invoke_analytics_substream(
+            _ctx: Context,
+            _environment: ServiceEnvironment,
+            _config: MapStreamConfig,
+        ) -> InvokeAnalyticsSubstream:
+            return InvokeAnalyticsSubstream(
+                self.get_analyze_analytics_substream_substream()
+            )
+
+        self.makers.invoke_analytics_substream = make_invoke_analytics_substream
 
     async def custom_functions_init(self, ctx: Context) -> None:
         """Add only explicit post-construction customization."""

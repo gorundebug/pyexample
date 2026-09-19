@@ -19,6 +19,13 @@ from pyservicelib_gorundebug.runtime.serviceapp import (
 )
 from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
 from pyservicelib_gorundebug import transformation
+from .pipeline_order_generated import (
+    OrderPipelineFunctions,
+    OrderPipelineMakers,
+    OrderPipelineStreams,
+    init_order_streams,
+    post_init_order_streams,
+)
 from pyservicelib_gorundebug.datasink.grpc import grpcds as grpc_sink
 from pyservicelib_gorundebug.datasource.http import aiohttpds as http_source
 from pyservicelib_gorundebug.datasink.kafka import aiokafkads as kafka_sink
@@ -66,23 +73,16 @@ from ..functions import (
 )
 
 
-@dataclass(slots=True)
-class ServiceStreams:
-    process_order: Any = None
-    split_pipeline: Any = None
-    process_order_items: Any = None
-    process_order_item: Any = None
-    process_order_item_error: Any = None
-    map_order_item_result_to_order_state: Any = None
-    soft_deadline: Any = None
-    map_to_order_state: Any = None
-    merge_results: Any = None
-    split_order_result: Any = None
-    map_to_order_processed: Any = None
-    publish_order_processed: Any = None
+@dataclass
+class ServiceStreams(
+    OrderPipelineStreams,
+):
+    pass
 
-@dataclass(slots=True)
-class ServiceMakers:
+@dataclass
+class ServiceMakers(
+    OrderPipelineMakers,
+):
     # The argument contract is intentionally uniform: context, environment,
     # and the exact config of the object being constructed.
     http_application: Callable[[Context, ServiceEnvironment, ServiceConfig], Awaitable[web.Application]] = (
@@ -90,30 +90,6 @@ class ServiceMakers:
     )
     order_service_api_http_source: Callable[[Context, ServiceEnvironment, HttpDataConnectorConfig], Awaitable[http_source.AIOHttpDataSource]] = (
         lambda _ctx, environment, config: _make_http_source(environment, config)
-    )
-    order_processed_endpoint_sink: Callable[[Context, ServiceEnvironment, KafkaEndpointConfig], Awaitable[OrderProcessedEndpointSink]] = (
-        make_order_processed_endpoint_sink
-    )
-    process_order_item_sink: Callable[[Context, ServiceEnvironment, GrpcEndpointConfig], Awaitable[ProcessOrderItemSink]] = (
-        make_process_order_item_sink
-    )
-    process_order_source: Callable[[Context, ServiceEnvironment, HttpEndpointConfig], Awaitable[ProcessOrderSource]] = (
-        make_process_order_source
-    )
-    map_order_item_result_to_order_state: Callable[[Context, ServiceEnvironment, MapStreamConfig], Awaitable[MapOrderItemResultToOrderState]] = (
-        make_map_order_item_result_to_order_state
-    )
-    map_to_order_processed: Callable[[Context, ServiceEnvironment, MapStreamConfig], Awaitable[MapToOrderProcessed]] = (
-        make_map_to_order_processed
-    )
-    map_to_order_state: Callable[[Context, ServiceEnvironment, MapStreamConfig], Awaitable[MapToOrderState]] = (
-        make_map_to_order_state
-    )
-    process_order_items: Callable[[Context, ServiceEnvironment, FlatMapStreamConfig], Awaitable[ProcessOrderItems]] = (
-        make_process_order_items
-    )
-    soft_deadline: Callable[[Context, ServiceEnvironment, DelayStreamConfig], Awaitable[SoftDeadline]] = (
-        make_soft_deadline
     )
     inventory_service_api_grpc_channel: Callable[[Context, ServiceEnvironment, GrpcDataConnectorConfig], Awaitable[grpc.aio.Channel]] = (
         lambda _ctx, _environment, config: _make_grpc_channel(config)
@@ -131,16 +107,11 @@ async def _make_grpc_channel(config: GrpcDataConnectorConfig) -> grpc.aio.Channe
     )
 
 
-@dataclass(slots=True)
-class ServiceFunctions:
-    order_processed_endpoint_sink: OrderProcessedEndpointSink
-    process_order_item_sink: ProcessOrderItemSink
-    process_order_source: ProcessOrderSource
-    map_order_item_result_to_order_state: MapOrderItemResultToOrderState
-    map_to_order_processed: MapToOrderProcessed
-    map_to_order_state: MapToOrderState
-    process_order_items: ProcessOrderItems
-    soft_deadline: SoftDeadline
+@dataclass
+class ServiceFunctions(
+    OrderPipelineFunctions,
+):
+    pass
 
 
 class _MakerGroup:
@@ -379,19 +350,8 @@ class GeneratedService(ServiceApp):
                 "Order Service requires order_service.internal.config.Config"
             )
         named = cfg.named
-        self._service_streams.process_order = transformation.Input[Order, OrderState, Exception](named.streams.process_order, self)
-        self._service_streams.split_pipeline = transformation.Split[Order](named.streams.split_pipeline, self._service_streams.process_order)
-        self._service_streams.process_order_items = transformation.FlatMap[Order, OrderItem](named.streams.process_order_items, self._service_streams.split_pipeline.add_stream(), self.functions.process_order_items)
-        self._service_streams.process_order_item = transformation.SinkWithResult[OrderItem, OrderItemResult, OrderState](named.streams.process_order_item, self._service_streams.process_order_items)
-        self._service_streams.process_order_item_error = self._service_streams.process_order_item.error_stream
-        self._service_streams.map_order_item_result_to_order_state = transformation.Map[OrderItemResult, OrderState](named.streams.map_order_item_result_to_order_state, self._service_streams.process_order_item, self.functions.map_order_item_result_to_order_state)
-        self._service_streams.soft_deadline = transformation.Delay[Order](named.streams.soft_deadline, self._service_streams.split_pipeline.add_stream(), self.functions.soft_deadline)
-        self._service_streams.map_to_order_state = transformation.Map[Order, OrderState](named.streams.map_to_order_state, self._service_streams.soft_deadline, self.functions.map_to_order_state)
-        self._service_streams.merge_results = transformation.Merge[OrderState](named.streams.merge_results, self._service_streams.map_to_order_state, self._service_streams.map_order_item_result_to_order_state, self._service_streams.process_order_item_error)
-        self._service_streams.split_order_result = transformation.Split[OrderState](named.streams.split_order_result, self._service_streams.merge_results)
-        self._service_streams.map_to_order_processed = transformation.Map[OrderState, OrderProcessed](named.streams.map_to_order_processed, self._service_streams.split_order_result.add_stream(), self.functions.map_to_order_processed)
-        self._service_streams.publish_order_processed = transformation.Sink[OrderProcessed, Exception](named.streams.publish_order_processed, self._service_streams.map_to_order_processed)
-        self._service_streams.process_order.set_source(self._service_streams.split_order_result.add_stream())
+        init_order_streams(self, named)
+        post_init_order_streams(self)
 
     async def bind_transports(self, ctx: Context) -> None:
         """Bind configured endpoints to the already constructed streams."""
