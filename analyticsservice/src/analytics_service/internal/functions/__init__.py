@@ -13,6 +13,8 @@ from .endpoint.high_value_analytics_sink import HighValueAnalyticsSink, make_hig
 from .endpoint.joined_analytics_sink import JoinedAnalyticsSink, make_joined_analytics_sink
 from .endpoint.order_processed_endpoint_source import OrderProcessedEndpointSource, make_order_processed_endpoint_source
 from .endpoint.standard_analytics_sink import StandardAnalyticsSink, make_standard_analytics_sink
+from .endpoint.substream_analytics_input_source import SubstreamAnalyticsInputSource, make_substream_analytics_input_source
+from .endpoint.substream_analytics_result_sink import SubstreamAnalyticsResultSink, make_substream_analytics_result_sink
 from .joinanalytics.join_order_payment_analytics import JoinOrderPaymentAnalytics, make_join_order_payment_analytics
 from .joinanalytics.key_orders_for_join import KeyOrdersForJoin, make_key_orders_for_join
 from .joinanalytics.key_payments_for_join import KeyPaymentsForJoin, make_key_payments_for_join
@@ -21,6 +23,8 @@ from .multijoinanalytics.key_payments_for_multi_join import KeyPaymentsForMultiJ
 from .multijoinanalytics.key_shipments_for_multi_join import KeyShipmentsForMultiJoin, make_key_shipments_for_multi_join
 from .multijoinanalytics.multi_join_analytics_events import MultiJoinAnalyticsEvents, make_multi_join_analytics_events
 from .multijoinanalytics.route_analytics_result import RouteAnalyticsResult, make_route_analytics_result
+from .substreamanalytics.build_substream_analytics_result import BuildSubstreamAnalyticsResult, make_build_substream_analytics_result
+from .substreamanalytics.invoke_analytics_substream import InvokeAnalyticsSubstream, make_invoke_analytics_substream
 
 __all__ = [
     "CountOrderProcessed",
@@ -51,6 +55,10 @@ __all__ = [
     "make_order_processed_endpoint_source",
     "StandardAnalyticsSink",
     "make_standard_analytics_sink",
+    "SubstreamAnalyticsInputSource",
+    "make_substream_analytics_input_source",
+    "SubstreamAnalyticsResultSink",
+    "make_substream_analytics_result_sink",
     "JoinOrderPaymentAnalytics",
     "make_join_order_payment_analytics",
     "KeyOrdersForJoin",
@@ -67,4 +75,8 @@ __all__ = [
     "make_multi_join_analytics_events",
     "RouteAnalyticsResult",
     "make_route_analytics_result",
+    "BuildSubstreamAnalyticsResult",
+    "make_build_substream_analytics_result",
+    "InvokeAnalyticsSubstream",
+    "make_invoke_analytics_substream",
 ]

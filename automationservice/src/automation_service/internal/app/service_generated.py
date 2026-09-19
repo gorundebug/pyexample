@@ -354,7 +354,6 @@ class GeneratedService(ServiceApp):
         self._service_streams = ServiceStreams()
         self._transport_consumers: list[Any] = []
         self._makers_initialized = False
-
     @property
     def makers(self) -> ServiceMakers:
         return self._makers

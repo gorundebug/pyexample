@@ -121,7 +121,6 @@ class GeneratedService(ServiceApp):
         self._transport_consumers: list[Any] = []
         self._makers_initialized = False
         self._grpc_channels: list[grpc.aio.Channel] = []
-
     @property
     def makers(self) -> ServiceMakers:
         return self._makers

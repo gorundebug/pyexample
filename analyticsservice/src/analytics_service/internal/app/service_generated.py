@@ -18,6 +18,7 @@ from pyservicelib_gorundebug.runtime.serviceapp import (
 )
 from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
 from pyservicelib_gorundebug import transformation
+from pyservicelib_gorundebug.runtime.common import SubStream as CallableSubStream, SubStreamCollector
 from pyservicelib_gorundebug.datasource.kafka import aiokafkads as kafka_source
 from pyservicelib_gorundebug.datasource.localsource import custom as custom_source
 from pyservicelib_gorundebug.datasink.localsink import custom as custom_sink
@@ -73,6 +74,10 @@ from ..functions import (
     make_order_processed_endpoint_source,
     StandardAnalyticsSink,
     make_standard_analytics_sink,
+    SubstreamAnalyticsInputSource,
+    make_substream_analytics_input_source,
+    SubstreamAnalyticsResultSink,
+    make_substream_analytics_result_sink,
     JoinOrderPaymentAnalytics,
     make_join_order_payment_analytics,
     KeyOrdersForJoin,
@@ -89,11 +94,16 @@ from ..functions import (
     make_multi_join_analytics_events,
     RouteAnalyticsResult,
     make_route_analytics_result,
+    BuildSubstreamAnalyticsResult,
+    make_build_substream_analytics_result,
+    InvokeAnalyticsSubstream,
+    make_invoke_analytics_substream,
 )
 
 
 @dataclass(slots=True)
 class ServiceStreams:
+    analyze_analytics_substream: transformation.SubStream[AnalyticsEvent, AnalyticsResult] | None = None
     analytics_schedule: Any = None
     consume_order_processed: Any = None
     count_order_processed: Any = None
@@ -123,6 +133,10 @@ class ServiceStreams:
     standard_analytics: Any = None
     write_high_value_analytics: Any = None
     write_standard_analytics: Any = None
+    build_substream_analytics_result: Any = None
+    substream_analytics_input: Any = None
+    invoke_analytics_substream: Any = None
+    write_substream_analytics: Any = None
 
 @dataclass(slots=True)
 class ServiceMakers:
@@ -173,6 +187,12 @@ class ServiceMakers:
     standard_analytics_sink: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[StandardAnalyticsSink]] = (
         make_standard_analytics_sink
     )
+    substream_analytics_input_source: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[SubstreamAnalyticsInputSource]] = (
+        make_substream_analytics_input_source
+    )
+    substream_analytics_result_sink: Callable[[Context, ServiceEnvironment, CustomEndpointConfig], Awaitable[SubstreamAnalyticsResultSink]] = (
+        make_substream_analytics_result_sink
+    )
     join_order_payment_analytics: Callable[[Context, ServiceEnvironment, JoinStreamConfig], Awaitable[JoinOrderPaymentAnalytics]] = (
         make_join_order_payment_analytics
     )
@@ -197,6 +217,12 @@ class ServiceMakers:
     route_analytics_result: Callable[[Context, ServiceEnvironment, CaseStreamConfig], Awaitable[RouteAnalyticsResult]] = (
         make_route_analytics_result
     )
+    build_substream_analytics_result: Callable[[Context, ServiceEnvironment, MapStreamConfig], Awaitable[BuildSubstreamAnalyticsResult]] = (
+        make_build_substream_analytics_result
+    )
+    invoke_analytics_substream: Callable[[Context, ServiceEnvironment, MapStreamConfig], Awaitable[InvokeAnalyticsSubstream]] = (
+        make_invoke_analytics_substream
+    )
 
 async def _make_http_application() -> web.Application:
     return web.Application()
@@ -218,6 +244,8 @@ class ServiceFunctions:
     joined_analytics_sink: JoinedAnalyticsSink
     order_processed_endpoint_source: OrderProcessedEndpointSource
     standard_analytics_sink: StandardAnalyticsSink
+    substream_analytics_input_source: SubstreamAnalyticsInputSource
+    substream_analytics_result_sink: SubstreamAnalyticsResultSink
     join_order_payment_analytics: JoinOrderPaymentAnalytics
     key_orders_for_join: KeyOrdersForJoin
     key_payments_for_join: KeyPaymentsForJoin
@@ -226,6 +254,8 @@ class ServiceFunctions:
     key_shipments_for_multi_join: KeyShipmentsForMultiJoin
     multi_join_analytics_events: MultiJoinAnalyticsEvents
     route_analytics_result: RouteAnalyticsResult
+    build_substream_analytics_result: BuildSubstreamAnalyticsResult
+    invoke_analytics_substream: InvokeAnalyticsSubstream
 
 
 class _MakerGroup:
@@ -257,6 +287,15 @@ class _MakerGroup:
     def raise_first_error(self) -> None:
         if self._first_error is not None:
             raise self._first_error
+@dataclass(slots=True)
+class _SubStreamHandle[T, R]:
+    target: transformation.SubStream[T, R] | None = None
+
+    async def consume(self, value: T, collector: SubStreamCollector[R]) -> None:
+        target = self.target
+        if target is None:
+            raise RuntimeError("substream graph is not initialized")
+        await target.consume(value, collector)
 
 
 class GeneratedService(ServiceApp):
@@ -267,9 +306,11 @@ class GeneratedService(ServiceApp):
         self._makers = ServiceMakers()
         self._functions: ServiceFunctions | None = None
         self._service_streams = ServiceStreams()
+        self._analyze_analytics_substream_substream = _SubStreamHandle[AnalyticsEvent, AnalyticsResult]()
         self._transport_consumers: list[Any] = []
         self._makers_initialized = False
-
+    def get_analyze_analytics_substream_substream(self) -> CallableSubStream[AnalyticsEvent, AnalyticsResult]:
+        return self._analyze_analytics_substream_substream
     @property
     def makers(self) -> ServiceMakers:
         return self._makers
@@ -372,6 +413,16 @@ class GeneratedService(ServiceApp):
                 named.endpoints.standard_analytics,
             ),
             maker_group_0.invoke(
+                self._makers.substream_analytics_input_source,
+                self,
+                named.endpoints.substream_analytics_input,
+            ),
+            maker_group_0.invoke(
+                self._makers.substream_analytics_result_sink,
+                self,
+                named.endpoints.substream_analytics_result,
+            ),
+            maker_group_0.invoke(
                 self._makers.join_order_payment_analytics,
                 self,
                 named.streams.join_order_payment_analytics,
@@ -411,6 +462,16 @@ class GeneratedService(ServiceApp):
                 self,
                 named.streams.route_analytics_result,
             ),
+            maker_group_0.invoke(
+                self._makers.build_substream_analytics_result,
+                self,
+                named.streams.build_substream_analytics_result,
+            ),
+            maker_group_0.invoke(
+                self._makers.invoke_analytics_substream,
+                self,
+                named.streams.invoke_analytics_substream,
+            ),
             return_exceptions=True,
         )
         maker_group_0.context.cancel()
@@ -429,14 +490,18 @@ class GeneratedService(ServiceApp):
         joined_analytics_sink = cast(JoinedAnalyticsSink, group_results_0[11])
         order_processed_endpoint_source = cast(OrderProcessedEndpointSource, group_results_0[12])
         standard_analytics_sink = cast(StandardAnalyticsSink, group_results_0[13])
-        join_order_payment_analytics = cast(JoinOrderPaymentAnalytics, group_results_0[14])
-        key_orders_for_join = cast(KeyOrdersForJoin, group_results_0[15])
-        key_payments_for_join = cast(KeyPaymentsForJoin, group_results_0[16])
-        key_orders_for_multi_join = cast(KeyOrdersForMultiJoin, group_results_0[17])
-        key_payments_for_multi_join = cast(KeyPaymentsForMultiJoin, group_results_0[18])
-        key_shipments_for_multi_join = cast(KeyShipmentsForMultiJoin, group_results_0[19])
-        multi_join_analytics_events = cast(MultiJoinAnalyticsEvents, group_results_0[20])
-        route_analytics_result = cast(RouteAnalyticsResult, group_results_0[21])
+        substream_analytics_input_source = cast(SubstreamAnalyticsInputSource, group_results_0[14])
+        substream_analytics_result_sink = cast(SubstreamAnalyticsResultSink, group_results_0[15])
+        join_order_payment_analytics = cast(JoinOrderPaymentAnalytics, group_results_0[16])
+        key_orders_for_join = cast(KeyOrdersForJoin, group_results_0[17])
+        key_payments_for_join = cast(KeyPaymentsForJoin, group_results_0[18])
+        key_orders_for_multi_join = cast(KeyOrdersForMultiJoin, group_results_0[19])
+        key_payments_for_multi_join = cast(KeyPaymentsForMultiJoin, group_results_0[20])
+        key_shipments_for_multi_join = cast(KeyShipmentsForMultiJoin, group_results_0[21])
+        multi_join_analytics_events = cast(MultiJoinAnalyticsEvents, group_results_0[22])
+        route_analytics_result = cast(RouteAnalyticsResult, group_results_0[23])
+        build_substream_analytics_result = cast(BuildSubstreamAnalyticsResult, group_results_0[24])
+        invoke_analytics_substream = cast(InvokeAnalyticsSubstream, group_results_0[25])
         self._functions = ServiceFunctions(
             count_order_processed=count_order_processed,
             analytics_schedule_source=analytics_schedule_source,
@@ -452,6 +517,8 @@ class GeneratedService(ServiceApp):
             joined_analytics_sink=joined_analytics_sink,
             order_processed_endpoint_source=order_processed_endpoint_source,
             standard_analytics_sink=standard_analytics_sink,
+            substream_analytics_input_source=substream_analytics_input_source,
+            substream_analytics_result_sink=substream_analytics_result_sink,
             join_order_payment_analytics=join_order_payment_analytics,
             key_orders_for_join=key_orders_for_join,
             key_payments_for_join=key_payments_for_join,
@@ -460,6 +527,8 @@ class GeneratedService(ServiceApp):
             key_shipments_for_multi_join=key_shipments_for_multi_join,
             multi_join_analytics_events=multi_join_analytics_events,
             route_analytics_result=route_analytics_result,
+            build_substream_analytics_result=build_substream_analytics_result,
+            invoke_analytics_substream=invoke_analytics_substream,
         )
         await self.custom_functions_init(ctx)
 
@@ -545,9 +614,16 @@ class GeneratedService(ServiceApp):
         self._service_streams.standard_analytics = transformation.When[AnalyticsResult, AnalyticsResult](named.streams.standard_analytics, self._service_streams.route_analytics_result)
         self._service_streams.write_high_value_analytics = transformation.Sink[AnalyticsResult, Exception](named.streams.write_high_value_analytics, self._service_streams.high_value_analytics)
         self._service_streams.write_standard_analytics = transformation.Sink[AnalyticsResult, Exception](named.streams.write_standard_analytics, self._service_streams.standard_analytics)
+        self._service_streams.analyze_analytics_substream = transformation.SubStream[AnalyticsEvent, AnalyticsResult](named.streams.analyze_analytics_substream, self)
+        self._analyze_analytics_substream_substream.target = self._service_streams.analyze_analytics_substream
+        self._service_streams.build_substream_analytics_result = transformation.Map[AnalyticsEvent, AnalyticsResult](named.streams.build_substream_analytics_result, self._service_streams.analyze_analytics_substream, self.functions.build_substream_analytics_result)
+        self._service_streams.substream_analytics_input = transformation.Input[AnalyticsEvent, object, Exception](named.streams.substream_analytics_input, self)
+        self._service_streams.invoke_analytics_substream = transformation.Map[AnalyticsEvent, AnalyticsResult](named.streams.invoke_analytics_substream, self._service_streams.substream_analytics_input, self.functions.invoke_analytics_substream)
+        self._service_streams.write_substream_analytics = transformation.Sink[AnalyticsResult, Exception](named.streams.write_substream_analytics, self._service_streams.invoke_analytics_substream)
         self._service_streams.route_analytics_result.build()
         self._service_streams.consume_order_processed.set_source(self._service_streams.count_order_processed)
         self._service_streams.cycle_analytics_link.set_source(self._service_streams.continue_cycle_analytics)
+        self._service_streams.analyze_analytics_substream.set_source(self._service_streams.build_substream_analytics_result)
 
     async def bind_transports(self, ctx: Context) -> None:
         """Bind configured endpoints to the already constructed streams."""
@@ -578,6 +654,10 @@ class GeneratedService(ServiceApp):
         self._transport_consumers.append(write_high_value_analytics_consumer)
         write_standard_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_standard_analytics, self.functions.standard_analytics_sink)
         self._transport_consumers.append(write_standard_analytics_consumer)
+        substream_analytics_input_consumer = custom_source.TypedCustomEndpointConsumer(self._service_streams.substream_analytics_input, self.functions.substream_analytics_input_source, self.functions.substream_analytics_input_source)
+        self._transport_consumers.append(substream_analytics_input_consumer)
+        write_substream_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_substream_analytics, self.functions.substream_analytics_result_sink)
+        self._transport_consumers.append(write_substream_analytics_consumer)
 
     async def build_runtime(self, ctx: Context) -> None:
         await self.build_stream_graph(ctx)
