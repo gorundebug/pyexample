@@ -19,9 +19,6 @@ from pyservicelib_gorundebug.runtime.telemetry.telemetry import (
 )
 
 from .service_generated import GeneratedService
-from analytics_service.internal.functions.substreamanalytics.invoke_analytics_substream import (
-    InvokeAnalyticsSubstream,
-)
 
 
 class Dependency(ServiceDependency):
@@ -63,12 +60,6 @@ class Service(GeneratedService):
     async def custom_makers_init(self, ctx: Context) -> None:
         """Add only explicit user maker overrides."""
         del ctx
-        substream = self.get_analyze_analytics_substream_substream()
-
-        async def make_invoke(_ctx, _environment, _config):
-            return InvokeAnalyticsSubstream(substream)
-
-        self.makers.invoke_analytics_substream = make_invoke
 
     async def custom_functions_init(self, ctx: Context) -> None:
         """Add only explicit post-construction customization."""
