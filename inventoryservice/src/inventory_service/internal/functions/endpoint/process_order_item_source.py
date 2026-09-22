@@ -1,6 +1,6 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
-from pyservicelib_gorundebug.runtime.config.endpoint_types import GrpcEndpointConfig
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 
@@ -90,7 +90,7 @@ class ProcessOrderItemSource:
 
 
 async def make_process_order_item_source(
-    ctx: Context, environment: ServiceEnvironment, config: GrpcEndpointConfig
+    ctx: Context, environment: ServiceEnvironment
 ) -> ProcessOrderItemSource:
-    del ctx, environment, config
+    del ctx, environment
     return ProcessOrderItemSource()

@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
+
 from model.models.order_processed import OrderProcessed
 from order_service.models.order_state import OrderState
 from pyservicelib_gorundebug.runtime.common import Collect, Stream
@@ -38,8 +38,7 @@ class MapToOrderProcessed:
 async def make_map_to_order_processed(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: MapStreamConfig,
 ) -> MapToOrderProcessed:
     """Construct MapToOrderProcessed for the configured service graph."""
-    del ctx, config, environment
+    del ctx, environment
     return MapToOrderProcessed()

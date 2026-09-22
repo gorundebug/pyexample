@@ -2,191 +2,36 @@
 
 from __future__ import annotations
 
-import asyncio
-import aiohttp
-from aiohttp import web
-from collections.abc import Awaitable, Callable
-from dataclasses import dataclass
 from datetime import timedelta
-from threading import Lock
-from typing import Any, Optional, cast
-
 from pyservicelib_gorundebug.runtime.context.context import Context
-from pyservicelib_gorundebug.runtime.serviceapp import (
-    ServiceApp,
-    run_shutdown_operations,
-)
+from pyservicelib_gorundebug.runtime.serviceapp import ServiceApp, run_shutdown_operations
 from pyservicelib_gorundebug.runtime.serde import Serializer
-from pyservicelib_gorundebug import transformation
-from .pipeline_automation_generated import (
-    AutomationPipelineFunctions,
-    AutomationPipelineMakers,
-    AutomationPipelineStreams,
-    init_automation_streams,
-    post_init_automation_streams,
-)
-from pyservicelib_gorundebug.datasource import cron as cron_source
-from pyservicelib_gorundebug.datasource import temporal as temporal_source
-from pyservicelib_gorundebug.datasink import temporal as temporal_sink
-from pyservicelib_gorundebug.datasource.temporal import make_connector as make_temporal_connector
-from .temporal_workflows_generated import (
-    FanOutWorkflowJobTemporalWorkflow,
-    WorkflowJobTemporalWorkflow,
-    TemporalWorkflowScheduleTemporalWorkflow,
-)
-
 from ..config import Config
-from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.config import ServiceConfig
-from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig, TemporalEndpointConfig
-from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig, MapStreamConfig
-from model.models.automation_job_generated import (
-    AutomationJob,
-)
-from ..functions import (
-    ActivityJobEndpointSink,
-    make_activity_job_endpoint_sink,
-    ActivityJobEndpointSource,
-    make_activity_job_endpoint_source,
-    FanoutActivityAEndpointSink,
-    make_fanout_activity_a_endpoint_sink,
-    FanoutActivityAEndpointSource,
-    make_fanout_activity_a_endpoint_source,
-    FanoutActivityBEndpointSink,
-    make_fanout_activity_b_endpoint_sink,
-    FanoutActivityBEndpointSource,
-    make_fanout_activity_b_endpoint_source,
-    FanoutActivityCEndpointSink,
-    make_fanout_activity_c_endpoint_sink,
-    FanoutActivityCEndpointSource,
-    make_fanout_activity_c_endpoint_source,
-    SequentialActivityAEndpointSink,
-    make_sequential_activity_a_endpoint_sink,
-    SequentialActivityAEndpointSource,
-    make_sequential_activity_a_endpoint_source,
-    SequentialActivityBEndpointSink,
-    make_sequential_activity_b_endpoint_sink,
-    SequentialActivityBEndpointSource,
-    make_sequential_activity_b_endpoint_source,
-    TemporalActivityScheduleSource,
-    make_temporal_activity_schedule_source,
-    ActivityPause,
-    make_activity_pause,
-    ObserveActivityResult,
-    make_observe_activity_result,
-    ObserveFanoutActivityB,
-    make_observe_fanout_activity_b,
-    ObserveFanoutActivityC,
-    make_observe_fanout_activity_c,
-    ObserveWorkflowResult,
-    make_observe_workflow_result,
-    ProcessActivityJob,
-    make_process_activity_job,
-    ProcessFanoutActivityA,
-    make_process_fanout_activity_a,
-    ProcessFanoutActivityB,
-    make_process_fanout_activity_b,
-    ProcessFanoutActivityC,
-    make_process_fanout_activity_c,
-    ProcessScheduledActivity,
-    make_process_scheduled_activity,
-    ProcessScheduledWorkflow,
-    make_process_scheduled_workflow,
-    ProcessSequentialActivityA,
-    make_process_sequential_activity_a,
-    ProcessSequentialActivityB,
-    make_process_sequential_activity_b,
-    ProcessWorkflowJob,
-    make_process_workflow_job,
-    ScheduledActivityPause,
-    make_scheduled_activity_pause,
-    ScheduledWorkflowPause,
-    make_scheduled_workflow_pause,
-    WorkflowPause,
-    make_workflow_pause,
-    LocalScheduleSource,
-    make_local_schedule_source,
-    FanoutWorkflowJobEndpointSink,
-    make_fanout_workflow_job_endpoint_sink,
-    FanoutWorkflowJobEndpointSource,
-    make_fanout_workflow_job_endpoint_source,
-    TemporalWorkflowScheduleSource,
-    make_temporal_workflow_schedule_source,
-    WorkflowJobEndpointSink,
-    make_workflow_job_endpoint_sink,
-    WorkflowJobEndpointSource,
-    make_workflow_job_endpoint_source,
-)
+from .makers_generated import ServiceMakers as ServiceMakers
+from .functions_generated import ServiceFunctions as ServiceFunctions
+from .streams_generated import ServiceStreams as ServiceStreams
+from .clients_generated import ServiceClients
+from .servers_generated import ServiceServers
+from .connectors_generated import ServiceConnectors
+from .endpoints_generated import ServiceEndpoints
+from .substreams_generated import ServiceSubStreams, SubStreamAccessors
+from .serde_generated import ServiceSerdes
 
 
-@dataclass
-class ServiceStreams(
-    AutomationPipelineStreams,
-):
-    pass
-
-@dataclass
-class ServiceMakers(
-    AutomationPipelineMakers,
-):
-    # The argument contract is intentionally uniform: context, environment,
-    # and the exact config of the object being constructed.
-    http_application: Callable[[Context, ServiceEnvironment, ServiceConfig], Awaitable[web.Application]] = (
-        lambda _ctx, _environment, _config: _make_http_application()
-    )
-
-async def _make_http_application() -> web.Application:
-    return web.Application()
-
-
-@dataclass
-class ServiceFunctions(
-    AutomationPipelineFunctions,
-):
-    pass
-
-
-class _MakerGroup:
-    def __init__(self, parent: Context) -> None:
-        self.context = parent.child()
-        self._lock = Lock()
-        self._first_error: BaseException | None = None
-
-    async def invoke(
-        self,
-        maker: Callable[[Context, ServiceEnvironment, Any], Awaitable[Any]],
-        environment: ServiceEnvironment,
-        config: Any,
-    ) -> Any:
-        return await self.invoke_call(
-            lambda: maker(self.context, environment, config)
-        )
-
-    async def invoke_call(self, maker: Callable[[], Awaitable[Any]]) -> Any:
-        try:
-            return await maker()
-        except BaseException as error:
-            with self._lock:
-                if self._first_error is None:
-                    self._first_error = error
-                    self.context.cancel()
-            raise
-
-    def raise_first_error(self) -> None:
-        if self._first_error is not None:
-            raise self._first_error
-
-
-class GeneratedService(ServiceApp):
-    """Generated lifecycle and graph bootstrap for Automation Service."""
+class GeneratedService(ServiceApp, SubStreamAccessors):
+    """Generated lifecycle coordinator for Automation Service."""
 
     def __init__(self) -> None:
         super().__init__()
         self._makers = ServiceMakers()
         self._functions: ServiceFunctions | None = None
         self._service_streams = ServiceStreams()
-        self._transport_consumers: list[Any] = []
-        self._makers_initialized = False
+        self._clients = ServiceClients()
+        self._servers = ServiceServers()
+        self._connectors = ServiceConnectors()
+        self._endpoints = ServiceEndpoints()
+        self._substreams = ServiceSubStreams()
+
     @property
     def makers(self) -> ServiceMakers:
         return self._makers
@@ -197,390 +42,40 @@ class GeneratedService(ServiceApp):
             raise RuntimeError("service functions are not initialized")
         return self._functions
 
-    def get_serde(self, type_name: str) -> Optional[Serializer]:
-        return None
+    def get_serde(self, type_name: str) -> Serializer | None:
+        return ServiceSerdes.get_serde(type_name)
 
-    async def initialize_functions(self, ctx: Context) -> None:
-        """Apply user maker overrides, construct functions, then configure them."""
-
-        await self._initialize_makers(ctx)
+    def _typed_config(self) -> Config:
         cfg = self.config
         if not isinstance(cfg, Config):
-            raise TypeError(
-                "Automation Service requires automation_service.internal.config.Config"
-            )
-        named = cfg.named
-        maker_group_0 = _MakerGroup(ctx)
-        group_results_0 = await asyncio.gather(
-            maker_group_0.invoke(
-                self._makers.activity_job_endpoint_sink,
-                self,
-                named.endpoints.activity_job,
-            ),
-            maker_group_0.invoke(
-                self._makers.activity_job_endpoint_source,
-                self,
-                named.endpoints.activity_job,
-            ),
-            maker_group_0.invoke(
-                self._makers.fanout_activity_a_endpoint_sink,
-                self,
-                named.endpoints.fan_out_activity_a,
-            ),
-            maker_group_0.invoke(
-                self._makers.fanout_activity_a_endpoint_source,
-                self,
-                named.endpoints.fan_out_activity_a,
-            ),
-            maker_group_0.invoke(
-                self._makers.fanout_activity_b_endpoint_sink,
-                self,
-                named.endpoints.fan_out_activity_b,
-            ),
-            maker_group_0.invoke(
-                self._makers.fanout_activity_b_endpoint_source,
-                self,
-                named.endpoints.fan_out_activity_b,
-            ),
-            maker_group_0.invoke(
-                self._makers.fanout_activity_c_endpoint_sink,
-                self,
-                named.endpoints.fan_out_activity_c,
-            ),
-            maker_group_0.invoke(
-                self._makers.fanout_activity_c_endpoint_source,
-                self,
-                named.endpoints.fan_out_activity_c,
-            ),
-            maker_group_0.invoke(
-                self._makers.sequential_activity_a_endpoint_sink,
-                self,
-                named.endpoints.sequential_activity_a,
-            ),
-            maker_group_0.invoke(
-                self._makers.sequential_activity_a_endpoint_source,
-                self,
-                named.endpoints.sequential_activity_a,
-            ),
-            maker_group_0.invoke(
-                self._makers.sequential_activity_b_endpoint_sink,
-                self,
-                named.endpoints.sequential_activity_b,
-            ),
-            maker_group_0.invoke(
-                self._makers.sequential_activity_b_endpoint_source,
-                self,
-                named.endpoints.sequential_activity_b,
-            ),
-            maker_group_0.invoke(
-                self._makers.temporal_activity_schedule_source,
-                self,
-                named.endpoints.temporal_activity_schedule,
-            ),
-            maker_group_0.invoke(
-                self._makers.activity_pause,
-                self,
-                named.streams.activity_pause,
-            ),
-            maker_group_0.invoke(
-                self._makers.observe_activity_result,
-                self,
-                named.streams.observe_activity_result,
-            ),
-            maker_group_0.invoke(
-                self._makers.observe_fanout_activity_b,
-                self,
-                named.streams.observe_fan_out_activity_b,
-            ),
-            maker_group_0.invoke(
-                self._makers.observe_fanout_activity_c,
-                self,
-                named.streams.observe_fan_out_activity_c,
-            ),
-            maker_group_0.invoke(
-                self._makers.observe_workflow_result,
-                self,
-                named.streams.observe_workflow_result,
-            ),
-            maker_group_0.invoke(
-                self._makers.process_activity_job,
-                self,
-                named.streams.process_activity_job,
-            ),
-            maker_group_0.invoke(
-                self._makers.process_fanout_activity_a,
-                self,
-                named.streams.process_fan_out_activity_a,
-            ),
-            maker_group_0.invoke(
-                self._makers.process_fanout_activity_b,
-                self,
-                named.streams.process_fan_out_activity_b,
-            ),
-            maker_group_0.invoke(
-                self._makers.process_fanout_activity_c,
-                self,
-                named.streams.process_fan_out_activity_c,
-            ),
-            maker_group_0.invoke(
-                self._makers.process_scheduled_activity,
-                self,
-                named.streams.process_scheduled_activity,
-            ),
-            maker_group_0.invoke(
-                self._makers.process_scheduled_workflow,
-                self,
-                named.streams.process_scheduled_workflow,
-            ),
-            maker_group_0.invoke(
-                self._makers.process_sequential_activity_a,
-                self,
-                named.streams.process_sequential_activity_a,
-            ),
-            maker_group_0.invoke(
-                self._makers.process_sequential_activity_b,
-                self,
-                named.streams.process_sequential_activity_b,
-            ),
-            maker_group_0.invoke(
-                self._makers.process_workflow_job,
-                self,
-                named.streams.process_workflow_job,
-            ),
-            maker_group_0.invoke(
-                self._makers.scheduled_activity_pause,
-                self,
-                named.streams.scheduled_activity_pause,
-            ),
-            maker_group_0.invoke(
-                self._makers.scheduled_workflow_pause,
-                self,
-                named.streams.scheduled_workflow_pause,
-            ),
-            maker_group_0.invoke(
-                self._makers.workflow_pause,
-                self,
-                named.streams.workflow_pause,
-            ),
-            maker_group_0.invoke(
-                self._makers.local_schedule_source,
-                self,
-                named.endpoints.local_schedule,
-            ),
-            maker_group_0.invoke(
-                self._makers.fanout_workflow_job_endpoint_sink,
-                self,
-                named.endpoints.fan_out_workflow_job,
-            ),
-            maker_group_0.invoke(
-                self._makers.fanout_workflow_job_endpoint_source,
-                self,
-                named.endpoints.fan_out_workflow_job,
-            ),
-            maker_group_0.invoke(
-                self._makers.temporal_workflow_schedule_source,
-                self,
-                named.endpoints.temporal_workflow_schedule,
-            ),
-            maker_group_0.invoke(
-                self._makers.workflow_job_endpoint_sink,
-                self,
-                named.endpoints.workflow_job,
-            ),
-            maker_group_0.invoke(
-                self._makers.workflow_job_endpoint_source,
-                self,
-                named.endpoints.workflow_job,
-            ),
-            return_exceptions=True,
-        )
-        maker_group_0.context.cancel()
-        maker_group_0.raise_first_error()
-        activity_job_endpoint_sink = cast(ActivityJobEndpointSink, group_results_0[0])
-        activity_job_endpoint_source = cast(ActivityJobEndpointSource, group_results_0[1])
-        fanout_activity_a_endpoint_sink = cast(FanoutActivityAEndpointSink, group_results_0[2])
-        fanout_activity_a_endpoint_source = cast(FanoutActivityAEndpointSource, group_results_0[3])
-        fanout_activity_b_endpoint_sink = cast(FanoutActivityBEndpointSink, group_results_0[4])
-        fanout_activity_b_endpoint_source = cast(FanoutActivityBEndpointSource, group_results_0[5])
-        fanout_activity_c_endpoint_sink = cast(FanoutActivityCEndpointSink, group_results_0[6])
-        fanout_activity_c_endpoint_source = cast(FanoutActivityCEndpointSource, group_results_0[7])
-        sequential_activity_a_endpoint_sink = cast(SequentialActivityAEndpointSink, group_results_0[8])
-        sequential_activity_a_endpoint_source = cast(SequentialActivityAEndpointSource, group_results_0[9])
-        sequential_activity_b_endpoint_sink = cast(SequentialActivityBEndpointSink, group_results_0[10])
-        sequential_activity_b_endpoint_source = cast(SequentialActivityBEndpointSource, group_results_0[11])
-        temporal_activity_schedule_source = cast(TemporalActivityScheduleSource, group_results_0[12])
-        activity_pause = cast(ActivityPause, group_results_0[13])
-        observe_activity_result = cast(ObserveActivityResult, group_results_0[14])
-        observe_fanout_activity_b = cast(ObserveFanoutActivityB, group_results_0[15])
-        observe_fanout_activity_c = cast(ObserveFanoutActivityC, group_results_0[16])
-        observe_workflow_result = cast(ObserveWorkflowResult, group_results_0[17])
-        process_activity_job = cast(ProcessActivityJob, group_results_0[18])
-        process_fanout_activity_a = cast(ProcessFanoutActivityA, group_results_0[19])
-        process_fanout_activity_b = cast(ProcessFanoutActivityB, group_results_0[20])
-        process_fanout_activity_c = cast(ProcessFanoutActivityC, group_results_0[21])
-        process_scheduled_activity = cast(ProcessScheduledActivity, group_results_0[22])
-        process_scheduled_workflow = cast(ProcessScheduledWorkflow, group_results_0[23])
-        process_sequential_activity_a = cast(ProcessSequentialActivityA, group_results_0[24])
-        process_sequential_activity_b = cast(ProcessSequentialActivityB, group_results_0[25])
-        process_workflow_job = cast(ProcessWorkflowJob, group_results_0[26])
-        scheduled_activity_pause = cast(ScheduledActivityPause, group_results_0[27])
-        scheduled_workflow_pause = cast(ScheduledWorkflowPause, group_results_0[28])
-        workflow_pause = cast(WorkflowPause, group_results_0[29])
-        local_schedule_source = cast(LocalScheduleSource, group_results_0[30])
-        fanout_workflow_job_endpoint_sink = cast(FanoutWorkflowJobEndpointSink, group_results_0[31])
-        fanout_workflow_job_endpoint_source = cast(FanoutWorkflowJobEndpointSource, group_results_0[32])
-        temporal_workflow_schedule_source = cast(TemporalWorkflowScheduleSource, group_results_0[33])
-        workflow_job_endpoint_sink = cast(WorkflowJobEndpointSink, group_results_0[34])
-        workflow_job_endpoint_source = cast(WorkflowJobEndpointSource, group_results_0[35])
-        self._functions = ServiceFunctions(
-            activity_job_endpoint_sink=activity_job_endpoint_sink,
-            activity_job_endpoint_source=activity_job_endpoint_source,
-            fanout_activity_a_endpoint_sink=fanout_activity_a_endpoint_sink,
-            fanout_activity_a_endpoint_source=fanout_activity_a_endpoint_source,
-            fanout_activity_b_endpoint_sink=fanout_activity_b_endpoint_sink,
-            fanout_activity_b_endpoint_source=fanout_activity_b_endpoint_source,
-            fanout_activity_c_endpoint_sink=fanout_activity_c_endpoint_sink,
-            fanout_activity_c_endpoint_source=fanout_activity_c_endpoint_source,
-            sequential_activity_a_endpoint_sink=sequential_activity_a_endpoint_sink,
-            sequential_activity_a_endpoint_source=sequential_activity_a_endpoint_source,
-            sequential_activity_b_endpoint_sink=sequential_activity_b_endpoint_sink,
-            sequential_activity_b_endpoint_source=sequential_activity_b_endpoint_source,
-            temporal_activity_schedule_source=temporal_activity_schedule_source,
-            activity_pause=activity_pause,
-            observe_activity_result=observe_activity_result,
-            observe_fanout_activity_b=observe_fanout_activity_b,
-            observe_fanout_activity_c=observe_fanout_activity_c,
-            observe_workflow_result=observe_workflow_result,
-            process_activity_job=process_activity_job,
-            process_fanout_activity_a=process_fanout_activity_a,
-            process_fanout_activity_b=process_fanout_activity_b,
-            process_fanout_activity_c=process_fanout_activity_c,
-            process_scheduled_activity=process_scheduled_activity,
-            process_scheduled_workflow=process_scheduled_workflow,
-            process_sequential_activity_a=process_sequential_activity_a,
-            process_sequential_activity_b=process_sequential_activity_b,
-            process_workflow_job=process_workflow_job,
-            scheduled_activity_pause=scheduled_activity_pause,
-            scheduled_workflow_pause=scheduled_workflow_pause,
-            workflow_pause=workflow_pause,
-            local_schedule_source=local_schedule_source,
-            fanout_workflow_job_endpoint_sink=fanout_workflow_job_endpoint_sink,
-            fanout_workflow_job_endpoint_source=fanout_workflow_job_endpoint_source,
-            temporal_workflow_schedule_source=temporal_workflow_schedule_source,
-            workflow_job_endpoint_sink=workflow_job_endpoint_sink,
-            workflow_job_endpoint_source=workflow_job_endpoint_source,
-        )
-        await self.custom_functions_init(ctx)
+            raise TypeError("Automation Service requires automation_service.internal.config.Config")
+        return cfg
 
     async def _initialize_makers(self, ctx: Context) -> None:
-        if self._makers_initialized:
-            return
-        await self.custom_makers_init(ctx)
-        self._makers_initialized = True
+        await self._makers.init_makers(ctx, self.custom_makers_init)
+
+    async def initialize_functions(self, ctx: Context) -> None:
+        await self._initialize_makers(ctx)
+        self._typed_config()
+        self._functions = await ServiceFunctions.init_functions(ctx, self, self._makers)
+        await self.custom_functions_init(ctx)
 
     async def initialize_infrastructure(self, ctx: Context) -> None:
-        """Construct independent runtime adapters with Go-compatible grouping."""
-
         await self._initialize_makers(ctx)
-        cfg = self.config
-        if not isinstance(cfg, Config):
-            raise TypeError(
-                "Automation Service requires automation_service.internal.config.Config"
-            )
-        named = cfg.named
-        maker_group = _MakerGroup(ctx)
-        maker_calls: list[tuple[str, Awaitable[Any]]] = [
-            (
-                "http_application",
-                maker_group.invoke_call(
-                    lambda: self._makers.http_application(
-                        maker_group.context, self, self.service_config
-                    )
-                ),
-            ),
-        ]
-        maker_results = await asyncio.gather(
-            *(call for _, call in maker_calls), return_exceptions=True
-        )
-        maker_group.context.cancel()
-        maker_group.raise_first_error()
-        infrastructure: dict[str, list[Any]] = {}
-        for (name, _), result in zip(maker_calls, maker_results):
-            infrastructure.setdefault(name, []).append(result)
-
-        http_application = cast(
-            web.Application, infrastructure["http_application"][0]
-        )
-        self.replace_http_application(http_application)
+        self._typed_config()
+        await self._makers.init_infrastructure(ctx, self)
 
     async def build_stream_graph(self, ctx: Context) -> None:
-        """Construct the configured stream graph with Go-compatible semantics."""
-
         await self.initialize_functions(ctx)
-        cfg = self.config
-        if not isinstance(cfg, Config):
-            raise TypeError(
-                "Automation Service requires automation_service.internal.config.Config"
-            )
-        named = cfg.named
-        init_automation_streams(self, named)
-        post_init_automation_streams(self)
+        self._service_streams.init_streams(self._typed_config(), self, self.functions)
+        self._service_streams.build()
 
     async def bind_transports(self, ctx: Context) -> None:
-        """Bind configured endpoints to the already constructed streams."""
+        await self._endpoints.bind(ctx, self)
 
-        cfg = self.config
-        if not isinstance(cfg, Config):
-            raise TypeError(
-                "Automation Service requires automation_service.internal.config.Config"
-            )
-        self._transport_consumers = []
-        call_fan_out_activity_a_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.call_fan_out_activity_a)
-        self._transport_consumers.append(call_fan_out_activity_a_consumer)
-        call_fan_out_activity_b_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.call_fan_out_activity_b)
-        self._transport_consumers.append(call_fan_out_activity_b_consumer)
-        call_fan_out_activity_c_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.call_fan_out_activity_c)
-        self._transport_consumers.append(call_fan_out_activity_c_consumer)
-        call_sequential_activity_a_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.call_sequential_activity_a)
-        self._transport_consumers.append(call_sequential_activity_a_consumer)
-        call_sequential_activity_b_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.call_sequential_activity_b)
-        self._transport_consumers.append(call_sequential_activity_b_consumer)
-        consume_activity_job_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_activity_job, self.functions.activity_job_endpoint_source)
-        self._transport_consumers.append(consume_activity_job_consumer)
-        consume_fan_out_activity_a_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_fan_out_activity_a, self.functions.fanout_activity_a_endpoint_source)
-        self._transport_consumers.append(consume_fan_out_activity_a_consumer)
-        consume_fan_out_activity_b_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_fan_out_activity_b, self.functions.fanout_activity_b_endpoint_source)
-        self._transport_consumers.append(consume_fan_out_activity_b_consumer)
-        consume_fan_out_activity_c_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_fan_out_activity_c, self.functions.fanout_activity_c_endpoint_source)
-        self._transport_consumers.append(consume_fan_out_activity_c_consumer)
-        consume_fan_out_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_fan_out_workflow_job, self.functions.fanout_workflow_job_endpoint_source, workflow_class=FanOutWorkflowJobTemporalWorkflow)
-        self._transport_consumers.append(consume_fan_out_workflow_job_consumer)
-        consume_sequential_activity_a_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_sequential_activity_a, self.functions.sequential_activity_a_endpoint_source)
-        self._transport_consumers.append(consume_sequential_activity_a_consumer)
-        consume_sequential_activity_b_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_sequential_activity_b, self.functions.sequential_activity_b_endpoint_source)
-        self._transport_consumers.append(consume_sequential_activity_b_consumer)
-        consume_workflow_job_consumer = temporal_source.make_direct_endpoint_consumer_with_handler(self._service_streams.consume_workflow_job, self.functions.workflow_job_endpoint_source, workflow_class=WorkflowJobTemporalWorkflow)
-        self._transport_consumers.append(consume_workflow_job_consumer)
-        local_schedule_consumer = cron_source.APSchedulerEndpointConsumer(self._service_streams.local_schedule, self.functions.local_schedule_source)
-        self._transport_consumers.append(local_schedule_consumer)
-        submit_activity_job_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.submit_activity_job)
-        self._transport_consumers.append(submit_activity_job_consumer)
-        submit_fan_out_workflow_job_consumer = temporal_sink.make_direct_endpoint_consumer(self._service_streams.submit_fan_out_workflow_job)
-        self._transport_consumers.append(submit_fan_out_workflow_job_consumer)
-        submit_workflow_job_consumer = temporal_sink.make_direct_endpoint_consumer_with_result(self._service_streams.submit_workflow_job)
-        self._transport_consumers.append(submit_workflow_job_consumer)
-        temporal_activity_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_activity_schedule, self.functions.temporal_activity_schedule_source)
-        self._transport_consumers.append(temporal_activity_schedule_consumer)
-        temporal_workflow_schedule_consumer = temporal_source.make_schedule_endpoint_consumer(self._service_streams.temporal_workflow_schedule, self.functions.temporal_workflow_schedule_source, workflow_class=TemporalWorkflowScheduleTemporalWorkflow)
-        self._transport_consumers.append(temporal_workflow_schedule_consumer)
     def initialize_runtime_connectors(self) -> None:
-        cfg = self.config
-        if not isinstance(cfg, Config):
-            raise TypeError(
-                "Automation Service requires automation_service.internal.config.Config"
-            )
-        named = cfg.named
-        make_temporal_connector(named.data_connectors.temporal.id, self)
+        self._typed_config()
+        self._connectors.init_connectors(self)
 
     async def build_runtime(self, ctx: Context) -> None:
         self.initialize_runtime_connectors()
@@ -594,19 +89,10 @@ class GeneratedService(ServiceApp):
         await self.start(ctx)
 
     async def stop_service(self, ctx: Context) -> None:
-        ctx = ctx.bounded(
-            timedelta(milliseconds=self.service_config.shutdown_timeout)
-        )
-
-        # Keep graph resources and outbound clients alive while transports
-        # drain requests that were accepted before shutdown. Every phase uses
-        # the same Context deadline; no phase receives a fresh timeout.
-        await run_shutdown_operations(
-            self.log, ctx, [("user_on_stop", self.on_stop(ctx))]
-        )
-        await run_shutdown_operations(
-            self.log, ctx, [("service_runtime", self.stop(ctx))]
-        )
+        ctx = ctx.bounded(timedelta(milliseconds=self.service_config.shutdown_timeout))
+        # Keep graph and outbound clients alive until runtime transports drain.
+        await run_shutdown_operations(self.log, ctx, [("user_on_stop", self.on_stop(ctx))])
+        await run_shutdown_operations(self.log, ctx, [("service_runtime", self.stop(ctx))])
 
     async def custom_makers_init(self, ctx: Context) -> None:
         del ctx

@@ -4,7 +4,6 @@ import pytest
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.endpoint_types import TemporalEndpointConfig
 
 from automation_service.internal.app.service import Service
 from automation_service.internal.config import Config
@@ -22,10 +21,10 @@ class _RecordingService(Service):
         original_maker = self.makers.activity_job_endpoint_sink
 
         async def make_function(
-            ctx: Context, env: ServiceEnvironment, cfg: TemporalEndpointConfig
+            ctx: Context, env: ServiceEnvironment
         ) -> ActivityJobEndpointSink:
             self.events.append("function_maker")
-            return await original_maker(ctx, env, cfg)
+            return await original_maker(ctx, env)
 
         self.makers.activity_job_endpoint_sink = make_function
 

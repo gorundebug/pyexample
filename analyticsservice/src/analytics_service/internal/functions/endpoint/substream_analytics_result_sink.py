@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.endpoint_types import CustomEndpointConfig
+
 from analytics_service.models.analytics_result import AnalyticsResult
 from pyservicelib_gorundebug.runtime.common import Collect, TypedSinkStream
 class SubstreamAnalyticsResultSink:
@@ -46,8 +46,7 @@ class SubstreamAnalyticsResultSink:
 async def make_substream_analytics_result_sink(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: CustomEndpointConfig,
 ) -> SubstreamAnalyticsResultSink:
     """Construct SubstreamAnalyticsResultSink asynchronously while the graph is initialized."""
-    del ctx, config, environment
+    del ctx, environment
     return SubstreamAnalyticsResultSink()

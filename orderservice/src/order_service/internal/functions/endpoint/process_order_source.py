@@ -18,7 +18,7 @@ from pyservicelib_gorundebug.datasource.http.aiohttpds import HandlerData, Resul
 from pyservicelib_gorundebug.runtime.common import StreamContext
 from pyservicelib_gorundebug.runtime.context.request import request_deadline
 from pyservicelib_gorundebug.runtime.context.request import request_cancelled
-from pyservicelib_gorundebug.runtime.config.endpoint_types import HttpEndpointConfig
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 
@@ -203,10 +203,7 @@ def _field(
 
 
 async def make_process_order_source(
-    ctx: Context, environment: ServiceEnvironment, config: HttpEndpointConfig
+    ctx: Context, environment: ServiceEnvironment
 ) -> ProcessOrderSource:
     del ctx, environment
-    timeout_ms = config.get_property("timeout")
-    if timeout_ms is None:
-        timeout_ms = 5000
-    return ProcessOrderSource(timeout=timedelta(milliseconds=float(timeout_ms)))
+    return ProcessOrderSource(timeout=timedelta(seconds=5))

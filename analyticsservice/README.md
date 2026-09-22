@@ -41,3 +41,19 @@ The default application listeners are HTTP `9093` and gRPC
 `ANALYTICS_SERVICE_GRPC_PORT` change the listener and
 container-side mapping; the corresponding `_HOST_HTTP_PORT` and
 `_HOST_GRPC_PORT` variables change only host forwarding.
+
+## Generated service structure
+
+The service coordinates named responsibility objects, not pipeline-owned registries.
+
+- `streams_generated.py`: all streams, globally ordered construction, and deferred result/cycle binding.
+- `makers_generated.py`: business and infrastructure constructors; custom makers keep their existing hooks.
+- `functions_generated.py`: one instance per business function per service; ordered initializer groups run all members concurrently, across pipeline boundaries.
+- `endpoints_generated.py`: independent endpoint adapters sharing those business functions.
+- `clients_generated.py`, `servers_generated.py`, `connectors_generated.py`: transport construction and ownership; runtime connectors are not duplicated.
+- `substreams_generated.py`: typed substream accessors and handles.
+- `serde_generated.py`: generated serialization registrations.
+
+Pipelines remain architecture metadata. Inter-pipeline links use the same stream
+structure. Temporal creates a fresh set of makers, functions, streams and handles
+for each workflow; it does not import the service's network bootstrap.

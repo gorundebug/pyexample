@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.endpoint_types import CustomEndpointConfig
+
 from analytics_service.models.analytics_event import AnalyticsEvent
 from pyservicelib_gorundebug.datasource.localsource.custom import ResultContext
 from pyservicelib_gorundebug.runtime.common import Consume, StreamContext
@@ -72,8 +72,7 @@ class SubstreamAnalyticsInputSource:
 async def make_substream_analytics_input_source(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: CustomEndpointConfig,
 ) -> SubstreamAnalyticsInputSource:
     """Construct SubstreamAnalyticsInputSource asynchronously while the graph is initialized."""
-    del ctx, config, environment
+    del ctx, environment
     return SubstreamAnalyticsInputSource()

@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import MultiJoinStreamConfig
+
 from typing import Any
 from analytics_service.models.analytics_event import AnalyticsEvent
 from analytics_service.models.analytics_result import AnalyticsResult
@@ -38,8 +38,7 @@ class MultiJoinAnalyticsEvents:
 async def make_multi_join_analytics_events(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: MultiJoinStreamConfig,
 ) -> MultiJoinAnalyticsEvents:
     """Construct MultiJoinAnalyticsEvents asynchronously while the graph is initialized."""
-    del ctx, config, environment
+    del ctx, environment
     return MultiJoinAnalyticsEvents()

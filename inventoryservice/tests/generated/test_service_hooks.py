@@ -4,7 +4,6 @@ import pytest
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.endpoint_types import GrpcEndpointConfig
 
 from inventory_service.internal.app.service import Service
 from inventory_service.internal.config import Config
@@ -22,10 +21,10 @@ class _RecordingService(Service):
         original_maker = self.makers.process_order_item_source
 
         async def make_function(
-            ctx: Context, env: ServiceEnvironment, cfg: GrpcEndpointConfig
+            ctx: Context, env: ServiceEnvironment
         ) -> ProcessOrderItemSource:
             self.events.append("function_maker")
-            return await original_maker(ctx, env, cfg)
+            return await original_maker(ctx, env)
 
         self.makers.process_order_item_source = make_function
 

@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import JoinStreamConfig
+
 from analytics_service.models.analytics_event import AnalyticsEvent
 from analytics_service.models.analytics_result import AnalyticsResult
 from pyservicelib_gorundebug.runtime.common import Collect, Stream
@@ -35,8 +35,7 @@ class JoinOrderPaymentAnalytics:
 async def make_join_order_payment_analytics(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: JoinStreamConfig,
 ) -> JoinOrderPaymentAnalytics:
     """Construct JoinOrderPaymentAnalytics asynchronously while the graph is initialized."""
-    del ctx, config, environment
+    del ctx, environment
     return JoinOrderPaymentAnalytics()

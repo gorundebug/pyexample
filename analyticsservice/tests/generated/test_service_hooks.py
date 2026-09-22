@@ -4,7 +4,6 @@ import pytest
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import ProcessStreamConfig
 
 from analytics_service.internal.app.service import Service
 from analytics_service.internal.config import Config
@@ -22,10 +21,10 @@ class _RecordingService(Service):
         original_maker = self.makers.count_order_processed
 
         async def make_function(
-            ctx: Context, env: ServiceEnvironment, cfg: ProcessStreamConfig
+            ctx: Context, env: ServiceEnvironment
         ) -> CountOrderProcessed:
             self.events.append("function_maker")
-            return await original_maker(ctx, env, cfg)
+            return await original_maker(ctx, env)
 
         self.makers.count_order_processed = make_function
 

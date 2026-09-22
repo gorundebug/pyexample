@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig
+
 from datetime import timedelta
 from pyservicelib_gorundebug.runtime.common import Collect, Stream
 
@@ -28,8 +28,7 @@ class ScheduledActivityPause:
 async def make_scheduled_activity_pause(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: DelayStreamConfig,
 ) -> ScheduledActivityPause:
     """Construct ScheduledActivityPause for the configured service graph."""
-    del ctx, config, environment
+    del ctx, environment
     return ScheduledActivityPause()

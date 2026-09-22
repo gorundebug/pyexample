@@ -4,4 +4,4 @@ from automation_service.internal.functions.activity.fanout_activity_c_endpoint_s
 
 
 def test_fanout_activity_c_endpoint_sink_contract_surface() -> None:
-    function = FanoutActivityCEndpointSink()
+    FanoutActivityCEndpointSink()

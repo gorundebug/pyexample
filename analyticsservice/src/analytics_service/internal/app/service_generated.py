@@ -2,242 +2,36 @@
 
 from __future__ import annotations
 
-import asyncio
-import aiohttp
-from aiohttp import web
-from collections.abc import Awaitable, Callable
-from dataclasses import dataclass
 from datetime import timedelta
-from threading import Lock
-from typing import Any, Optional, cast
-
 from pyservicelib_gorundebug.runtime.context.context import Context
-from pyservicelib_gorundebug.runtime.serviceapp import (
-    ServiceApp,
-    run_shutdown_operations,
-)
-from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
-from pyservicelib_gorundebug import transformation
-from .pipeline_analytics_generated import (
-    AnalyticsPipelineFunctions,
-    AnalyticsPipelineMakers,
-    AnalyticsPipelineStreams,
-    init_analytics_streams,
-    post_init_analytics_streams,
-)
-from .pipeline_analytics_sources_generated import (
-    AnalyticsSourcesPipelineFunctions,
-    AnalyticsSourcesPipelineMakers,
-    AnalyticsSourcesPipelineStreams,
-    init_analytics_sources_streams,
-    post_init_analytics_sources_streams,
-)
-from .pipeline_cycle_analytics_generated import (
-    CycleAnalyticsPipelineFunctions,
-    CycleAnalyticsPipelineMakers,
-    CycleAnalyticsPipelineStreams,
-    init_cycle_analytics_streams,
-    post_init_cycle_analytics_streams,
-)
-from .pipeline_join_analytics_generated import (
-    JoinAnalyticsPipelineFunctions,
-    JoinAnalyticsPipelineMakers,
-    JoinAnalyticsPipelineStreams,
-    init_join_analytics_streams,
-    post_init_join_analytics_streams,
-)
-from .pipeline_multi_join_analytics_generated import (
-    MultiJoinAnalyticsPipelineFunctions,
-    MultiJoinAnalyticsPipelineMakers,
-    MultiJoinAnalyticsPipelineStreams,
-    init_multi_join_analytics_streams,
-    post_init_multi_join_analytics_streams,
-)
-from .pipeline_substream_analytics_generated import (
-    SubstreamAnalyticsPipelineFunctions,
-    SubstreamAnalyticsPipelineMakers,
-    SubstreamAnalyticsPipelineStreams,
-    init_substream_analytics_streams,
-    post_init_substream_analytics_streams,
-)
-from pyservicelib_gorundebug.runtime.common import SubStream as CallableSubStream, SubStreamCollector
-from pyservicelib_gorundebug.datasource.kafka import aiokafkads as kafka_source
-from pyservicelib_gorundebug.datasource.localsource import custom as custom_source
-from pyservicelib_gorundebug.datasink.localsink import custom as custom_sink
-from pyservicelib_gorundebug.datasource import cron as cron_source
-from pyservicelib_gorundebug.runtime.datastruct.key_value import KeyValue
-
+from pyservicelib_gorundebug.runtime.serviceapp import ServiceApp, run_shutdown_operations
+from pyservicelib_gorundebug.runtime.serde import Serializer
 from ..config import Config
-from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.config import ServiceConfig
-from pyservicelib_gorundebug.runtime.config.endpoint_types import CronEndpointConfig, CustomEndpointConfig, KafkaEndpointConfig
-from pyservicelib_gorundebug.runtime.config.stream_types import CaseStreamConfig, FilterStreamConfig, JoinStreamConfig, KeyByStreamConfig, MapStreamConfig, MultiJoinStreamConfig, ProcessStreamConfig
-from analytics_service.models.analytics_event import (
-    AnalyticsEvent,
-)
-from analytics_service.models.analytics_key_generated import (
-    AnalyticsKey,
-)
-from analytics_service.models.analytics_result import (
-    AnalyticsResult,
-)
-from model.models.automation_job_generated import (
-    AutomationJob,
-)
-from model.models.order_processed import (
-    OrderProcessed,
-)
-from ..functions import (
-    CountOrderProcessed,
-    make_count_order_processed,
-    AnalyticsScheduleSource,
-    make_analytics_schedule_source,
-    AdvanceCycleAnalytics,
-    make_advance_cycle_analytics,
-    CompleteCycleAnalytics,
-    make_complete_cycle_analytics,
-    ContinueCycleAnalytics,
-    make_continue_cycle_analytics,
-    AnalyticsOrdersSource,
-    make_analytics_orders_source,
-    AnalyticsPaymentsSource,
-    make_analytics_payments_source,
-    AnalyticsShipmentsSource,
-    make_analytics_shipments_source,
-    CycleAnalyticsInputSource,
-    make_cycle_analytics_input_source,
-    CycleAnalyticsResultSink,
-    make_cycle_analytics_result_sink,
-    HighValueAnalyticsSink,
-    make_high_value_analytics_sink,
-    JoinedAnalyticsSink,
-    make_joined_analytics_sink,
-    OrderProcessedEndpointSource,
-    make_order_processed_endpoint_source,
-    StandardAnalyticsSink,
-    make_standard_analytics_sink,
-    SubstreamAnalyticsInputSource,
-    make_substream_analytics_input_source,
-    SubstreamAnalyticsResultSink,
-    make_substream_analytics_result_sink,
-    JoinOrderPaymentAnalytics,
-    make_join_order_payment_analytics,
-    KeyOrdersForJoin,
-    make_key_orders_for_join,
-    KeyPaymentsForJoin,
-    make_key_payments_for_join,
-    KeyOrdersForMultiJoin,
-    make_key_orders_for_multi_join,
-    KeyPaymentsForMultiJoin,
-    make_key_payments_for_multi_join,
-    KeyShipmentsForMultiJoin,
-    make_key_shipments_for_multi_join,
-    MultiJoinAnalyticsEvents,
-    make_multi_join_analytics_events,
-    RouteAnalyticsResult,
-    make_route_analytics_result,
-    BuildSubstreamAnalyticsResult,
-    make_build_substream_analytics_result,
-    InvokeAnalyticsSubstream,
-    make_invoke_analytics_substream,
-)
+from .makers_generated import ServiceMakers as ServiceMakers
+from .functions_generated import ServiceFunctions as ServiceFunctions
+from .streams_generated import ServiceStreams as ServiceStreams
+from .clients_generated import ServiceClients
+from .servers_generated import ServiceServers
+from .connectors_generated import ServiceConnectors
+from .endpoints_generated import ServiceEndpoints
+from .substreams_generated import ServiceSubStreams, SubStreamAccessors
+from .serde_generated import ServiceSerdes
 
 
-@dataclass
-class ServiceStreams(
-    AnalyticsPipelineStreams,
-    AnalyticsSourcesPipelineStreams,
-    CycleAnalyticsPipelineStreams,
-    JoinAnalyticsPipelineStreams,
-    MultiJoinAnalyticsPipelineStreams,
-    SubstreamAnalyticsPipelineStreams,
-):
-    pass
-
-@dataclass
-class ServiceMakers(
-    AnalyticsPipelineMakers,
-    AnalyticsSourcesPipelineMakers,
-    CycleAnalyticsPipelineMakers,
-    JoinAnalyticsPipelineMakers,
-    MultiJoinAnalyticsPipelineMakers,
-    SubstreamAnalyticsPipelineMakers,
-):
-    # The argument contract is intentionally uniform: context, environment,
-    # and the exact config of the object being constructed.
-    http_application: Callable[[Context, ServiceEnvironment, ServiceConfig], Awaitable[web.Application]] = (
-        lambda _ctx, _environment, _config: _make_http_application()
-    )
-
-async def _make_http_application() -> web.Application:
-    return web.Application()
-
-
-@dataclass
-class ServiceFunctions(
-    AnalyticsPipelineFunctions,
-    AnalyticsSourcesPipelineFunctions,
-    CycleAnalyticsPipelineFunctions,
-    JoinAnalyticsPipelineFunctions,
-    MultiJoinAnalyticsPipelineFunctions,
-    SubstreamAnalyticsPipelineFunctions,
-):
-    pass
-
-
-class _MakerGroup:
-    def __init__(self, parent: Context) -> None:
-        self.context = parent.child()
-        self._lock = Lock()
-        self._first_error: BaseException | None = None
-
-    async def invoke(
-        self,
-        maker: Callable[[Context, ServiceEnvironment, Any], Awaitable[Any]],
-        environment: ServiceEnvironment,
-        config: Any,
-    ) -> Any:
-        return await self.invoke_call(
-            lambda: maker(self.context, environment, config)
-        )
-
-    async def invoke_call(self, maker: Callable[[], Awaitable[Any]]) -> Any:
-        try:
-            return await maker()
-        except BaseException as error:
-            with self._lock:
-                if self._first_error is None:
-                    self._first_error = error
-                    self.context.cancel()
-            raise
-
-    def raise_first_error(self) -> None:
-        if self._first_error is not None:
-            raise self._first_error
-@dataclass(slots=True)
-class _SubStreamHandle[T, R]:
-    target: transformation.SubStream[T, R] | None = None
-
-    async def consume(self, value: T, collector: SubStreamCollector[R]) -> None:
-        target = self.target
-        if target is None:
-            raise RuntimeError("substream graph is not initialized")
-        await target.consume(value, collector)
-
-
-class GeneratedService(ServiceApp):
-    """Generated lifecycle and graph bootstrap for Analytics Service."""
+class GeneratedService(ServiceApp, SubStreamAccessors):
+    """Generated lifecycle coordinator for Analytics Service."""
 
     def __init__(self) -> None:
         super().__init__()
         self._makers = ServiceMakers()
         self._functions: ServiceFunctions | None = None
         self._service_streams = ServiceStreams()
-        self._analyze_analytics_substream_substream = _SubStreamHandle[AnalyticsEvent, AnalyticsResult]()
-        self._transport_consumers: list[Any] = []
-        self._makers_initialized = False
-    def get_analyze_analytics_substream_substream(self) -> CallableSubStream[AnalyticsEvent, AnalyticsResult]:
-        return self._analyze_analytics_substream_substream
+        self._clients = ServiceClients()
+        self._servers = ServiceServers()
+        self._connectors = ServiceConnectors()
+        self._endpoints = ServiceEndpoints()
+        self._substreams = ServiceSubStreams()
+
     @property
     def makers(self) -> ServiceMakers:
         return self._makers
@@ -248,316 +42,43 @@ class GeneratedService(ServiceApp):
             raise RuntimeError("service functions are not initialized")
         return self._functions
 
-    def get_serde(self, type_name: str) -> Optional[Serializer]:
-        if type_name == "AnalyticsEvent":
-            return DataclassJsonSerde("AnalyticsEvent", AnalyticsEvent)
-        if type_name == "AnalyticsResult":
-            return DataclassJsonSerde("AnalyticsResult", AnalyticsResult)
-        if type_name == "OrderProcessed":
-            return DataclassJsonSerde("OrderProcessed", OrderProcessed)
-        return None
+    def get_serde(self, type_name: str) -> Serializer | None:
+        return ServiceSerdes.get_serde(type_name)
 
-    async def initialize_functions(self, ctx: Context) -> None:
-        """Apply user maker overrides, construct functions, then configure them."""
-
-        await self._initialize_makers(ctx)
+    def _typed_config(self) -> Config:
         cfg = self.config
         if not isinstance(cfg, Config):
-            raise TypeError(
-                "Analytics Service requires analytics_service.internal.config.Config"
-            )
-        named = cfg.named
-        maker_group_0 = _MakerGroup(ctx)
-        group_results_0 = await asyncio.gather(
-            maker_group_0.invoke(
-                self._makers.count_order_processed,
-                self,
-                named.streams.count_order_processed,
-            ),
-            maker_group_0.invoke(
-                self._makers.analytics_schedule_source,
-                self,
-                named.endpoints.analytics_schedule,
-            ),
-            maker_group_0.invoke(
-                self._makers.advance_cycle_analytics,
-                self,
-                named.streams.advance_cycle_analytics,
-            ),
-            maker_group_0.invoke(
-                self._makers.complete_cycle_analytics,
-                self,
-                named.streams.complete_cycle_analytics,
-            ),
-            maker_group_0.invoke(
-                self._makers.continue_cycle_analytics,
-                self,
-                named.streams.continue_cycle_analytics,
-            ),
-            maker_group_0.invoke(
-                self._makers.analytics_orders_source,
-                self,
-                named.endpoints.analytics_orders,
-            ),
-            maker_group_0.invoke(
-                self._makers.analytics_payments_source,
-                self,
-                named.endpoints.analytics_payments,
-            ),
-            maker_group_0.invoke(
-                self._makers.analytics_shipments_source,
-                self,
-                named.endpoints.analytics_shipments,
-            ),
-            maker_group_0.invoke(
-                self._makers.cycle_analytics_input_source,
-                self,
-                named.endpoints.cycle_analytics_input,
-            ),
-            maker_group_0.invoke(
-                self._makers.cycle_analytics_result_sink,
-                self,
-                named.endpoints.cycle_analytics_result,
-            ),
-            maker_group_0.invoke(
-                self._makers.high_value_analytics_sink,
-                self,
-                named.endpoints.high_value_analytics,
-            ),
-            maker_group_0.invoke(
-                self._makers.joined_analytics_sink,
-                self,
-                named.endpoints.joined_analytics,
-            ),
-            maker_group_0.invoke(
-                self._makers.order_processed_endpoint_source,
-                self,
-                named.endpoints.order_processed,
-            ),
-            maker_group_0.invoke(
-                self._makers.standard_analytics_sink,
-                self,
-                named.endpoints.standard_analytics,
-            ),
-            maker_group_0.invoke(
-                self._makers.substream_analytics_input_source,
-                self,
-                named.endpoints.substream_analytics_input,
-            ),
-            maker_group_0.invoke(
-                self._makers.substream_analytics_result_sink,
-                self,
-                named.endpoints.substream_analytics_result,
-            ),
-            maker_group_0.invoke(
-                self._makers.join_order_payment_analytics,
-                self,
-                named.streams.join_order_payment_analytics,
-            ),
-            maker_group_0.invoke(
-                self._makers.key_orders_for_join,
-                self,
-                named.streams.key_orders_for_join,
-            ),
-            maker_group_0.invoke(
-                self._makers.key_payments_for_join,
-                self,
-                named.streams.key_payments_for_join,
-            ),
-            maker_group_0.invoke(
-                self._makers.key_orders_for_multi_join,
-                self,
-                named.streams.key_orders_for_multi_join,
-            ),
-            maker_group_0.invoke(
-                self._makers.key_payments_for_multi_join,
-                self,
-                named.streams.key_payments_for_multi_join,
-            ),
-            maker_group_0.invoke(
-                self._makers.key_shipments_for_multi_join,
-                self,
-                named.streams.key_shipments_for_multi_join,
-            ),
-            maker_group_0.invoke(
-                self._makers.multi_join_analytics_events,
-                self,
-                named.streams.multi_join_analytics_events,
-            ),
-            maker_group_0.invoke(
-                self._makers.route_analytics_result,
-                self,
-                named.streams.route_analytics_result,
-            ),
-            maker_group_0.invoke(
-                self._makers.build_substream_analytics_result,
-                self,
-                named.streams.build_substream_analytics_result,
-            ),
-            maker_group_0.invoke(
-                self._makers.invoke_analytics_substream,
-                self,
-                named.streams.invoke_analytics_substream,
-            ),
-            return_exceptions=True,
-        )
-        maker_group_0.context.cancel()
-        maker_group_0.raise_first_error()
-        count_order_processed = cast(CountOrderProcessed, group_results_0[0])
-        analytics_schedule_source = cast(AnalyticsScheduleSource, group_results_0[1])
-        advance_cycle_analytics = cast(AdvanceCycleAnalytics, group_results_0[2])
-        complete_cycle_analytics = cast(CompleteCycleAnalytics, group_results_0[3])
-        continue_cycle_analytics = cast(ContinueCycleAnalytics, group_results_0[4])
-        analytics_orders_source = cast(AnalyticsOrdersSource, group_results_0[5])
-        analytics_payments_source = cast(AnalyticsPaymentsSource, group_results_0[6])
-        analytics_shipments_source = cast(AnalyticsShipmentsSource, group_results_0[7])
-        cycle_analytics_input_source = cast(CycleAnalyticsInputSource, group_results_0[8])
-        cycle_analytics_result_sink = cast(CycleAnalyticsResultSink, group_results_0[9])
-        high_value_analytics_sink = cast(HighValueAnalyticsSink, group_results_0[10])
-        joined_analytics_sink = cast(JoinedAnalyticsSink, group_results_0[11])
-        order_processed_endpoint_source = cast(OrderProcessedEndpointSource, group_results_0[12])
-        standard_analytics_sink = cast(StandardAnalyticsSink, group_results_0[13])
-        substream_analytics_input_source = cast(SubstreamAnalyticsInputSource, group_results_0[14])
-        substream_analytics_result_sink = cast(SubstreamAnalyticsResultSink, group_results_0[15])
-        join_order_payment_analytics = cast(JoinOrderPaymentAnalytics, group_results_0[16])
-        key_orders_for_join = cast(KeyOrdersForJoin, group_results_0[17])
-        key_payments_for_join = cast(KeyPaymentsForJoin, group_results_0[18])
-        key_orders_for_multi_join = cast(KeyOrdersForMultiJoin, group_results_0[19])
-        key_payments_for_multi_join = cast(KeyPaymentsForMultiJoin, group_results_0[20])
-        key_shipments_for_multi_join = cast(KeyShipmentsForMultiJoin, group_results_0[21])
-        multi_join_analytics_events = cast(MultiJoinAnalyticsEvents, group_results_0[22])
-        route_analytics_result = cast(RouteAnalyticsResult, group_results_0[23])
-        build_substream_analytics_result = cast(BuildSubstreamAnalyticsResult, group_results_0[24])
-        invoke_analytics_substream = cast(InvokeAnalyticsSubstream, group_results_0[25])
-        self._functions = ServiceFunctions(
-            count_order_processed=count_order_processed,
-            analytics_schedule_source=analytics_schedule_source,
-            advance_cycle_analytics=advance_cycle_analytics,
-            complete_cycle_analytics=complete_cycle_analytics,
-            continue_cycle_analytics=continue_cycle_analytics,
-            analytics_orders_source=analytics_orders_source,
-            analytics_payments_source=analytics_payments_source,
-            analytics_shipments_source=analytics_shipments_source,
-            cycle_analytics_input_source=cycle_analytics_input_source,
-            cycle_analytics_result_sink=cycle_analytics_result_sink,
-            high_value_analytics_sink=high_value_analytics_sink,
-            joined_analytics_sink=joined_analytics_sink,
-            order_processed_endpoint_source=order_processed_endpoint_source,
-            standard_analytics_sink=standard_analytics_sink,
-            substream_analytics_input_source=substream_analytics_input_source,
-            substream_analytics_result_sink=substream_analytics_result_sink,
-            join_order_payment_analytics=join_order_payment_analytics,
-            key_orders_for_join=key_orders_for_join,
-            key_payments_for_join=key_payments_for_join,
-            key_orders_for_multi_join=key_orders_for_multi_join,
-            key_payments_for_multi_join=key_payments_for_multi_join,
-            key_shipments_for_multi_join=key_shipments_for_multi_join,
-            multi_join_analytics_events=multi_join_analytics_events,
-            route_analytics_result=route_analytics_result,
-            build_substream_analytics_result=build_substream_analytics_result,
-            invoke_analytics_substream=invoke_analytics_substream,
-        )
-        await self.custom_functions_init(ctx)
+            raise TypeError("Analytics Service requires analytics_service.internal.config.Config")
+        return cfg
 
     async def _initialize_makers(self, ctx: Context) -> None:
-        if self._makers_initialized:
-            return
-        await self.custom_makers_init(ctx)
-        self._makers_initialized = True
+        await self._makers.init_makers(ctx, self.custom_makers_init)
+
+    async def initialize_functions(self, ctx: Context) -> None:
+        await self._initialize_makers(ctx)
+        self._typed_config()
+        self._functions = await ServiceFunctions.init_functions(ctx, self, self._makers)
+        await self.custom_functions_init(ctx)
 
     async def initialize_infrastructure(self, ctx: Context) -> None:
-        """Construct independent runtime adapters with Go-compatible grouping."""
-
         await self._initialize_makers(ctx)
-        cfg = self.config
-        if not isinstance(cfg, Config):
-            raise TypeError(
-                "Analytics Service requires analytics_service.internal.config.Config"
-            )
-        named = cfg.named
-        maker_group = _MakerGroup(ctx)
-        maker_calls: list[tuple[str, Awaitable[Any]]] = [
-            (
-                "http_application",
-                maker_group.invoke_call(
-                    lambda: self._makers.http_application(
-                        maker_group.context, self, self.service_config
-                    )
-                ),
-            ),
-        ]
-        maker_results = await asyncio.gather(
-            *(call for _, call in maker_calls), return_exceptions=True
-        )
-        maker_group.context.cancel()
-        maker_group.raise_first_error()
-        infrastructure: dict[str, list[Any]] = {}
-        for (name, _), result in zip(maker_calls, maker_results):
-            infrastructure.setdefault(name, []).append(result)
-
-        http_application = cast(
-            web.Application, infrastructure["http_application"][0]
-        )
-        self.replace_http_application(http_application)
+        self._typed_config()
+        await self._makers.init_infrastructure(ctx, self)
 
     async def build_stream_graph(self, ctx: Context) -> None:
-        """Construct the configured stream graph with Go-compatible semantics."""
-
         await self.initialize_functions(ctx)
-        cfg = self.config
-        if not isinstance(cfg, Config):
-            raise TypeError(
-                "Analytics Service requires analytics_service.internal.config.Config"
-            )
-        named = cfg.named
-        init_analytics_streams(self, named)
-        init_analytics_sources_streams(self, named)
-        init_cycle_analytics_streams(self, named)
-        init_join_analytics_streams(self, named)
-        init_multi_join_analytics_streams(self, named)
-        init_substream_analytics_streams(self, named)
-        post_init_analytics_streams(self)
-        post_init_analytics_sources_streams(self)
-        post_init_cycle_analytics_streams(self)
-        post_init_join_analytics_streams(self)
-        post_init_multi_join_analytics_streams(self)
-        post_init_substream_analytics_streams(self)
+        self._service_streams.init_streams(self._typed_config(), self, self.functions)
+        self._service_streams.build()
 
     async def bind_transports(self, ctx: Context) -> None:
-        """Bind configured endpoints to the already constructed streams."""
+        await self._endpoints.bind(ctx, self)
 
-        cfg = self.config
-        if not isinstance(cfg, Config):
-            raise TypeError(
-                "Analytics Service requires analytics_service.internal.config.Config"
-            )
-        self._transport_consumers = []
-        analytics_schedule_consumer = cron_source.APSchedulerEndpointConsumer(self._service_streams.analytics_schedule, self.functions.analytics_schedule_source)
-        self._transport_consumers.append(analytics_schedule_consumer)
-        consume_order_processed_consumer = kafka_source.make_aiokafka_endpoint_consumer(self._service_streams.consume_order_processed, self.functions.order_processed_endpoint_source)
-        self._transport_consumers.append(consume_order_processed_consumer)
-        analytics_orders_consumer = custom_source.TypedCustomEndpointConsumer(self._service_streams.analytics_orders, self.functions.analytics_orders_source, self.functions.analytics_orders_source)
-        self._transport_consumers.append(analytics_orders_consumer)
-        analytics_payments_consumer = custom_source.TypedCustomEndpointConsumer(self._service_streams.analytics_payments, self.functions.analytics_payments_source, self.functions.analytics_payments_source)
-        self._transport_consumers.append(analytics_payments_consumer)
-        analytics_shipments_consumer = custom_source.TypedCustomEndpointConsumer(self._service_streams.analytics_shipments, self.functions.analytics_shipments_source, self.functions.analytics_shipments_source)
-        self._transport_consumers.append(analytics_shipments_consumer)
-        cycle_analytics_input_consumer = custom_source.TypedCustomEndpointConsumer(self._service_streams.cycle_analytics_input, self.functions.cycle_analytics_input_source, self.functions.cycle_analytics_input_source)
-        self._transport_consumers.append(cycle_analytics_input_consumer)
-        write_cycle_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_cycle_analytics, self.functions.cycle_analytics_result_sink)
-        self._transport_consumers.append(write_cycle_analytics_consumer)
-        write_joined_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_joined_analytics, self.functions.joined_analytics_sink)
-        self._transport_consumers.append(write_joined_analytics_consumer)
-        write_high_value_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_high_value_analytics, self.functions.high_value_analytics_sink)
-        self._transport_consumers.append(write_high_value_analytics_consumer)
-        write_standard_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_standard_analytics, self.functions.standard_analytics_sink)
-        self._transport_consumers.append(write_standard_analytics_consumer)
-        substream_analytics_input_consumer = custom_source.TypedCustomEndpointConsumer(self._service_streams.substream_analytics_input, self.functions.substream_analytics_input_source, self.functions.substream_analytics_input_source)
-        self._transport_consumers.append(substream_analytics_input_consumer)
-        write_substream_analytics_consumer = custom_sink.make_custom_endpoint_consumer(self._service_streams.write_substream_analytics, self.functions.substream_analytics_result_sink)
-        self._transport_consumers.append(write_substream_analytics_consumer)
+    def initialize_runtime_connectors(self) -> None:
+        self._typed_config()
+        self._connectors.init_connectors(self)
 
     async def build_runtime(self, ctx: Context) -> None:
+        self.initialize_runtime_connectors()
         await self.build_stream_graph(ctx)
         await self.bind_transports(ctx)
 
@@ -568,19 +89,10 @@ class GeneratedService(ServiceApp):
         await self.start(ctx)
 
     async def stop_service(self, ctx: Context) -> None:
-        ctx = ctx.bounded(
-            timedelta(milliseconds=self.service_config.shutdown_timeout)
-        )
-
-        # Keep graph resources and outbound clients alive while transports
-        # drain requests that were accepted before shutdown. Every phase uses
-        # the same Context deadline; no phase receives a fresh timeout.
-        await run_shutdown_operations(
-            self.log, ctx, [("user_on_stop", self.on_stop(ctx))]
-        )
-        await run_shutdown_operations(
-            self.log, ctx, [("service_runtime", self.stop(ctx))]
-        )
+        ctx = ctx.bounded(timedelta(milliseconds=self.service_config.shutdown_timeout))
+        # Keep graph and outbound clients alive until runtime transports drain.
+        await run_shutdown_operations(self.log, ctx, [("user_on_stop", self.on_stop(ctx))])
+        await run_shutdown_operations(self.log, ctx, [("service_runtime", self.stop(ctx))])
 
     async def custom_makers_init(self, ctx: Context) -> None:
         del ctx

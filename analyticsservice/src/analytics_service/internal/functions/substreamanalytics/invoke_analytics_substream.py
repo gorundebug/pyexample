@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
+
 from analytics_service.models.analytics_event import AnalyticsEvent
 from analytics_service.models.analytics_result import AnalyticsResult
 from pyservicelib_gorundebug.runtime.common import (
@@ -35,10 +35,9 @@ class InvokeAnalyticsSubstream:
 async def make_invoke_analytics_substream(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: MapStreamConfig,
 ) -> InvokeAnalyticsSubstream:
     """Construct InvokeAnalyticsSubstream asynchronously while the graph is initialized."""
-    del ctx, config, environment
+    del ctx, environment
     raise RuntimeError(
         "InvokeAnalyticsSubstream must be constructed by Service.custom_makers_init "
         "with the analyzeAnalyticsSubstream handle"

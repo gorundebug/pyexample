@@ -1,6 +1,6 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
-from pyservicelib_gorundebug.runtime.config.stream_types import ProcessStreamConfig
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from model.models.order_processed import OrderProcessed
@@ -30,7 +30,7 @@ class CountOrderProcessed:
 
 
 async def make_count_order_processed(
-    ctx: Context, environment: ServiceEnvironment, config: ProcessStreamConfig
+    ctx: Context, environment: ServiceEnvironment
 ) -> CountOrderProcessed:
-    del ctx, environment, config
+    del ctx, environment
     return CountOrderProcessed()

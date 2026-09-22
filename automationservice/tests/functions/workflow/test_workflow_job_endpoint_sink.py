@@ -4,4 +4,4 @@ from automation_service.internal.functions.workflow.workflow_job_endpoint_sink i
 
 
 def test_workflow_job_endpoint_sink_contract_surface() -> None:
-    function = WorkflowJobEndpointSink()
+    WorkflowJobEndpointSink()

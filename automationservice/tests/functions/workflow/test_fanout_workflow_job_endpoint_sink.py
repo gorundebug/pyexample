@@ -4,4 +4,4 @@ from automation_service.internal.functions.workflow.fanout_workflow_job_endpoint
 
 
 def test_fanout_workflow_job_endpoint_sink_contract_surface() -> None:
-    function = FanoutWorkflowJobEndpointSink()
+    FanoutWorkflowJobEndpointSink()

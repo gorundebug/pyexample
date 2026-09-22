@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.api.models.environment import Environment
 from pyservicelib_gorundebug.runtime.context.context import Context
-from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
+
 from pyservicelib_gorundebug.runtime.environment.environment import (
     ServiceDependency,
     ServiceEnvironment,
@@ -68,7 +68,6 @@ class Service(GeneratedService):
         async def make_invoke_analytics_substream(
             _ctx: Context,
             _environment: ServiceEnvironment,
-            _config: MapStreamConfig,
         ) -> InvokeAnalyticsSubstream:
             return InvokeAnalyticsSubstream(
                 self.get_analyze_analytics_substream_substream()

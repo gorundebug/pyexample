@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import CaseStreamConfig
+
 from typing import Callable
 from analytics_service.models.analytics_result import AnalyticsResult
 from pyservicelib_gorundebug.operators.functions import When
@@ -28,8 +28,7 @@ class RouteAnalyticsResult:
 async def make_route_analytics_result(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: CaseStreamConfig,
 ) -> RouteAnalyticsResult:
     """Construct RouteAnalyticsResult asynchronously while the graph is initialized."""
-    del ctx, config, environment
+    del ctx, environment
     return RouteAnalyticsResult()

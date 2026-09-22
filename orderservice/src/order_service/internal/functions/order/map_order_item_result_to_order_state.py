@@ -1,6 +1,6 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
-from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from datetime import datetime, timezone
@@ -32,7 +32,7 @@ class MapOrderItemResultToOrderState:
 
 
 async def make_map_order_item_result_to_order_state(
-    ctx: Context, environment: ServiceEnvironment, config: MapStreamConfig
+    ctx: Context, environment: ServiceEnvironment
 ) -> MapOrderItemResultToOrderState:
-    del ctx, environment, config
+    del ctx, environment
     return MapOrderItemResultToOrderState()

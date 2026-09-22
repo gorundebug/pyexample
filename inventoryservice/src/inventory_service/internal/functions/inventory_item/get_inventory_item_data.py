@@ -1,6 +1,6 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
-from pyservicelib_gorundebug.runtime.config.stream_types import ProcessStreamConfig
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 
@@ -59,7 +59,7 @@ class InventoryFailureError(Exception):
 
 
 async def make_get_inventory_item_data(
-    ctx: Context, environment: ServiceEnvironment, config: ProcessStreamConfig
+    ctx: Context, environment: ServiceEnvironment
 ) -> GetInventoryItemData:
-    del ctx, environment, config
+    del ctx, environment
     return GetInventoryItemData()

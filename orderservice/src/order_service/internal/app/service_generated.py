@@ -2,174 +2,36 @@
 
 from __future__ import annotations
 
-import asyncio
-import aiohttp
-from aiohttp import web
-from collections.abc import Awaitable, Callable
-from dataclasses import dataclass
 from datetime import timedelta
-from threading import Lock
-from typing import Any, Optional, cast
-import grpc
-
 from pyservicelib_gorundebug.runtime.context.context import Context
-from pyservicelib_gorundebug.runtime.serviceapp import (
-    ServiceApp,
-    run_shutdown_operations,
-)
-from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
-from pyservicelib_gorundebug import transformation
-from .pipeline_order_generated import (
-    OrderPipelineFunctions,
-    OrderPipelineMakers,
-    OrderPipelineStreams,
-    init_order_streams,
-    post_init_order_streams,
-)
-from pyservicelib_gorundebug.datasink.grpc import grpcds as grpc_sink
-from pyservicelib_gorundebug.datasource.http import aiohttpds as http_source
-from pyservicelib_gorundebug.datasink.kafka import aiokafkads as kafka_sink
-import inventory_service_api.generated.proto.inventoryserviceapi.inventoryserviceapi.generated_pb2_grpc as inventory_service_api_grpc_api
-
+from pyservicelib_gorundebug.runtime.serviceapp import ServiceApp, run_shutdown_operations
+from pyservicelib_gorundebug.runtime.serde import Serializer
 from ..config import Config
-from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.dataconnector_types import GrpcDataConnectorConfig
-from pyservicelib_gorundebug.runtime.config.config import ServiceConfig
-from pyservicelib_gorundebug.runtime.config.dataconnector_types import HttpDataConnectorConfig
-from pyservicelib_gorundebug.runtime.config.endpoint_types import GrpcEndpointConfig, HttpEndpointConfig, KafkaEndpointConfig
-from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig, FlatMapStreamConfig, MapStreamConfig
-from model.models.order_item import (
-    OrderItem,
-)
-from model.models.order_item_result import (
-    OrderItemResult,
-)
-from model.models.order_processed import (
-    OrderProcessed,
-)
-from order_service.models.order import (
-    Order,
-)
-from order_service.models.order_state import (
-    OrderState,
-)
-from ..functions import (
-    OrderProcessedEndpointSink,
-    make_order_processed_endpoint_sink,
-    ProcessOrderItemSink,
-    make_process_order_item_sink,
-    ProcessOrderSource,
-    make_process_order_source,
-    MapOrderItemResultToOrderState,
-    make_map_order_item_result_to_order_state,
-    MapToOrderProcessed,
-    make_map_to_order_processed,
-    MapToOrderState,
-    make_map_to_order_state,
-    ProcessOrderItems,
-    make_process_order_items,
-    SoftDeadline,
-    make_soft_deadline,
-)
+from .makers_generated import ServiceMakers as ServiceMakers
+from .functions_generated import ServiceFunctions as ServiceFunctions
+from .streams_generated import ServiceStreams as ServiceStreams
+from .clients_generated import ServiceClients
+from .servers_generated import ServiceServers
+from .connectors_generated import ServiceConnectors
+from .endpoints_generated import ServiceEndpoints
+from .substreams_generated import ServiceSubStreams, SubStreamAccessors
+from .serde_generated import ServiceSerdes
 
 
-@dataclass
-class ServiceStreams(
-    OrderPipelineStreams,
-):
-    pass
-
-@dataclass
-class ServiceMakers(
-    OrderPipelineMakers,
-):
-    # The argument contract is intentionally uniform: context, environment,
-    # and the exact config of the object being constructed.
-    http_application: Callable[[Context, ServiceEnvironment, ServiceConfig], Awaitable[web.Application]] = (
-        lambda _ctx, _environment, _config: _make_http_application()
-    )
-    order_service_api_http_source: Callable[[Context, ServiceEnvironment, HttpDataConnectorConfig], Awaitable[http_source.AIOHttpDataSource]] = (
-        lambda _ctx, environment, config: _make_http_source(environment, config)
-    )
-    inventory_service_api_grpc_channel: Callable[[Context, ServiceEnvironment, GrpcDataConnectorConfig], Awaitable[grpc.aio.Channel]] = (
-        lambda _ctx, _environment, config: _make_grpc_channel(config)
-    )
-
-async def _make_http_application() -> web.Application:
-    return web.Application()
-async def _make_http_source(
-    environment: ServiceEnvironment, config: HttpDataConnectorConfig
-) -> http_source.AIOHttpDataSource:
-    return http_source.AIOHttpDataSource(config.id, environment)
-async def _make_grpc_channel(config: GrpcDataConnectorConfig) -> grpc.aio.Channel:
-    return grpc.aio.insecure_channel(
-        _required(config.address, "gRPC connector address")
-    )
-
-
-@dataclass
-class ServiceFunctions(
-    OrderPipelineFunctions,
-):
-    pass
-
-
-class _MakerGroup:
-    def __init__(self, parent: Context) -> None:
-        self.context = parent.child()
-        self._lock = Lock()
-        self._first_error: BaseException | None = None
-
-    async def invoke(
-        self,
-        maker: Callable[[Context, ServiceEnvironment, Any], Awaitable[Any]],
-        environment: ServiceEnvironment,
-        config: Any,
-    ) -> Any:
-        return await self.invoke_call(
-            lambda: maker(self.context, environment, config)
-        )
-
-    async def invoke_call(self, maker: Callable[[], Awaitable[Any]]) -> Any:
-        try:
-            return await maker()
-        except BaseException as error:
-            with self._lock:
-                if self._first_error is None:
-                    self._first_error = error
-                    self.context.cancel()
-            raise
-
-    def raise_first_error(self) -> None:
-        if self._first_error is not None:
-            raise self._first_error
-
-class _GrpcMethodPool:
-    """Round-robin dispatcher over independent gRPC channel callables."""
-
-    def __init__(self, methods: list[Any]) -> None:
-        if not methods:
-            raise ValueError("gRPC method pool must not be empty")
-        self._methods = methods
-        self._next = 0
-
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        method = self._methods[self._next]
-        self._next = (self._next + 1) % len(self._methods)
-        return method(*args, **kwargs)
-
-
-class GeneratedService(ServiceApp):
-    """Generated lifecycle and graph bootstrap for Order Service."""
+class GeneratedService(ServiceApp, SubStreamAccessors):
+    """Generated lifecycle coordinator for Order Service."""
 
     def __init__(self) -> None:
         super().__init__()
         self._makers = ServiceMakers()
         self._functions: ServiceFunctions | None = None
         self._service_streams = ServiceStreams()
-        self._transport_consumers: list[Any] = []
-        self._makers_initialized = False
-        self._grpc_channels: list[grpc.aio.Channel] = []
+        self._clients = ServiceClients()
+        self._servers = ServiceServers()
+        self._connectors = ServiceConnectors()
+        self._endpoints = ServiceEndpoints()
+        self._substreams = ServiceSubStreams()
+
     @property
     def makers(self) -> ServiceMakers:
         return self._makers
@@ -180,201 +42,43 @@ class GeneratedService(ServiceApp):
             raise RuntimeError("service functions are not initialized")
         return self._functions
 
-    def get_serde(self, type_name: str) -> Optional[Serializer]:
-        if type_name == "Order":
-            return DataclassJsonSerde("Order", Order)
-        if type_name == "OrderItem":
-            return DataclassJsonSerde("OrderItem", OrderItem)
-        if type_name == "OrderItemResult":
-            return DataclassJsonSerde("OrderItemResult", OrderItemResult)
-        if type_name == "OrderProcessed":
-            return DataclassJsonSerde("OrderProcessed", OrderProcessed)
-        if type_name == "OrderState":
-            return DataclassJsonSerde("OrderState", OrderState)
-        return None
+    def get_serde(self, type_name: str) -> Serializer | None:
+        return ServiceSerdes.get_serde(type_name)
 
-    async def initialize_functions(self, ctx: Context) -> None:
-        """Apply user maker overrides, construct functions, then configure them."""
-
-        await self._initialize_makers(ctx)
+    def _typed_config(self) -> Config:
         cfg = self.config
         if not isinstance(cfg, Config):
-            raise TypeError(
-                "Order Service requires order_service.internal.config.Config"
-            )
-        named = cfg.named
-        maker_group_0 = _MakerGroup(ctx)
-        group_results_0 = await asyncio.gather(
-            maker_group_0.invoke(
-                self._makers.order_processed_endpoint_sink,
-                self,
-                named.endpoints.order_processed,
-            ),
-            maker_group_0.invoke(
-                self._makers.process_order_item_sink,
-                self,
-                named.endpoints.process_order_item,
-            ),
-            maker_group_0.invoke(
-                self._makers.process_order_source,
-                self,
-                named.endpoints.process_order,
-            ),
-            maker_group_0.invoke(
-                self._makers.map_order_item_result_to_order_state,
-                self,
-                named.streams.map_order_item_result_to_order_state,
-            ),
-            maker_group_0.invoke(
-                self._makers.map_to_order_processed,
-                self,
-                named.streams.map_to_order_processed,
-            ),
-            maker_group_0.invoke(
-                self._makers.map_to_order_state,
-                self,
-                named.streams.map_to_order_state,
-            ),
-            maker_group_0.invoke(
-                self._makers.process_order_items,
-                self,
-                named.streams.process_order_items,
-            ),
-            maker_group_0.invoke(
-                self._makers.soft_deadline,
-                self,
-                named.streams.soft_deadline,
-            ),
-            return_exceptions=True,
-        )
-        maker_group_0.context.cancel()
-        maker_group_0.raise_first_error()
-        order_processed_endpoint_sink = cast(OrderProcessedEndpointSink, group_results_0[0])
-        process_order_item_sink = cast(ProcessOrderItemSink, group_results_0[1])
-        process_order_source = cast(ProcessOrderSource, group_results_0[2])
-        map_order_item_result_to_order_state = cast(MapOrderItemResultToOrderState, group_results_0[3])
-        map_to_order_processed = cast(MapToOrderProcessed, group_results_0[4])
-        map_to_order_state = cast(MapToOrderState, group_results_0[5])
-        process_order_items = cast(ProcessOrderItems, group_results_0[6])
-        soft_deadline = cast(SoftDeadline, group_results_0[7])
-        self._functions = ServiceFunctions(
-            order_processed_endpoint_sink=order_processed_endpoint_sink,
-            process_order_item_sink=process_order_item_sink,
-            process_order_source=process_order_source,
-            map_order_item_result_to_order_state=map_order_item_result_to_order_state,
-            map_to_order_processed=map_to_order_processed,
-            map_to_order_state=map_to_order_state,
-            process_order_items=process_order_items,
-            soft_deadline=soft_deadline,
-        )
-        await self.custom_functions_init(ctx)
+            raise TypeError("Order Service requires order_service.internal.config.Config")
+        return cfg
 
     async def _initialize_makers(self, ctx: Context) -> None:
-        if self._makers_initialized:
-            return
-        await self.custom_makers_init(ctx)
-        self._makers_initialized = True
+        await self._makers.init_makers(ctx, self.custom_makers_init)
+
+    async def initialize_functions(self, ctx: Context) -> None:
+        await self._initialize_makers(ctx)
+        self._typed_config()
+        self._functions = await ServiceFunctions.init_functions(ctx, self, self._makers)
+        await self.custom_functions_init(ctx)
 
     async def initialize_infrastructure(self, ctx: Context) -> None:
-        """Construct independent runtime adapters with Go-compatible grouping."""
-
         await self._initialize_makers(ctx)
-        cfg = self.config
-        if not isinstance(cfg, Config):
-            raise TypeError(
-                "Order Service requires order_service.internal.config.Config"
-            )
-        named = cfg.named
-        maker_group = _MakerGroup(ctx)
-        maker_calls: list[tuple[str, Awaitable[Any]]] = [
-            (
-                "http_application",
-                maker_group.invoke_call(
-                    lambda: self._makers.http_application(
-                        maker_group.context, self, self.service_config
-                    )
-                ),
-            ),
-            (
-                "order_service_api_http_source",
-                maker_group.invoke_call(
-                    lambda: self._makers.order_service_api_http_source(
-                        maker_group.context,
-                        self,
-                        named.data_connectors.order_service_api,
-                    )
-                ),
-            ),
-        ]
-        for _ in range(named.data_connectors.inventory_service_api.connections_count):
-            maker_calls.append((
-                "inventory_service_api_grpc_channel",
-                maker_group.invoke_call(
-                    lambda: self._makers.inventory_service_api_grpc_channel(
-                        maker_group.context,
-                        self,
-                        named.data_connectors.inventory_service_api,
-                    )
-                ),
-            ))
-        maker_results = await asyncio.gather(
-            *(call for _, call in maker_calls), return_exceptions=True
-        )
-        maker_group.context.cancel()
-        maker_group.raise_first_error()
-        infrastructure: dict[str, list[Any]] = {}
-        for (name, _), result in zip(maker_calls, maker_results):
-            infrastructure.setdefault(name, []).append(result)
-
-        http_application = cast(
-            web.Application, infrastructure["http_application"][0]
-        )
-        self.replace_http_application(http_application)
-        self.add_datasource(cast(
-            http_source.AIOHttpDataSource,
-            infrastructure["order_service_api_http_source"][0],
-        ))
-        self._inventory_service_api_grpc_channels = cast(
-            list[grpc.aio.Channel],
-            infrastructure["inventory_service_api_grpc_channel"],
-        )
-        self._grpc_channels.extend(self._inventory_service_api_grpc_channels)
+        self._typed_config()
+        await self._makers.init_infrastructure(ctx, self)
 
     async def build_stream_graph(self, ctx: Context) -> None:
-        """Construct the configured stream graph with Go-compatible semantics."""
-
         await self.initialize_functions(ctx)
-        cfg = self.config
-        if not isinstance(cfg, Config):
-            raise TypeError(
-                "Order Service requires order_service.internal.config.Config"
-            )
-        named = cfg.named
-        init_order_streams(self, named)
-        post_init_order_streams(self)
+        self._service_streams.init_streams(self._typed_config(), self, self.functions)
+        self._service_streams.build()
 
     async def bind_transports(self, ctx: Context) -> None:
-        """Bind configured endpoints to the already constructed streams."""
+        await self._endpoints.bind(ctx, self)
 
-        cfg = self.config
-        if not isinstance(cfg, Config):
-            raise TypeError(
-                "Order Service requires order_service.internal.config.Config"
-            )
-        named = cfg.named
-        self._transport_consumers = []
-        process_order_consumer = http_source.make_net_http_endpoint_consumer(self._service_streams.process_order, self.functions.process_order_source)
-        self._transport_consumers.append(process_order_consumer)
-        inventory_service_api_grpc_stub = [
-            inventory_service_api_grpc_api.InventoryServiceApiStub(channel)  # type: ignore[no-untyped-call]
-            for channel in self._inventory_service_api_grpc_channels
-        ]
-        process_order_item_consumer = grpc_sink.make_grpc_no_streaming_endpoint_consumer(self._service_streams.process_order_item, self.functions.process_order_item_sink, _GrpcMethodPool([stub.ProcessOrderItem for stub in inventory_service_api_grpc_stub]))
-        self._transport_consumers.append(process_order_item_consumer)
-        publish_order_processed_consumer = kafka_sink.make_aiokafka_endpoint_consumer(self._service_streams.publish_order_processed, self.functions.order_processed_endpoint_sink)
-        self._transport_consumers.append(publish_order_processed_consumer)
+    def initialize_runtime_connectors(self) -> None:
+        self._typed_config()
+        self._connectors.init_connectors(self)
 
     async def build_runtime(self, ctx: Context) -> None:
+        self.initialize_runtime_connectors()
         await self.build_stream_graph(ctx)
         await self.bind_transports(ctx)
 
@@ -385,31 +89,11 @@ class GeneratedService(ServiceApp):
         await self.start(ctx)
 
     async def stop_service(self, ctx: Context) -> None:
-        ctx = ctx.bounded(
-            timedelta(milliseconds=self.service_config.shutdown_timeout)
-        )
-
-        async def close_grpc_channels() -> None:
-            channels = [
-                channel
-                for channel in self._grpc_channels
-            ]
-            self._grpc_channels = []
-            for channel in channels:
-                await channel.close(grace=None)
-
-        # Keep graph resources and outbound clients alive while transports
-        # drain requests that were accepted before shutdown. Every phase uses
-        # the same Context deadline; no phase receives a fresh timeout.
-        await run_shutdown_operations(
-            self.log, ctx, [("user_on_stop", self.on_stop(ctx))]
-        )
-        await run_shutdown_operations(
-            self.log, ctx, [("service_runtime", self.stop(ctx))]
-        )
-        await run_shutdown_operations(
-            self.log, ctx, [("grpc_channels", close_grpc_channels())]
-        )
+        ctx = ctx.bounded(timedelta(milliseconds=self.service_config.shutdown_timeout))
+        # Keep graph and outbound clients alive until runtime transports drain.
+        await run_shutdown_operations(self.log, ctx, [("user_on_stop", self.on_stop(ctx))])
+        await run_shutdown_operations(self.log, ctx, [("service_runtime", self.stop(ctx))])
+        await run_shutdown_operations(self.log, ctx, [("grpc_channels", self._clients.close())])
 
     async def custom_makers_init(self, ctx: Context) -> None:
         del ctx
@@ -422,7 +106,3 @@ class GeneratedService(ServiceApp):
 
     async def on_stop(self, ctx: Context) -> None:
         del ctx
-def _required[T](value: T | None, label: str) -> T:
-    if value is None:
-        raise ValueError(f"{label} is required")
-    return value

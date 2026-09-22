@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import KeyByStreamConfig
+
 from analytics_service.models.analytics_event import AnalyticsEvent
 from pyservicelib_gorundebug.runtime.common import Collect, Stream
 from pyservicelib_gorundebug.runtime.datastruct import KeyValue
@@ -24,8 +24,7 @@ class KeyPaymentsForJoin:
 async def make_key_payments_for_join(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: KeyByStreamConfig,
 ) -> KeyPaymentsForJoin:
     """Construct KeyPaymentsForJoin asynchronously while the graph is initialized."""
-    del ctx, config, environment
+    del ctx, environment
     return KeyPaymentsForJoin()

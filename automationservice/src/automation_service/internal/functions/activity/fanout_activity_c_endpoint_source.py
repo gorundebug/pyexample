@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.endpoint_types import TemporalEndpointConfig
+
 from pyservicelib_gorundebug.runtime.common import StreamContext
 
 
@@ -34,8 +34,7 @@ class FanoutActivityCEndpointSource:
 async def make_fanout_activity_c_endpoint_source(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: TemporalEndpointConfig,
 ) -> FanoutActivityCEndpointSource:
     """Construct FanoutActivityCEndpointSource for the configured service graph."""
-    del ctx, config, environment
+    del ctx, environment
     return FanoutActivityCEndpointSource()

@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.endpoint_types import TemporalEndpointConfig
+
 from pyservicelib_gorundebug.runtime.schedule import ScheduleTrigger
 from pyservicelib_gorundebug.runtime.common import Collect
 
@@ -21,8 +21,7 @@ class TemporalWorkflowScheduleSource:
 async def make_temporal_workflow_schedule_source(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: TemporalEndpointConfig,
 ) -> TemporalWorkflowScheduleSource:
     """Construct TemporalWorkflowScheduleSource for the configured service graph."""
-    del ctx, config, environment
+    del ctx, environment
     return TemporalWorkflowScheduleSource()

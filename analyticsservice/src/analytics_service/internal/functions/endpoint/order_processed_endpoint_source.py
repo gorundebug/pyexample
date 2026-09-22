@@ -1,6 +1,6 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
-from pyservicelib_gorundebug.runtime.config.endpoint_types import KafkaEndpointConfig
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 import json
@@ -82,7 +82,7 @@ class OrderProcessedEndpointSource:
 
 
 async def make_order_processed_endpoint_source(
-    ctx: Context, environment: ServiceEnvironment, config: KafkaEndpointConfig
+    ctx: Context, environment: ServiceEnvironment
 ) -> OrderProcessedEndpointSource:
-    del ctx, environment, config
+    del ctx, environment
     return OrderProcessedEndpointSource()

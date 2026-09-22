@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import FilterStreamConfig
+
 from analytics_service.models.analytics_event import AnalyticsEvent
 from pyservicelib_gorundebug.runtime.common import Stream
 
@@ -18,8 +18,7 @@ class ContinueCycleAnalytics:
 async def make_continue_cycle_analytics(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: FilterStreamConfig,
 ) -> ContinueCycleAnalytics:
     """Construct ContinueCycleAnalytics asynchronously while the graph is initialized."""
-    del ctx, config, environment
+    del ctx, environment
     return ContinueCycleAnalytics()

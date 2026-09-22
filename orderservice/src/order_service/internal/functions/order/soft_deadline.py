@@ -1,6 +1,6 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
-from pyservicelib_gorundebug.runtime.config.stream_types import DelayStreamConfig
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from datetime import datetime, timedelta, timezone
@@ -36,7 +36,7 @@ class SoftDeadline:
 
 
 async def make_soft_deadline(
-    ctx: Context, environment: ServiceEnvironment, config: DelayStreamConfig
+    ctx: Context, environment: ServiceEnvironment
 ) -> SoftDeadline:
-    del ctx, environment, config
+    del ctx, environment
     return SoftDeadline()

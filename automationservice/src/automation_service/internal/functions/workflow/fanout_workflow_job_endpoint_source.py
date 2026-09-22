@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.endpoint_types import TemporalEndpointConfig
+
 from pyservicelib_gorundebug.runtime.common import StreamContext
 
 
@@ -34,8 +34,7 @@ class FanoutWorkflowJobEndpointSource:
 async def make_fanout_workflow_job_endpoint_source(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: TemporalEndpointConfig,
 ) -> FanoutWorkflowJobEndpointSource:
     """Construct FanoutWorkflowJobEndpointSource for the configured service graph."""
-    del ctx, config, environment
+    del ctx, environment
     return FanoutWorkflowJobEndpointSource()

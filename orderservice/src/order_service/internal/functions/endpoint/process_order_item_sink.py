@@ -1,6 +1,6 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
-from pyservicelib_gorundebug.runtime.config.endpoint_types import GrpcEndpointConfig
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from dataclasses import dataclass
@@ -101,7 +101,7 @@ class ProcessOrderItemSink:
 
 
 async def make_process_order_item_sink(
-    ctx: Context, environment: ServiceEnvironment, config: GrpcEndpointConfig
+    ctx: Context, environment: ServiceEnvironment
 ) -> ProcessOrderItemSink:
-    del ctx, environment, config
+    del ctx, environment
     return ProcessOrderItemSink()

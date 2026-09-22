@@ -2,7 +2,7 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from pyservicelib_gorundebug.runtime.config.stream_types import MapStreamConfig
+
 from pyservicelib_gorundebug.runtime.common import Collect, Stream
 
 
@@ -22,8 +22,7 @@ class ProcessSequentialActivityA:
 async def make_process_sequential_activity_a(
     ctx: Context,
     environment: ServiceEnvironment,
-    config: MapStreamConfig,
 ) -> ProcessSequentialActivityA:
     """Construct ProcessSequentialActivityA for the configured service graph."""
-    del ctx, config, environment
+    del ctx, environment
     return ProcessSequentialActivityA()

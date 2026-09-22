@@ -4,4 +4,4 @@ from automation_service.internal.functions.activity.activity_job_endpoint_sink i
 
 
 def test_activity_job_endpoint_sink_contract_surface() -> None:
-    function = ActivityJobEndpointSink()
+    ActivityJobEndpointSink()
