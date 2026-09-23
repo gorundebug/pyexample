@@ -20,12 +20,14 @@ Preserve the order and item identity and requested quantity, and record the fail
 
 
 ## Stream types
+- Input: `InventoryFailure` — `inventoryservice/src/inventory_service/models/inventory_failure.py`
 - Output: `OrderItemResult` — `model_python/src/model/models/order_item_result.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
 - [ ] Open `inventoryservice/src/inventory_service/internal/functions/inventory_item/get_inventory_item_error.py` and preserve its generated contract
+- [ ] Inspect input type `InventoryFailure` in `inventoryservice/src/inventory_service/models/inventory_failure.py`
 - [ ] Inspect output type `OrderItemResult` in `model_python/src/model/models/order_item_result.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
