@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
-from inventory_service.models.inventory_failure_generated import (
+from inventory_service.models.inventory_failure import (
     InventoryFailure,
 )
 from model.models.order_item import (
@@ -18,6 +18,8 @@ from model.models.order_item_result import (
 class ServiceSerdes:
     @staticmethod
     def get_serde( type_name: str) -> Serializer | None:
+        if type_name == "InventoryFailure":
+            return DataclassJsonSerde("InventoryFailure", InventoryFailure)
         if type_name == "OrderItem":
             return DataclassJsonSerde("OrderItem", OrderItem)
         if type_name == "OrderItemResult":
@@ -27,5 +29,6 @@ class ServiceSerdes:
 
     @staticmethod
     def register(environment: Any) -> None:
+        environment.register_serde("InventoryFailure", DataclassJsonSerde("InventoryFailure", InventoryFailure))
         environment.register_serde("OrderItem", DataclassJsonSerde("OrderItem", OrderItem))
         environment.register_serde("OrderItemResult", DataclassJsonSerde("OrderItemResult", OrderItemResult))

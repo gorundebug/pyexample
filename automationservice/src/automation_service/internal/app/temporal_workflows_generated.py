@@ -53,6 +53,8 @@ async def _execute_generated_workflow(
     environment = TemporalWorkflowEnvironment(
         config,
         ServiceIds.AUTOMATION_SERVICE,
+        noop_metrics=request.noop_metrics,
+        noop_tracing=request.noop_tracing,
     )
     register_generated_serdes(environment)
     context = Context()

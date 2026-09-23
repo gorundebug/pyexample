@@ -8,7 +8,7 @@ from typing import Any
 from pyservicelib_gorundebug import transformation
 from ..config import Config
 from .functions_generated import ServiceFunctions
-from inventory_service.models.inventory_failure_generated import (
+from inventory_service.models.inventory_failure import (
     InventoryFailure,
 )
 from model.models.order_item import (
@@ -30,9 +30,9 @@ class ServiceStreams:
     def init_streams(self, config: Config, environment: Any, functions: ServiceFunctions) -> None:
         named = config.named
         self.process_inventory_item = transformation.Input[OrderItem, OrderItemResult, Exception](named.streams.process_inventory_item, environment)
-        self.get_inventory_item_data = transformation.Process[OrderItem, OrderItemResult, Exception](named.streams.get_inventory_item_data, self.process_inventory_item, functions.get_inventory_item_data)
+        self.get_inventory_item_data = transformation.Process[OrderItem, OrderItemResult, InventoryFailure](named.streams.get_inventory_item_data, self.process_inventory_item, functions.get_inventory_item_data)
         self.get_inventory_item_error = self.get_inventory_item_data.error_stream
-        self.map_inventory_item_error = transformation.Map[Exception, OrderItemResult](named.streams.map_inventory_item_error, self.get_inventory_item_error, functions.get_inventory_item_error)
+        self.map_inventory_item_error = transformation.Map[InventoryFailure, OrderItemResult](named.streams.map_inventory_item_error, self.get_inventory_item_error, functions.get_inventory_item_error)
         self.merge_inventory_result = transformation.Merge[OrderItemResult](named.streams.merge_inventory_result, self.get_inventory_item_data, self.map_inventory_item_error)
 
 

@@ -1,5 +1,7 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
+from inventory_service.models.inventory_failure import InventoryFailure
+
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
@@ -25,7 +27,7 @@ class GetInventoryItemData:
         stream: Stream,
         value: OrderItem,
         out: Collect[OrderItemResult],
-        err_out: Collect[Exception],
+        err_out: Collect[InventoryFailure],
     ) -> None:
         del stream
         # This block contains no await, so it is uninterrupted on the
@@ -48,14 +50,8 @@ class GetInventoryItemData:
         if reserved:
             await out.out(result)
         else:
-            await err_out.out(InventoryFailureError(value, available))
+            await err_out.out(InventoryFailure(value, available))
 
-
-class InventoryFailureError(Exception):
-    def __init__(self, item: OrderItem, available_qty: int) -> None:
-        super().__init__("inventory is out of stock")
-        self.item = item
-        self.available_qty = available_qty
 
 
 async def make_get_inventory_item_data(
