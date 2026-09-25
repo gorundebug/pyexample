@@ -27,10 +27,10 @@ class _InventoryServiceApiServicer(inventory_service_api_grpc_api.InventoryServi
             process_inventory_item_grpc_messages.ProcessOrderItemResponse,
         ],
     ) -> process_inventory_item_grpc_messages.ProcessOrderItemResponse:
-        return cast(
-            process_inventory_item_grpc_messages.ProcessOrderItemResponse,
-            await self._process_inventory_item_handler(request, context),
-        )
+        response = await self._process_inventory_item_handler(request, context)
+        if response is None:
+            return process_inventory_item_grpc_messages.ProcessOrderItemResponse()
+        return cast(process_inventory_item_grpc_messages.ProcessOrderItemResponse, response)
 
 
 class GrpcServer(AdmissionLifecycle):

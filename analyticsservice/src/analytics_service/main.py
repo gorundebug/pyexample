@@ -1,7 +1,9 @@
 """Generated process lifecycle entrypoint. DO NOT EDIT."""
 
 import asyncio
+import os
 import signal
+import traceback
 
 from pyservicelib_gorundebug.runtime.config.config import ConfigSettings
 from pyservicelib_gorundebug.runtime.context.context import Context
@@ -27,8 +29,21 @@ async def run() -> None:
     await service.stop_service(Context())
 
 
+async def _run_process() -> None:
+    exit_code = 0
+    try:
+        await run()
+    except BaseException:
+        exit_code = 1
+        traceback.print_exc()
+    finally:
+        # stop_service owns the shutdown budget and resource drain. Like Go,
+        # exit without waiting again for leftover tasks or non-daemon threads.
+        os._exit(exit_code)
+
+
 def main() -> None:
-    asyncio.run(run())
+    asyncio.run(_run_process())
 
 
 if __name__ == "__main__":
