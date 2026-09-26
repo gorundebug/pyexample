@@ -1,6 +1,6 @@
 services:
   analyticsservice:
-    image: analyticsservice-python:local
+    image: analyticsservice-python:${DOCKER_IMAGE_TAG:-local}
     build:
       target: runtime-analyticsservice
     command:
@@ -17,7 +17,7 @@ services:
       - "${ANALYTICS_SERVICE_HOST_HTTP_PORT:-9093}:${ANALYTICS_SERVICE_HTTP_PORT:-9093}"
       - "${ANALYTICS_SERVICE_HOST_GRPC_PORT:-9203}:${ANALYTICS_SERVICE_GRPC_PORT:-9203}"
   automationservice:
-    image: automationservice-python:local
+    image: automationservice-python:${DOCKER_IMAGE_TAG:-local}
     build:
       target: runtime-automationservice
     command:
@@ -34,7 +34,7 @@ services:
       - "${AUTOMATION_SERVICE_HOST_HTTP_PORT:-9094}:${AUTOMATION_SERVICE_HTTP_PORT:-9094}"
       - "${AUTOMATION_SERVICE_HOST_GRPC_PORT:-9204}:${AUTOMATION_SERVICE_GRPC_PORT:-9204}"
   inventoryservice:
-    image: inventoryservice-python:local
+    image: inventoryservice-python:${DOCKER_IMAGE_TAG:-local}
     build:
       target: runtime-inventoryservice
     command:
@@ -51,7 +51,7 @@ services:
       - "${INVENTORY_SERVICE_HOST_HTTP_PORT:-9092}:${INVENTORY_SERVICE_HTTP_PORT:-9092}"
       - "${INVENTORY_SERVICE_HOST_GRPC_PORT:-9202}:${INVENTORY_SERVICE_GRPC_PORT:-9202}"
   orderservice:
-    image: orderservice-python:local
+    image: orderservice-python:${DOCKER_IMAGE_TAG:-local}
     build:
       target: runtime-orderservice
     command:

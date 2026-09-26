@@ -1,6 +1,6 @@
 services:
   automationservice:
-    image: automationservice-python:local
+    image: automationservice-python:${DOCKER_IMAGE_TAG:-local}
     restart: unless-stopped
     environment:
       - DEBUG=${DEBUG:-0}

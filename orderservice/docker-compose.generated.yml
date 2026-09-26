@@ -1,6 +1,6 @@
 services:
   orderservice:
-    image: orderservice-python:local
+    image: orderservice-python:${DOCKER_IMAGE_TAG:-local}
     restart: unless-stopped
     environment:
       - DEBUG=${DEBUG:-0}

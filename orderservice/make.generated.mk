@@ -2,6 +2,7 @@
 
 .DEFAULT_GOAL := build
 DOCKER_TARGET := runtime
+DOCKER_IMAGE_TAG ?= local
 DOCKER_DEV_TARGET := development
 STANDALONE_COMPOSE := $(if $(wildcard docker-compose.yml),docker-compose.yml,docker-compose.generated.yml)
 # Recursive expansion is intentional: USE_LOCAL_MODULES may replace the
@@ -96,11 +97,11 @@ docker-build: ## [Docker] Build the autonomous copied-source runtime image
 	  --build-arg DEPENDENCY_GITHUB_RAW_URL="$${DEPENDENCY_GITHUB_RAW_URL:-https://github.com}" \
 	  --build-arg DEPENDENCY_APT_DEBIAN_URL="$${DEPENDENCY_APT_DEBIAN_URL:-}" \
 	  --build-arg DEPENDENCY_APT_DEBIAN_SECURITY_URL="$${DEPENDENCY_APT_DEBIAN_SECURITY_URL:-}" \
-	  -t "orderservice-python:local" .
+	  -t "orderservice-python:$(DOCKER_IMAGE_TAG)" .
 
 docker-build-dev: ## Build the source-mounted standalone development image
 	@$(MAKE) docker-build DOCKER_TARGET="$(DOCKER_DEV_TARGET)"
-	@docker tag "orderservice-python:local" \
+	@docker tag "orderservice-python:$(DOCKER_IMAGE_TAG)" \
 	  "orderservice-python-development:local"
 
 docker-up: docker-build ## Start this service through Docker Compose

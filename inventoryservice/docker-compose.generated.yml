@@ -1,6 +1,6 @@
 services:
   inventoryservice:
-    image: inventoryservice-python:local
+    image: inventoryservice-python:${DOCKER_IMAGE_TAG:-local}
     restart: unless-stopped
     environment:
       - DEBUG=${DEBUG:-0}

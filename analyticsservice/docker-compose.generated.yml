@@ -1,6 +1,6 @@
 services:
   analyticsservice:
-    image: analyticsservice-python:local
+    image: analyticsservice-python:${DOCKER_IMAGE_TAG:-local}
     restart: unless-stopped
     environment:
       - DEBUG=${DEBUG:-0}

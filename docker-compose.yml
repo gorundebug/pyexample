@@ -1,6 +1,6 @@
 services:
   analyticsservice:
-    image: analyticsservice-python:local
+    image: analyticsservice-python:${DOCKER_IMAGE_TAG:-local}
     build:
       context: .
       dockerfile: Dockerfile.python
@@ -46,7 +46,7 @@ services:
       - app_net
 
   automationservice:
-    image: automationservice-python:local
+    image: automationservice-python:${DOCKER_IMAGE_TAG:-local}
     build:
       context: .
       dockerfile: Dockerfile.python
@@ -93,7 +93,7 @@ services:
       - app_net
 
   inventoryservice:
-    image: inventoryservice-python:local
+    image: inventoryservice-python:${DOCKER_IMAGE_TAG:-local}
     build:
       context: .
       dockerfile: Dockerfile.python
@@ -136,7 +136,7 @@ services:
       - app_net
 
   orderservice:
-    image: orderservice-python:local
+    image: orderservice-python:${DOCKER_IMAGE_TAG:-local}
     build:
       context: .
       dockerfile: Dockerfile.python
