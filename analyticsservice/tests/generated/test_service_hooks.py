@@ -1,12 +1,13 @@
 """Generated test for the service extension lifecycle."""
 
 import pytest
-from analytics_service.internal.app.service import Service
-from analytics_service.internal.config import Config
-from analytics_service.internal.functions import CountOrderProcessed
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
+
+from analytics_service.internal.app.service import Service
+from analytics_service.internal.config import Config
+from analytics_service.internal.functions import CountOrderProcessed
 
 
 class _RecordingService(Service):

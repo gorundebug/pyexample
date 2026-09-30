@@ -1,12 +1,13 @@
 """Generated test for the service extension lifecycle."""
 
 import pytest
-from order_service.internal.app.service import Service
-from order_service.internal.config import Config
-from order_service.internal.functions import OrderProcessedEndpointSink
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
+
+from order_service.internal.app.service import Service
+from order_service.internal.config import Config
+from order_service.internal.functions import OrderProcessedEndpointSink
 
 
 class _RecordingService(Service):

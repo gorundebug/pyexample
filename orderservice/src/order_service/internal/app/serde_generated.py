@@ -4,15 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from order_service.models.order import (
-    Order,
-)
-from order_service.models.order_state import (
-    OrderState,
-)
-
-from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
-
 from model.models.order_item import (
     OrderItem,
 )
@@ -21,6 +12,15 @@ from model.models.order_item_result import (
 )
 from model.models.order_processed import (
     OrderProcessed,
+)
+
+from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
+
+from order_service.models.order import (
+    Order,
+)
+from order_service.models.order_state import (
+    OrderState,
 )
 
 

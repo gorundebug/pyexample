@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
-
 from model.models.automation_job_generated import (
     AutomationJob,
 )
+
+from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
 
 
 class ServiceSerdes:

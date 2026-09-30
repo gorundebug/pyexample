@@ -5,13 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from model.models.automation_job_generated import (
+    AutomationJob,
+)
+
 from pyservicelib_gorundebug import transformation
 
 from ..config import Config
 from .functions_generated import ServiceFunctions
-from model.models.automation_job_generated import (
-    AutomationJob,
-)
 
 
 @dataclass(slots=True)
