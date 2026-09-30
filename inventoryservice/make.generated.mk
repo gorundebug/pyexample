@@ -14,7 +14,8 @@ INVENTORY_SERVICE_API_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.
 MODULE_CONTEXT_ARGS += --build-context module-inventory_service_api-source="$(INVENTORY_SERVICE_API_SOURCE_CONTEXT)"
 MODEL_PYTHON_SOURCE_CONTEXT ?= https://github.com/gorundebug/pyexample.git\#v0.2.152
 MODULE_CONTEXT_ARGS += --build-context module-model_python-source="$(MODEL_PYTHON_SOURCE_CONTEXT)"
-DEPENDENCY_DOWNLOAD_ENV := $(or $(wildcard $(abspath ./dependency-download-env.generated.sh)),$(wildcard $(abspath ../dependency-download-env.generated.sh)),/bin/sh)
+# Keep SHELL relative: GNU Make parses an absolute shell path containing spaces as words.
+DEPENDENCY_DOWNLOAD_ENV := $(if $(wildcard dependency-download-env.generated.sh),./dependency-download-env.generated.sh,$(if $(wildcard ../dependency-download-env.generated.sh),../dependency-download-env.generated.sh,/bin/sh))
 SHELL := $(DEPENDENCY_DOWNLOAD_ENV)
 .SHELLFLAGS := -c
 export
