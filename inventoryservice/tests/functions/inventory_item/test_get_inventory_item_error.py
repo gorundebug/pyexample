@@ -4,6 +4,7 @@ import asyncio
 
 from inventory_service.internal.functions.inventory_item.get_inventory_item_error import GetInventoryItemError
 from inventory_service.models.inventory_failure import InventoryFailure
+
 from model.models.order_item import OrderItem
 from model.models.order_item_result import OrderItemResult
 

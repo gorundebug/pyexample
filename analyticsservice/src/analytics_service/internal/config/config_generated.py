@@ -71,7 +71,6 @@ from pyservicelib_gorundebug.runtime.config.endpoint_types import (
 from pyservicelib_gorundebug.api.models.temporal_execution_type import (
     TemporalExecutionType,
 )
-
 from pyservicelib_gorundebug.runtime.config.stream_types import (
     CaseStreamConfig,
     CycleLinkStreamConfig,

@@ -6,16 +6,15 @@ from dataclasses import fields
 from typing import Any
 
 import pytest
-
-from pyservicelib_gorundebug.runtime.context.context import Context
-from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-
 from automation_service.internal.app.service import Service
 from automation_service.internal.app.workflow_graph_generated import (
     default_makers,
     init_functions,
 )
 from automation_service.internal.config import Config
+
+from pyservicelib_gorundebug.runtime.context.context import Context
+from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 
 
 @pytest.mark.asyncio

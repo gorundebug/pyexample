@@ -5,11 +5,11 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 import pytest
-from pyservicelib_gorundebug.runtime.context.context import Context
-from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-
 from automation_service.internal.app.service_generated import GeneratedService
 from automation_service.internal.config import Config
+
+from pyservicelib_gorundebug.runtime.context.context import Context
+from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 
 
 GROUPS: list[list[str]] = [

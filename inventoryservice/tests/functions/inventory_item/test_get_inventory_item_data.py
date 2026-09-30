@@ -5,6 +5,7 @@ from typing import Any
 
 from inventory_service.internal.functions.inventory_item.get_inventory_item_data import GetInventoryItemData
 from inventory_service.models.inventory_failure import InventoryFailure
+
 from model.models.order_item import OrderItem
 
 

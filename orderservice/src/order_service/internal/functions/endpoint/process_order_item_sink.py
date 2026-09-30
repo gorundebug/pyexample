@@ -1,9 +1,12 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
 
+from dataclasses import dataclass
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from dataclasses import dataclass
+from pyservicelib_gorundebug.datasink.grpc.grpcds import ResultContext, Sender
+from pyservicelib_gorundebug.runtime.common import SinkStreamContext
 
 from inventory_service_api.generated.proto.inventoryserviceapi.processorderitem.processorderitem_pb2 import (
     ProcessOrderItemRequest,
@@ -11,8 +14,6 @@ from inventory_service_api.generated.proto.inventoryserviceapi.processorderitem.
 )
 from model.models.order_item import OrderItem
 from model.models.order_item_result import OrderItemResult
-from pyservicelib_gorundebug.datasink.grpc.grpcds import ResultContext, Sender
-from pyservicelib_gorundebug.runtime.common import SinkStreamContext
 
 
 class ProcessOrderItemSink:

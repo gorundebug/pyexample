@@ -4,12 +4,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
+
 from pyservicelib_gorundebug.runtime.context.context import Context
-from ..config import Config
 from pyservicelib_gorundebug.datasource.kafka import aiokafkads as kafka_source
 from pyservicelib_gorundebug.datasource.localsource import custom as custom_source
 from pyservicelib_gorundebug.datasink.localsink import custom as custom_sink
 from pyservicelib_gorundebug.datasource import cron as cron_source
+
+from ..config import Config
 
 
 @dataclass

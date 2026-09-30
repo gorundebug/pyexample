@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pyservicelib_gorundebug import transformation
-from pyservicelib_gorundebug.runtime.common import SubStream as CallableSubStream, SubStreamCollector
-from pyservicelib_gorundebug.runtime.datastruct.key_value import KeyValue
+
 from analytics_service.models.analytics_event import (
     AnalyticsEvent,
 )
@@ -15,6 +13,11 @@ from analytics_service.models.analytics_key_generated import (
 from analytics_service.models.analytics_result import (
     AnalyticsResult,
 )
+
+from pyservicelib_gorundebug import transformation
+from pyservicelib_gorundebug.runtime.common import SubStream as CallableSubStream, SubStreamCollector
+from pyservicelib_gorundebug.runtime.datastruct.key_value import KeyValue
+
 from model.models.automation_job_generated import (
     AutomationJob,
 )

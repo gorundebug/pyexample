@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
-
 from dataclasses import dataclass
 from typing import Any
-from pyservicelib_gorundebug import transformation
-from ..config import Config
-from .functions_generated import ServiceFunctions
+
 from inventory_service.models.inventory_failure import (
     InventoryFailure,
 )
+
+from pyservicelib_gorundebug import transformation
+
+from ..config import Config
+from .functions_generated import ServiceFunctions
 from model.models.order_item import (
     OrderItem,
 )

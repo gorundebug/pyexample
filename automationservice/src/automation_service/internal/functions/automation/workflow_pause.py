@@ -1,9 +1,9 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
+from datetime import timedelta
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-
-from datetime import timedelta
 from pyservicelib_gorundebug.runtime.common import Collect, Stream
 
 

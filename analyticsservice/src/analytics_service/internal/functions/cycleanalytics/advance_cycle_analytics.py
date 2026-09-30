@@ -1,9 +1,9 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
+from analytics_service.models.analytics_event import AnalyticsEvent
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-
-from analytics_service.models.analytics_event import AnalyticsEvent
 from pyservicelib_gorundebug.runtime.common import Collect, Stream
 
 

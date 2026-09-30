@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
+
 from pyservicelib_gorundebug.runtime.context.context import Context
-from ..config import Config
 from pyservicelib_gorundebug.datasink.grpc import grpcds as grpc_sink
 from pyservicelib_gorundebug.datasource.http import aiohttpds as http_source
 from pyservicelib_gorundebug.datasink.kafka import aiokafkads as kafka_sink
+
+from ..config import Config
 import inventory_service_api.generated.proto.inventoryserviceapi.inventoryserviceapi.generated_pb2_grpc as inventory_service_api_grpc_api
 
 

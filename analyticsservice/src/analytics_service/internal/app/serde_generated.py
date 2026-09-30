@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
-from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
+
 from analytics_service.models.analytics_event import (
     AnalyticsEvent,
 )
@@ -13,6 +13,9 @@ from analytics_service.models.analytics_key_generated import (
 from analytics_service.models.analytics_result import (
     AnalyticsResult,
 )
+
+from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
+
 from model.models.automation_job_generated import (
     AutomationJob,
 )

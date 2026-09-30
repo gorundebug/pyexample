@@ -1,13 +1,15 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
 
-from pyservicelib_gorundebug.runtime.context.context import Context
-from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from datetime import datetime, timezone
 
-from model.models.order_item_result import OrderItemResult
 from order_service.models.order_state import OrderState
+
+from pyservicelib_gorundebug.runtime.context.context import Context
+from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.common import Collect, Stream
+
+from model.models.order_item_result import OrderItemResult
 
 
 class MapOrderItemResultToOrderState:

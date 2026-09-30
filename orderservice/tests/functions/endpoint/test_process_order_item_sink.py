@@ -1,7 +1,6 @@
 """User-owned tests for ProcessOrderItemSink."""
 
 import pytest
-
 from order_service.internal.functions.endpoint.process_order_item_sink import ProcessOrderItemSink
 
 

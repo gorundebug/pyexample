@@ -1,13 +1,12 @@
 """Generated test for the service extension lifecycle."""
 
 import pytest
-
-from pyservicelib_gorundebug.runtime.context.context import Context
-from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-
 from automation_service.internal.app.service import Service
 from automation_service.internal.config import Config
 from automation_service.internal.functions import ActivityJobEndpointSink
+
+from pyservicelib_gorundebug.runtime.context.context import Context
+from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 
 
 class _RecordingService(Service):

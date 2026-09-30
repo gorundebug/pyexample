@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
+
 from pyservicelib_gorundebug.runtime.context.context import Context
-from ..config import Config
 from pyservicelib_gorundebug.datasource import cron as cron_source
 from pyservicelib_gorundebug.datasource import temporal as temporal_source
 from pyservicelib_gorundebug.datasink import temporal as temporal_sink
+
+from ..config import Config
 from .temporal_workflows_generated import (
     FanOutWorkflowJobTemporalWorkflow,
     WorkflowJobTemporalWorkflow,

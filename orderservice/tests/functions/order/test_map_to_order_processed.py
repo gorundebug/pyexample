@@ -4,9 +4,10 @@ import asyncio
 from datetime import datetime, timezone
 from typing import Any
 
-from model.models.order_item_result import OrderItemResult
 from order_service.internal.functions.order.map_to_order_processed import MapToOrderProcessed
 from order_service.models.order_state import OrderState
+
+from model.models.order_item_result import OrderItemResult
 
 
 def test_map_to_order_processed_converts_final_state() -> None:

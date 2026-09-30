@@ -3,8 +3,9 @@
 
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
-from model.models.order_processed import OrderProcessed
 from pyservicelib_gorundebug.runtime.common import Collect, Stream
+
+from model.models.order_processed import OrderProcessed
 
 
 class CountOrderProcessed:

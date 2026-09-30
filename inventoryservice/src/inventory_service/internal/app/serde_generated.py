@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from typing import Any
-from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
+
 from inventory_service.models.inventory_failure import (
     InventoryFailure,
 )
+
+from pyservicelib_gorundebug.runtime.serde import DataclassJsonSerde, Serializer
+
 from model.models.order_item import (
     OrderItem,
 )

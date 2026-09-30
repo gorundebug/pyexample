@@ -2,10 +2,18 @@
 
 from __future__ import annotations
 
-
 from dataclasses import dataclass
 from typing import Any
+
+from order_service.models.order import (
+    Order,
+)
+from order_service.models.order_state import (
+    OrderState,
+)
+
 from pyservicelib_gorundebug import transformation
+
 from ..config import Config
 from .functions_generated import ServiceFunctions
 from model.models.order_item import (
@@ -16,12 +24,6 @@ from model.models.order_item_result import (
 )
 from model.models.order_processed import (
     OrderProcessed,
-)
-from order_service.models.order import (
-    Order,
-)
-from order_service.models.order_state import (
-    OrderState,
 )
 
 

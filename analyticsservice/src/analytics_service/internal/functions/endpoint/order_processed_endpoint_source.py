@@ -1,17 +1,18 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
 
-from pyservicelib_gorundebug.runtime.context.context import Context
-from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 import json
 from datetime import datetime
 
-from model.models.order_processed import OrderProcessed
+from pyservicelib_gorundebug.runtime.context.context import Context
+from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.datasource.kafka.aiokafkads import (
     ConsumerMessage,
     ResultContext,
 )
 from pyservicelib_gorundebug.runtime.common import StreamContext
+
+from model.models.order_processed import OrderProcessed
 
 
 class OrderProcessedEndpointSource:

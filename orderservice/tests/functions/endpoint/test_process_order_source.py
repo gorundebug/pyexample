@@ -7,9 +7,10 @@ from typing import Any
 
 import pytest
 from aiohttp import web
-from model.models.order_item_result import OrderItemResult
 from order_service.internal.functions.endpoint.process_order_source import ProcessOrderSource
 from order_service.models.order_state import OrderState
+
+from model.models.order_item_result import OrderItemResult
 
 
 class Request:

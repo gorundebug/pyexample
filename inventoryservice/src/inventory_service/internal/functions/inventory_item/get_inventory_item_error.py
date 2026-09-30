@@ -1,11 +1,12 @@
 """User-owned function implementation. The generator never overwrites this file."""
 
+from inventory_service.models.inventory_failure import InventoryFailure
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
+from pyservicelib_gorundebug.runtime.common import Collect, Stream
 
 from model.models.order_item_result import OrderItemResult
-from pyservicelib_gorundebug.runtime.common import Collect, Stream
-from inventory_service.models.inventory_failure import InventoryFailure
 class GetInventoryItemError:
     """When inventory processing fails, return an OUT_OF_STOCK result with no available quantity.
 Preserve the order and item identity and requested quantity, and record the failure."""

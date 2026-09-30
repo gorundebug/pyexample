@@ -2,12 +2,13 @@
 
 from datetime import datetime, timezone
 
+from order_service.models.order_state import OrderState
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
+from pyservicelib_gorundebug.runtime.common import Collect, Stream
 
 from model.models.order_processed import OrderProcessed
-from order_service.models.order_state import OrderState
-from pyservicelib_gorundebug.runtime.common import Collect, Stream
 
 
 class MapToOrderProcessed:

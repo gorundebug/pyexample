@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import asyncio
-import aiohttp
-from aiohttp import web
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from threading import Lock
 from typing import Any
+
+import aiohttp
+from aiohttp import web
 import grpc
+
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.config import ServiceConfig
@@ -17,6 +19,7 @@ from pyservicelib_gorundebug.runtime.common import ServiceExecutionEnvironment
 from pyservicelib_gorundebug.runtime.config.dataconnector_types import HttpDataConnectorConfig
 from pyservicelib_gorundebug.runtime.config.dataconnector_types import GrpcDataConnectorConfig
 from pyservicelib_gorundebug.datasource.http import aiohttpds as http_source
+
 from ..functions import (
     OrderProcessedEndpointSink,
     make_order_processed_endpoint_sink,

@@ -10,17 +10,18 @@ from typing import Any
 from uuid import uuid4
 
 from aiohttp import web
-from model.models.order_item import OrderItem
-from model.models.order_item_result import OrderItemResult
 from order_service.models.order import Order
 from order_service.models.order_state import OrderState
+
 from pyservicelib_gorundebug.datasource.http.aiohttpds import HandlerData, ResultContext
 from pyservicelib_gorundebug.runtime.common import StreamContext
 from pyservicelib_gorundebug.runtime.context.request import request_deadline
 from pyservicelib_gorundebug.runtime.context.request import request_cancelled
-
 from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
+
+from model.models.order_item import OrderItem
+from model.models.order_item_result import OrderItemResult
 
 
 @dataclass(slots=True)

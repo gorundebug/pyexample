@@ -3,6 +3,7 @@
 import asyncio
 
 from automation_service.internal.functions.automation.process_activity_job import ProcessActivityJob
+
 from pyservicelib_gorundebug.runtime.durable_context import (
     DurableCallContext,
     run_durable_call_activity,
