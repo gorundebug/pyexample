@@ -21,6 +21,7 @@ from pyservicelib_gorundebug.datasource.temporal.workflow import (
 from pyservicelib_gorundebug.datasource.temporal.workflow_environment import (
     TemporalWorkflowEnvironment,
 )
+from pyservicelib_gorundebug.datasource.temporal.workflow_context import workflow_graph_context
 from pyservicelib_gorundebug.datasource.temporal.workflow_sink import (
     make_workflow_sink_endpoint_consumer,
     make_workflow_sink_endpoint_consumer_with_result,
@@ -57,7 +58,7 @@ async def _execute_generated_workflow(
         noop_tracing=request.noop_tracing,
     )
     register_generated_serdes(environment)
-    context = Context()
+    context = workflow_graph_context(request.envelope.deadline_unix_nano)
     makers = default_makers()
     await custom_workflow_makers_init(context, makers)
     functions = await init_functions(context, config, environment, makers)
@@ -114,6 +115,7 @@ async def _execute_generated_workflow(
             raise ValueError(f"unknown generated Temporal Workflow endpoint {endpoint_id}")
 
         return await execute_workflow_graph_endpoint(
+            ctx=context,
             environment=environment,
             stream=cast(TypedInputStream[Any, Any, Any], _input_stream(streams, endpoint_id)),
             envelope=envelope,

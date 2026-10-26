@@ -56,7 +56,7 @@ class ServiceFunctions:
         group_results_0 = await asyncio.gather(
             *(call for _, call in maker_calls_0), return_exceptions=True,
         )
-        maker_context_0.cancel()
+        # Successful makers retain their caller-owned lifetime.
         if first_error_0 is not None:
             raise first_error_0
         for (name, _), value in zip(maker_calls_0, group_results_0):

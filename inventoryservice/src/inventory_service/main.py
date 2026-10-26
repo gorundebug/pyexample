@@ -13,26 +13,34 @@ from .internal.app.service import Dependency, Service
 from .internal.config import Config
 
 
-async def run() -> None:
+async def run(ctx: Context) -> None:
     service = await ServiceAppLoader[Service, Config]().load(
         "Inventory Service",
         Dependency(),
         ConfigSettings(),
     )
-    await service.start_service(Context())
-
-    stopped = asyncio.Event()
     loop = asyncio.get_running_loop()
-    for sig in (signal.SIGINT, signal.SIGTERM):
-        loop.add_signal_handler(sig, stopped.set)
-    await stopped.wait()
-    await service.stop_service(Context())
+    installed_signals: list[signal.Signals] = []
+    try:
+        await service.start_service(ctx)
+        stopped = asyncio.Event()
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, stopped.set)
+            installed_signals.append(sig)
+        await stopped.wait()
+    finally:
+        for sig in installed_signals:
+            loop.remove_signal_handler(sig)
+        try:
+            await service.stop_service(ctx)
+        finally:
+            await service.release(ctx)
 
 
 async def _run_process() -> None:
     exit_code = 0
     try:
-        await run()
+        await run(Context())
     except BaseException:
         exit_code = 1
         traceback.print_exc()
