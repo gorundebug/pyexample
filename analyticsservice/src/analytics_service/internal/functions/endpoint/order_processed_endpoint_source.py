@@ -19,6 +19,13 @@ class OrderProcessedEndpointSource:
     """Decode each OrderProcessed event and pass it to the analytics pipeline.
     Mark the Kafka message processed only after the pipeline has handled it successfully."""
 
+    async def on_error(
+        self,
+        sc: StreamContext[OrderProcessed, OrderProcessed, Exception],
+        err: Exception,
+    ) -> None:
+        await sc.error_collect(err)
+
     def concurrency(
         self,
         sc: StreamContext[OrderProcessed, OrderProcessed, Exception],
