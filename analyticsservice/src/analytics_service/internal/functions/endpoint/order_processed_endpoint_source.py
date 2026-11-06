@@ -19,6 +19,14 @@ class OrderProcessedEndpointSource:
     """Decode each OrderProcessed event and pass it to the analytics pipeline.
     Mark the Kafka message processed only after the pipeline has handled it successfully."""
 
+    def restore_checkpoint(
+        self,
+        sc: StreamContext[OrderProcessed, OrderProcessed, Exception],
+    ) -> dict[int, int] | None:
+        # No externally restored durable state: retain broker-managed positions.
+        del sc
+        return None
+
     async def on_error(
         self,
         sc: StreamContext[OrderProcessed, OrderProcessed, Exception],
