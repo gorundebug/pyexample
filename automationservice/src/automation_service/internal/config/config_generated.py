@@ -869,6 +869,7 @@ def _require_temporal_execution_type(
 
 def _custom_endpoint(config: EndpointConfig) -> CustomEndpointConfig:
     return CustomEndpointConfig(
+        enabled=config.enabled or False,
         id=config.id,
         name=config.name,
         id_data_connector=config.id_data_connector,
