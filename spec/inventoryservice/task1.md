@@ -2,6 +2,8 @@
 
 > Rules: [`spec/rules.md`](../rules.md)
 
+Paths and commands below are relative to the generated project root.
+
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
@@ -29,15 +31,15 @@ If the inventory call fails, the caller returns a non-reserved PROCESSING_ERROR 
 
 
 ## Stream types
-- Input: `OrderItem` — `model_python/src/model/models/order_item.py`
-- Output: `OrderItemResult` — `model_python/src/model/models/order_item_result.py`
+- Emits into graph: `OrderItem` — `model_python/src/model/models/order_item.py`
+- Receives graph result: `OrderItemResult` — `model_python/src/model/models/order_item_result.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
 - [ ] Open `inventoryservice/src/inventory_service/internal/functions/endpoint/process_order_item_source.py` and preserve its generated contract
-- [ ] Inspect input type `OrderItem` in `model_python/src/model/models/order_item.py`
-- [ ] Inspect output type `OrderItemResult` in `model_python/src/model/models/order_item_result.py`
+- [ ] Inspect emitted message type `OrderItem` in `model_python/src/model/models/order_item.py`
+- [ ] Inspect graph result type `OrderItemResult` in `model_python/src/model/models/order_item_result.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`

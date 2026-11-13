@@ -2,6 +2,8 @@
 
 > Rules: [`spec/rules.md`](../rules.md)
 
+Paths and commands below are relative to the generated project root.
+
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
@@ -21,15 +23,15 @@ Consumers decode the event and mark its Kafka message processed only after the p
 
 
 ## Stream types
-- Input: `OrderProcessed` — `model_python/src/model/models/order_processed.py`
-- Output: `OrderProcessed` — `model_python/src/model/models/order_processed.py`
+- Emits into graph: `OrderProcessed` — `model_python/src/model/models/order_processed.py`
+- Receives graph result: `OrderProcessed` — `model_python/src/model/models/order_processed.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
 - [ ] Open `analyticsservice/src/analytics_service/internal/functions/endpoint/order_processed_endpoint_source.py` and preserve its generated contract
-- [ ] Inspect input type `OrderProcessed` in `model_python/src/model/models/order_processed.py`
-- [ ] Inspect output type `OrderProcessed` in `model_python/src/model/models/order_processed.py`
+- [ ] Inspect emitted message type `OrderProcessed` in `model_python/src/model/models/order_processed.py`
+- [ ] Inspect graph result type `OrderProcessed` in `model_python/src/model/models/order_processed.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`

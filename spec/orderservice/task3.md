@@ -2,6 +2,8 @@
 
 > Rules: [`spec/rules.md`](../rules.md)
 
+Paths and commands below are relative to the generated project root.
+
 | Field | Value |
 |-------|-------|
 | Language | `Python` |
@@ -30,15 +32,15 @@ Calculate the total from processed item prices, falling back to the submitted to
 
 
 ## Stream types
-- Input: `Order` — `orderservice/src/order_service/models/order.py`
-- Output: `OrderState` — `orderservice/src/order_service/models/order_state.py`
+- Emits into graph: `Order` — `orderservice/src/order_service/models/order.py`
+- Receives graph result: `OrderState` — `orderservice/src/order_service/models/order_state.py`
 
 ## Checklist
 
 - [ ] Read [`spec/rules.md`](../rules.md), especially the `Python` section
 - [ ] Open `orderservice/src/order_service/internal/functions/endpoint/process_order_source.py` and preserve its generated contract
-- [ ] Inspect input type `Order` in `orderservice/src/order_service/models/order.py`
-- [ ] Inspect output type `OrderState` in `orderservice/src/order_service/models/order_state.py`
+- [ ] Inspect emitted message type `Order` in `orderservice/src/order_service/models/order.py`
+- [ ] Inspect graph result type `OrderState` in `orderservice/src/order_service/models/order_state.py`
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
