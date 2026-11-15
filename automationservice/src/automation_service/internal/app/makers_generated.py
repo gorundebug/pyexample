@@ -15,6 +15,7 @@ from pyservicelib_gorundebug.runtime.context.context import Context
 from pyservicelib_gorundebug.runtime.environment import ServiceEnvironment
 from pyservicelib_gorundebug.runtime.config.config import ServiceConfig
 
+from .temporal_submission_options_generated import TemporalSubmissionOptions
 from ..functions import (
     ActivityJobEndpointSink,
     make_activity_job_endpoint_sink,
@@ -93,6 +94,7 @@ from ..functions import (
 
 @dataclass
 class ServiceMakers:
+    temporal_submission_options: TemporalSubmissionOptions = field(default_factory=TemporalSubmissionOptions)
     activity_job_endpoint_sink: Callable[[Context, ServiceEnvironment], Awaitable[ActivityJobEndpointSink]] = make_activity_job_endpoint_sink
     activity_job_endpoint_source: Callable[[Context, ServiceEnvironment], Awaitable[ActivityJobEndpointSource]] = make_activity_job_endpoint_source
     fanout_activity_a_endpoint_sink: Callable[[Context, ServiceEnvironment], Awaitable[FanoutActivityAEndpointSink]] = make_fanout_activity_a_endpoint_sink

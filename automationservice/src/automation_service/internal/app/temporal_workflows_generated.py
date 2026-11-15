@@ -63,14 +63,14 @@ async def _execute_generated_workflow(
     await custom_workflow_makers_init(context, makers)
     functions = await init_functions(context, config, environment, makers)
     streams = init_streams(config, environment, functions)
-    make_workflow_sink_endpoint_consumer_with_result(streams.call_fan_out_activity_a)
-    make_workflow_sink_endpoint_consumer_with_result(streams.call_fan_out_activity_b)
-    make_workflow_sink_endpoint_consumer_with_result(streams.call_fan_out_activity_c)
-    make_workflow_sink_endpoint_consumer_with_result(streams.call_sequential_activity_a)
-    make_workflow_sink_endpoint_consumer_with_result(streams.call_sequential_activity_b)
-    make_workflow_sink_endpoint_consumer_with_result(streams.submit_activity_job)
-    make_workflow_sink_endpoint_consumer(streams.submit_fan_out_workflow_job)
-    make_workflow_sink_endpoint_consumer_with_result(streams.submit_workflow_job)
+    make_workflow_sink_endpoint_consumer_with_result(streams.call_fan_out_activity_a, options=makers.temporal_submission_options.call_fan_out_activity_a)
+    make_workflow_sink_endpoint_consumer_with_result(streams.call_fan_out_activity_b, options=makers.temporal_submission_options.call_fan_out_activity_b)
+    make_workflow_sink_endpoint_consumer_with_result(streams.call_fan_out_activity_c, options=makers.temporal_submission_options.call_fan_out_activity_c)
+    make_workflow_sink_endpoint_consumer_with_result(streams.call_sequential_activity_a, options=makers.temporal_submission_options.call_sequential_activity_a)
+    make_workflow_sink_endpoint_consumer_with_result(streams.call_sequential_activity_b, options=makers.temporal_submission_options.call_sequential_activity_b)
+    make_workflow_sink_endpoint_consumer_with_result(streams.submit_activity_job, options=makers.temporal_submission_options.submit_activity_job)
+    make_workflow_sink_endpoint_consumer(streams.submit_fan_out_workflow_job, options=makers.temporal_submission_options.submit_fan_out_workflow_job)
+    make_workflow_sink_endpoint_consumer_with_result(streams.submit_workflow_job, options=makers.temporal_submission_options.submit_workflow_job)
 
     async def handler(envelope: EndpointEnvelope) -> EndpointResult:
         async def activate(current: EndpointEnvelope) -> None:
