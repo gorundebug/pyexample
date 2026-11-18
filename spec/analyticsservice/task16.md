@@ -33,6 +33,7 @@ Validate and record the result returned by the service-local SubStream example.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_endpoint/substream_analytics_result_sink.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task16.md — SubstreamAnalyticsResultSink — Python — done`

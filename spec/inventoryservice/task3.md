@@ -34,6 +34,7 @@ Preserve the order and item identity and requested quantity, and record the fail
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `inventoryservice/tests/functions/test_inventory_item/get_inventory_item_error.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] inventoryservice/task3.md — GetInventoryItemError — Python — done`

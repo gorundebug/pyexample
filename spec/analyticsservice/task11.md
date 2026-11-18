@@ -33,6 +33,7 @@ Validate and record analytics results routed to the high-value Case branch.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_endpoint/high_value_analytics_sink.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task11.md — HighValueAnalyticsSink — Python — done`

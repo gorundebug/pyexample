@@ -33,6 +33,7 @@ Key the order analytics event by correlation key.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_joinanalytics/key_orders_for_join.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task18.md — KeyOrdersForJoin — Python — done`

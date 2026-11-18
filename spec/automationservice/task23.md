@@ -29,6 +29,7 @@ Return the visible result of one scheduled Activity execution.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `automationservice/tests/functions/test_automation/process_scheduled_activity.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] automationservice/task23.md — ProcessScheduledActivity — Python — done`

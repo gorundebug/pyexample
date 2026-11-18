@@ -33,6 +33,7 @@ Key the payment analytics event by correlation key.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_joinanalytics/key_payments_for_join.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task19.md — KeyPaymentsForJoin — Python — done`

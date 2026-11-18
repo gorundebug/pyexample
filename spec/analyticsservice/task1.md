@@ -33,6 +33,7 @@ Count successful and unsuccessful orders independently, then return the event un
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_analytics/count_order_processed.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task1.md — CountOrderProcessed — Python — done`

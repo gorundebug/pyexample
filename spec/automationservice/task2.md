@@ -25,6 +25,7 @@ Paths and commands below are relative to the generated project root.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `automationservice/tests/functions/test_activity/activity_job_endpoint_source.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] automationservice/task2.md — ActivityJobEndpointSource — Python — done`

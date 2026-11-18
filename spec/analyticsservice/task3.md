@@ -33,6 +33,7 @@ Increment the cycle counter while preserving the analytics event identity.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_cycleanalytics/advance_cycle_analytics.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task3.md — AdvanceCycleAnalytics — Python — done`

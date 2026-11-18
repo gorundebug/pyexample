@@ -33,6 +33,7 @@ Transform one callable SubStream input into its analytics result.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_substreamanalytics/build_substream_analytics_result.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task25.md — BuildSubstreamAnalyticsResult — Python — done`

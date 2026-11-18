@@ -31,6 +31,7 @@ Join matching order and payment analytics events and emit their combined total.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_joinanalytics/join_order_payment_analytics.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task17.md — JoinOrderPaymentAnalytics — Python — done`

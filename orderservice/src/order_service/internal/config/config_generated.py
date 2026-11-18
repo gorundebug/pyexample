@@ -60,6 +60,13 @@ from pyservicelib_gorundebug.runtime.config.dataconnector_types import (
     KafkaDataConnectorConfig,
     TemporalDataConnectorConfig,
 )
+from pyservicelib_gorundebug.runtime.config.redisstreams import RedisStreamsDataConnectorConfig, RedisStreamsEndpointConfig
+from pyservicelib_gorundebug.runtime.config.pulsar import PulsarDataConnectorConfig, PulsarEndpointConfig
+from pyservicelib_gorundebug.runtime.config.rabbitmq import RabbitMQDataConnectorConfig, RabbitMQEndpointConfig
+from pyservicelib_gorundebug.runtime.config.nats import (
+    NatsDataConnectorConfig, JetStreamDataConnectorConfig,
+    NatsEndpointConfig, JetStreamEndpointConfig,
+)
 from pyservicelib_gorundebug.runtime.config.endpoint_types import (
     CronEndpointConfig,
     CustomEndpointConfig,
@@ -83,7 +90,7 @@ from pyservicelib_gorundebug.runtime.config.stream_types import (
 
 
 _DEFAULT_CONFIG: dict[str, Any] = {
-    "settings": ProjectSettings(moduleVersion="v0.2.181", name="Example", repoPath="github.com/gorundebug/pyexample", ),
+    "settings": ProjectSettings(moduleVersion="v0.2.182", name="Example", repoPath="github.com/gorundebug/pyexample", ),
     "services": { "orderService": ServiceConfig(color="#FF5C00", defaultCallSemantics=CallSemantics(2), defaultGrpcTimeout=0, environment=Environment(""), golangVersion="1.26.4", grpcHost="0.0.0.0", grpcPort=9201, httpHost="0.0.0.0", httpPort=9091, id=4, kubernetesWorkloadType=KubernetesWorkloadType("Deployment"), livenessHandler="health/live", metricsHandler="metrics", modulePath="github.com/gorundebug/pyexample-orderservice", name="Order Service", programmingLanguage=ProgrammingLanguage(3), readinessHandler="health/ready", shutdownTimeout=30000, startupHandler="health/startup", statusHandler="status", ), },
     "streams": { "mapOrderItemResultToOrderState": StreamConfig(functionDescription="Produce an order result containing one inventory result and preserving its order ID.\nMark it CONFIRMED when the item was reserved; otherwise mark it PARTIALLY_CONFIRMED.\nRecord the time when this result is produced.\n", functionInitializerGroup="", functionModule="", functionName="MapOrderItemResultToOrderState", functionPackage="order", id=79, idService=4, idSource=84, name="Map Order Item Result To Order State", pipeline="order", type=TransformationType(2), valueType="OrderState", xPos=103, yPos=-52, ), "mapToOrderProcessed": StreamConfig(functionDescription="Create an OrderProcessed event from the final order state.\nPreserve the order ID, status, and processing time. Count all item results and reserved items; for unsuccessful orders use the final status as the failure reason.\n", functionInitializerGroup="", functionModule="", functionName="MapToOrderProcessed", functionPackage="order", id=80, idService=4, idSource=88, name="MapToOrderProcessed", pipeline="order", type=TransformationType(2), valueType="OrderProcessed", xPos=-821, yPos=-26, ), "mapToOrderState": StreamConfig(functionDescription="Produce a TIMED_OUT order result that preserves the order ID and submitted total.\nDo not add item results at this stage; results received before the timeout are included in the final response.\n", functionInitializerGroup="", functionModule="", functionName="MapToOrderState", functionPackage="order", id=81, idService=4, idSource=87, name="Map to Order State", pipeline="order", type=TransformationType(2), valueType="OrderState", xPos=-368, yPos=-227, ), "mergeResults": StreamConfig(id=82, idService=4, idSource=0, idSources=[81, 79, -84], name="Merge Results", pipeline="order", type=TransformationType(10), xPos=-228, yPos=130, ), "processOrder": StreamConfig(id=83, idEndpoint=15, idService=4, idSource=88, name="Process Order", pipeline="order", type=TransformationType(1), valueType="Order", xPos=-760, yPos=-367, ), "processOrderItem": StreamConfig(id=84, idEndpoint=11, idService=4, idSource=85, name="Process Order Item", pipeline="order", type=TransformationType(13), valueType="OrderItemResult", xPos=-60, yPos=-375, ), "processOrderItems": StreamConfig(functionDescription="Emit every order item independently for inventory processing.\nPreserve each item's data and assign the parent order ID.\n", functionInitializerGroup="", functionModule="", functionName="ProcessOrderItems", functionPackage="order", id=85, idService=4, idSource=89, name="Process Order Items", pipeline="order", type=TransformationType(7), valueType="OrderItem", xPos=-198, yPos=-662, ), "publishOrderProcessed": StreamConfig(id=86, idEndpoint=14, idService=4, idSource=80, name="Publish Order Processed", pipeline="order", type=TransformationType(13), valueType="OrderProcessed", xPos=-944, yPos=-255, ), "softDeadline": StreamConfig(duration=1000, functionDescription="Trigger the timeout branch shortly before the request deadline, leaving the configured duration to assemble a response.\nWhen no request deadline exists, use the configured duration itself. Never wait past an existing deadline.\n", functionInitializerGroup="", functionModule="", functionName="SoftDeadline", functionPackage="order", id=87, idService=4, idSource=89, name="Soft Deadline", pipeline="order", type=TransformationType(16), xPos=-477, yPos=-444, ), "splitOrderResult": StreamConfig(id=88, idService=4, idSource=82, name="Split Order Result", pipeline="order", type=TransformationType(11), xPos=-671, yPos=-129, ), "splitPipeline": StreamConfig(id=89, idService=4, idSource=83, name="Split Pipeline", pipeline="order", type=TransformationType(11), xPos=-640, yPos=-597, ), },
     "dataConnectors": { "inventoryServiceApi": DataConnectorConfig(address="dns:///localhost:9202", connectionsCount=1, id=2, implementation=DataConnectorImplementation("google/grpc"), module="inventory_service_api", name="Inventory Service API", type=DataConnectorType(2), ), "orderEvents": DataConnectorConfig(brokers="redpanda:9092", dialTimeout=5000, id=4, implementation=DataConnectorImplementation("aiokafka"), name="Order Events", password="", saslMechanism=KafkaSaslMechanism("SCRAM-SHA-512"), securityProtocol=KafkaSecurityProtocol("PLAINTEXT"), type=DataConnectorType(3), username="", version="2.8.0", ), "orderServiceApi": DataConnectorConfig(id=5, implementation=DataConnectorImplementation("aiohttp"), module="order_service_api", name="Order Service API", type=DataConnectorType(1), useDedicatedListener=False, ), },
@@ -103,7 +110,10 @@ _ENVIRONMENT_VARIABLES: tuple[tuple[str, tuple[str, ...], str], ...] = (
     ("ORDER_EVENTS_SASL_MECHANISM", ("dataConnectors", "orderEvents", "saslMechanism", ), "api.KafkaSaslMechanism"),
     ("ORDER_EVENTS_SECURITY_PROTOCOL", ("dataConnectors", "orderEvents", "securityProtocol", ), "api.KafkaSecurityProtocol"),
     ("ORDER_EVENTS_USERNAME", ("dataConnectors", "orderEvents", "username", ), "string"),
+    ("ORDER_PROCESSED_CREATE_TOPIC", ("endpoints", "orderProcessed", "createTopic", ), "bool"),
     ("ORDER_PROCESSED_ENABLED", ("endpoints", "orderProcessed", "enabled", ), "bool"),
+    ("ORDER_PROCESSED_PARTITIONS", ("endpoints", "orderProcessed", "partitions", ), "int"),
+    ("ORDER_PROCESSED_TOPIC", ("endpoints", "orderProcessed", "topic", ), "string"),
     ("ORDER_SERVICE_DEFAULT_GRPC_TIMEOUT", ("services", "orderService", "defaultGrpcTimeout", ), "int"),
     ("ORDER_SERVICE_ENVIRONMENT", ("services", "orderService", "environment", ), "api.Environment"),
     ("ORDER_SERVICE_GRPC_HOST", ("services", "orderService", "grpcHost", ), "string"),
@@ -359,6 +369,49 @@ def _implementation(config: DataConnectorConfig) -> DataConnectorImplementation:
     if config.implementation is None:
         raise ValueError(f"data connector '{config.name}' has no implementation")
     return DataConnectorImplementation(config.implementation)
+
+
+def _redis_streams_data_connector(config: DataConnectorConfig) -> RedisStreamsDataConnectorConfig:
+    return RedisStreamsDataConnectorConfig.model_validate(config.model_dump(exclude_none=True, exclude_unset=True))
+
+
+def _redis_streams_endpoint(config: EndpointConfig) -> RedisStreamsEndpointConfig:
+    return RedisStreamsEndpointConfig.model_validate(config.model_dump(exclude_none=True, exclude_unset=True))
+
+
+def _pulsar_data_connector(config: DataConnectorConfig) -> PulsarDataConnectorConfig:
+    values = config.model_dump(exclude_none=True, exclude_unset=True)
+    # Runtime-only secret: it is deliberately absent from the topology API model.
+    values["adminToken"] = (config.properties or {}).get("adminToken", "")
+    return PulsarDataConnectorConfig.model_validate(values)
+
+
+def _pulsar_endpoint(config: EndpointConfig) -> PulsarEndpointConfig:
+    return PulsarEndpointConfig.model_validate(config.model_dump(exclude_none=True, exclude_unset=True))
+
+
+def _rabbit_mq_data_connector(config: DataConnectorConfig) -> RabbitMQDataConnectorConfig:
+    return RabbitMQDataConnectorConfig.model_validate(config.model_dump(exclude_none=True))
+
+
+def _rabbit_mq_endpoint(config: EndpointConfig) -> RabbitMQEndpointConfig:
+    return RabbitMQEndpointConfig.model_validate(config.model_dump(exclude_none=True, exclude_unset=True))
+
+
+def _nats_data_connector(config: DataConnectorConfig) -> NatsDataConnectorConfig:
+    return NatsDataConnectorConfig.model_validate(config.model_dump(exclude_none=True))
+
+
+def _jet_stream_data_connector(config: DataConnectorConfig) -> JetStreamDataConnectorConfig:
+    return JetStreamDataConnectorConfig.model_validate(config.model_dump(exclude_none=True))
+
+
+def _nats_endpoint(config: EndpointConfig) -> NatsEndpointConfig:
+    return NatsEndpointConfig.model_validate(config.model_dump(exclude_none=True))
+
+
+def _jet_stream_endpoint(config: EndpointConfig) -> JetStreamEndpointConfig:
+    return JetStreamEndpointConfig.model_validate(config.model_dump(exclude_none=True))
 
 
 def _http_data_connector(config: DataConnectorConfig) -> HttpDataConnectorConfig:
@@ -643,6 +696,16 @@ def _normalize_sections(obj: dict[str, Any]) -> dict[str, Any]:
 
 
 def _dump_default_config(value: Any) -> Any:
+    if isinstance(value, EndpointConfig):
+        if value.stream_key is not None or value.id in []:
+            # Broker source/sink options are distinct; preserve authored field presence.
+            return value.model_dump(by_alias=True, exclude_none=True, exclude_unset=True)
+        # Preserve omission of direction-specific broker settings.
+        omitted = {name for name in ("consumer_credits", "publisher_max_in_flight", "subscription_type",
+                                             "create_subscription", "subscription_initial_position",
+                                             "receiver_queue_size", "negative_ack_redelivery_delay_ms")
+                   if name not in value.model_fields_set}
+        return value.model_dump(by_alias=True, exclude_none=True, exclude=omitted)
     if hasattr(value, "model_dump"):
         return value.model_dump(by_alias=True, exclude_none=True)
     if isinstance(value, dict):

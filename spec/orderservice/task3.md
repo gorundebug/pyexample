@@ -44,6 +44,7 @@ Calculate the total from processed item prices, falling back to the submitted to
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `orderservice/tests/functions/test_endpoint/process_order_source.py`
 - [ ] Verify the endpoint/result lifecycle, including completion and error paths
 - [ ] Re-read this checklist

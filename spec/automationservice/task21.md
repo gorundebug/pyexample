@@ -29,6 +29,7 @@ Return Activity B's typed fan-out result.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `automationservice/tests/functions/test_automation/process_fanout_activity_b.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] automationservice/task21.md — ProcessFanoutActivityB — Python — done`

@@ -31,6 +31,7 @@ Route high-value analytics results to the first branch and all others to the sec
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_multijoinanalytics/route_analytics_result.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task24.md — RouteAnalyticsResult — Python — done`

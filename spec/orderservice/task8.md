@@ -34,6 +34,7 @@ When no request deadline exists, use the configured duration itself. Never wait 
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `orderservice/tests/functions/test_order/soft_deadline.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] orderservice/task8.md — SoftDeadline — Python — done`

@@ -29,6 +29,7 @@ Use the official Temporal Workflow timer for a scheduled Workflow.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `automationservice/tests/functions/test_automation/scheduled_workflow_pause.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] automationservice/task29.md — ScheduledWorkflowPause — Python — done`

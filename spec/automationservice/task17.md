@@ -29,6 +29,7 @@ Observe the typed result returned by the Activity C fan-out branch.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `automationservice/tests/functions/test_automation/observe_fanout_activity_c.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] automationservice/task17.md — ObserveFanoutActivityC — Python — done`

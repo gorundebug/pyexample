@@ -34,6 +34,7 @@ Preserve each item's data and assign the parent order ID.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `orderservice/tests/functions/test_order/process_order_items.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] orderservice/task7.md — ProcessOrderItems — Python — done`

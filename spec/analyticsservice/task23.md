@@ -31,6 +31,7 @@ Combine matching order, payment, and shipment analytics events.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_multijoinanalytics/multi_join_analytics_events.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task23.md — MultiJoinAnalyticsEvents — Python — done`

@@ -29,6 +29,7 @@ Return sequential Activity A's typed result to its Temporal sink.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
+
 - [ ] Implement meaningful assertions in `automationservice/tests/functions/test_automation/process_sequential_activity_a.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] automationservice/task25.md — ProcessSequentialActivityA — Python — done`
