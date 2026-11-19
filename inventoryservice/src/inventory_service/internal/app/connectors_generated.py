@@ -9,12 +9,15 @@ from .makers_generated import _MakerGroup
 
 
 class ServiceConnectors:
+
     def maker_calls(self, group: _MakerGroup, service: Any) -> list[tuple[str, Awaitable[Any]]]:
         named = service.config.named
         return [
+
         ]
 
     def bind(self, infrastructure: dict[str, list[Any]], service: Any) -> None:
+
         pass
 
     def init_connectors(self, service: Any) -> None:

@@ -73,6 +73,7 @@ from ..functions import (
 
 @dataclass
 class ServiceMakers:
+
     count_order_processed: Callable[[Context, ServiceEnvironment], Awaitable[CountOrderProcessed]] = make_count_order_processed
     analytics_schedule_source: Callable[[Context, ServiceEnvironment], Awaitable[AnalyticsScheduleSource]] = make_analytics_schedule_source
     advance_cycle_analytics: Callable[[Context, ServiceEnvironment], Awaitable[AdvanceCycleAnalytics]] = make_advance_cycle_analytics
@@ -128,6 +129,7 @@ class ServiceMakers:
         service._servers.bind(infrastructure, service)
         service._connectors.bind(infrastructure, service)
         service._clients.bind(infrastructure)
+
 
 
 async def _make_http_application() -> web.Application:

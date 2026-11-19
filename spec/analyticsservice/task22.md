@@ -33,7 +33,6 @@ Key the shipment analytics event for the multi-way join.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_multijoinanalytics/key_shipments_for_multi_join.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task22.md — KeyShipmentsForMultiJoin — Python — done`

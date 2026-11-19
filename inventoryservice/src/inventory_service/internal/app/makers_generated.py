@@ -29,6 +29,7 @@ from ..functions import (
 
 @dataclass
 class ServiceMakers:
+
     process_order_item_source: Callable[[Context, ServiceEnvironment], Awaitable[ProcessOrderItemSource]] = make_process_order_item_source
     get_inventory_item_data: Callable[[Context, ServiceEnvironment], Awaitable[GetInventoryItemData]] = make_get_inventory_item_data
     get_inventory_item_error: Callable[[Context, ServiceEnvironment], Awaitable[GetInventoryItemError]] = make_get_inventory_item_error
@@ -64,6 +65,7 @@ class ServiceMakers:
         service._servers.bind(infrastructure, service)
         service._connectors.bind(infrastructure, service)
         service._clients.bind(infrastructure)
+
 
 
 async def _make_http_application() -> web.Application:

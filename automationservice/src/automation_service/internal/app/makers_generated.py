@@ -94,6 +94,7 @@ from ..functions import (
 
 @dataclass
 class ServiceMakers:
+
     temporal_submission_options: TemporalSubmissionOptions = field(default_factory=TemporalSubmissionOptions)
     activity_job_endpoint_sink: Callable[[Context, ServiceEnvironment], Awaitable[ActivityJobEndpointSink]] = make_activity_job_endpoint_sink
     activity_job_endpoint_source: Callable[[Context, ServiceEnvironment], Awaitable[ActivityJobEndpointSource]] = make_activity_job_endpoint_source
@@ -160,6 +161,7 @@ class ServiceMakers:
         service._servers.bind(infrastructure, service)
         service._connectors.bind(infrastructure, service)
         service._clients.bind(infrastructure)
+
 
 
 async def _make_http_application() -> web.Application:

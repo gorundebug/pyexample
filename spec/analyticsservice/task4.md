@@ -31,7 +31,6 @@ Keep the terminal analytics event once its cycle counter reaches three.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_cycleanalytics/complete_cycle_analytics.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task4.md — CompleteCycleAnalytics — Python — done`

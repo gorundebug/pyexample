@@ -33,7 +33,6 @@ Produce a deterministic shipment analytics event for the canonical multi-way joi
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_endpoint/analytics_shipments_source.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task8.md — AnalyticsShipmentsSource — Python — done`

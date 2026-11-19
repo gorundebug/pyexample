@@ -33,7 +33,6 @@ Validate the terminal event emitted after three passes through the feedback cycl
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_endpoint/cycle_analytics_result_sink.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task10.md — CycleAnalyticsResultSink — Python — done`

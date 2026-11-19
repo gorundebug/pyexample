@@ -43,7 +43,6 @@ If the inventory call fails, the caller returns a non-reserved PROCESSING_ERROR 
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-
 - [ ] Implement meaningful assertions in `inventoryservice/tests/functions/test_endpoint/process_order_item_source.py`
 - [ ] Verify the endpoint/result lifecycle, including completion and error paths
 - [ ] Re-read this checklist

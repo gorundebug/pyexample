@@ -29,7 +29,6 @@ Apply the ordinary local Delay inside an Activity started by Temporal Schedule.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-
 - [ ] Implement meaningful assertions in `automationservice/tests/functions/test_automation/scheduled_activity_pause.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] automationservice/task28.md — ScheduledActivityPause — Python — done`

@@ -29,7 +29,6 @@ Continue the Workflow as new once, then return its final result.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-
 - [ ] Implement meaningful assertions in `automationservice/tests/functions/test_automation/process_workflow_job.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] automationservice/task27.md — ProcessWorkflowJob — Python — done`

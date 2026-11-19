@@ -29,7 +29,6 @@ Return the visible result of one scheduled Workflow execution.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-
 - [ ] Implement meaningful assertions in `automationservice/tests/functions/test_automation/process_scheduled_workflow.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] automationservice/task24.md — ProcessScheduledWorkflow — Python — done`

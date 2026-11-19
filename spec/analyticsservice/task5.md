@@ -31,7 +31,6 @@ Keep intermediate analytics events whose cycle counter is below three.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-
 - [ ] Implement meaningful assertions in `analyticsservice/tests/functions/test_cycleanalytics/continue_cycle_analytics.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] analyticsservice/task5.md — ContinueCycleAnalytics — Python — done`

@@ -29,7 +29,6 @@ Preserve the result returned through the on-demand Activity endpoint.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-
 - [ ] Implement meaningful assertions in `automationservice/tests/functions/test_automation/observe_activity_result.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] automationservice/task15.md — ObserveActivityResult — Python — done`

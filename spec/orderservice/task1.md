@@ -35,7 +35,6 @@ Consumers decode the event and mark its Kafka message processed only after the p
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-
 - [ ] Implement meaningful assertions in `orderservice/tests/functions/test_endpoint/order_processed_endpoint_sink.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] orderservice/task1.md — OrderProcessedEndpointSink — Python — done`

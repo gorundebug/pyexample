@@ -36,7 +36,6 @@ The example starts with SKU-001: 100, SKU-002: 50, and SKU-003: 25.
 - [ ] Implement every generated async method and remove `NotImplementedError`
 - [ ] Run `./scripts/python/typecheck.generated.sh`
 - [ ] Run `./scripts/python/test.generated.sh`
-
 - [ ] Implement meaningful assertions in `inventoryservice/tests/functions/test_inventory_item/get_inventory_item_data.py`
 - [ ] Re-read this checklist
 - [ ] Append to `spec/progress.md`: `- [x] inventoryservice/task2.md — GetInventoryItemData — Python — done`
